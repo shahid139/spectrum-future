@@ -1,0 +1,60 @@
+<odoo>
+    <data>
+        <record id="business_unit_form" model="ir.ui.view">
+            <field name="name">business.unit</field>
+            <field name="model">business.unit</field>
+            <field name="arch" type="xml">
+                <form>
+                    <sheet>
+                        <group>
+                            <group>
+                                <field name="name"/>
+                            </group>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+         <record id="purchase_requisition_type_form" model="ir.ui.view">
+            <field name="name">purchase.requisition.type</field>
+            <field name="model">purchase.requisition.type</field>
+            <field name="arch" type="xml">
+                <form>
+                    <sheet>
+                        <group>
+                            <group>
+                                <field name="name"/>
+                            </group>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record id="business_unit_window" model="ir.actions.act_window">
+            <field name="name">Business Unit</field>
+            <field name="res_model">business.unit</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+        <record id="purchase_requisition_type_window" model="ir.actions.act_window">
+            <field name="name">Purchase Requisition Type</field>
+            <field name="res_model">purchase.requisition.type</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+        <menuitem
+                id="business_unit_menu"
+                name="Business Unit"
+                action="business_unit_window"
+                parent="purchase.menu_purchase_config"
+                sequence="200"/>
+        <menuitem
+                id="purchase_requisition_type_menu"
+                name="PR Type"
+                action="purchase_requisition_type_window"
+                parent="purchase.menu_purchase_config"
+                sequence="2"/>
+    </data>
+</odoo>

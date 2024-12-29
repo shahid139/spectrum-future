@@ -1,0 +1,39 @@
+<odoo>
+    <data>
+        <record id="purchase_order_form_inherits" model="ir.ui.view">
+            <field name="name">purchase.order.form.inherited</field>
+            <field name="model">purchase.order</field>
+            <field name="inherit_id" ref="purchase.purchase_order_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='partner_id']" position="replace">
+                     <field name="partner_id" string="Supplier" widget="res_partner_many2one" context="{'res_partner_search_mode': 'supplier', 'show_vat': True}"
+                                placeholder="Name, TIN, Email, or Reference"
+                             readonly="state in ['cancel', 'done', 'purchase']"/>
+
+                </xpath>
+                <xpath expr="//field[@name='partner_ref']" position="replace">
+                     <field name="partner_ref" string="Supplier Reference"/>
+                </xpath>
+                <xpath expr="//tree/field[@name='taxes_id']" position="after">
+                    <field name="tolerance"/>
+                    <field name="vat_applicability"/>
+                </xpath>
+            </field>
+        </record>
+        <record id="purchase_order_form_inherited" model="ir.ui.view">
+            <field name="name">purchase.requisition.form</field>
+            <field name="model">purchase.order</field>
+            <field name="inherit_id" ref="purchase_requisition.purchase_order_form_inherit"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='requisition_id']" position="replace">
+                    <field name="requisition_id" string="Select PR" domain="[('state', 'in', ('in_progress', 'open', 'ongoing')), ('vendor_id', 'in', (partner_id, False)), ('company_id', '=', company_id)]"
+                options="{'no_create': True}"/>
+                </xpath>
+                <xpath expr="//field[@name='requisition_id']" position="after">
+                    <field name="pr_type" readonly="1"/>
+
+                </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>

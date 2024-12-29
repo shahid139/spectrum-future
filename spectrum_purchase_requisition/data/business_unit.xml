@@ -1,0 +1,25 @@
+<odoo>
+    <data  noupdate="1">
+         <record id="business_unit_1" model="business.unit">
+            <field name="name">COR</field>
+        </record>
+        <record id="business_unit_2" model="business.unit">
+            <field name="name">EPC</field>
+        </record>
+        <record id="business_unit_3" model="business.unit">
+            <field name="name">DIB</field>
+        </record>
+         <record id="business_unit_4" model="business.unit">
+            <field name="name">ICT</field>
+        </record>
+        <record id="business_unit_5" model="business.unit">
+            <field name="name">IT</field>
+        </record>
+        <record id="business_unit_5" model="business.unit">
+            <field name="name">SLR</field>
+        </record>
+        <record id="business_unit_5" model="business.unit">
+            <field name="name">TRD</field>
+        </record>
+    </data>
+</odoo>
