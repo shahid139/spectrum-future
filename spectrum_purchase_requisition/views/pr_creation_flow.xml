@@ -1,0 +1,34 @@
+<odoo>
+    <data>
+
+        <record id="pr_creation_form_inherited" model="ir.ui.view">
+            <field name="name">pr.creation.flow.form</field>
+            <field name="model">purchase.requisition</field>
+            <field name="inherit_id" ref="purchase_requisition.view_purchase_requisition_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='user_id']" position="before">
+                    <field name="business_unit" readonly="state in ['ongoing', 'done']"/>
+                    <field name="project_id" readonly="state in ['ongoing', 'done']"/>
+                </xpath>
+                <xpath expr="//field[@name='date_end']" position="before">
+                    <field name="pr_type" readonly="state in ['ongoing', 'done']"/>
+                    <field name="account_id" readonly="state in ['ongoing', 'done']"/>
+                    <field name="budget_task" readonly="state in ['ongoing', 'done']"/>
+                </xpath>
+                <xpath expr="//tree/field[@name='price_unit']" position="after">
+                    <field name="total" sum="Total" readonly="1" force_save="1"/>
+                </xpath>
+            </field>
+        </record>
+
+
+        <menuitem
+                id="purchase_requisition.menu_purchase_requisition_pro_mgt"
+                sequence="10"
+                name="Purchase Requisition"
+                parent="purchase.menu_procurement_management"
+                action="purchase_requisition.action_purchase_requisition"/>
+
+
+    </data>
+</odoo>

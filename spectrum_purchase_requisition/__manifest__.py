@@ -7,10 +7,16 @@
     "website": "www.spectrum.com",
     "category": "purchase,inventory,account,crm,project",
     "version": "0.1",
-    "depends": ["base", 'sales_team', 'crm', 'mail','purchase','account'],
+    "depends": ["base", 'sales_team', 'crm', 'mail','purchase','account','purchase_requisition'],
     # always loaded
     "data": [
         'security/ir.model.access.csv',
+        'data/business_unit.xml',
+        'data/pr_type.xml',
+        'data/sequence.xml',
+        'views/configuration.xml',
+        'views/pr_creation_flow.xml',
+        'views/po_creation_flow.xml',
 
     ],
 
