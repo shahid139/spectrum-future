@@ -1,0 +1,22 @@
+<odoo>
+<!--    <record id="model_purchase_order" model="ir.model">-->
+<!--        <field name="name">Purchase Order</field>-->
+<!--        <field name="model">purchase.order</field>-->
+<!--        <field name="state">base</field>-->
+<!--    </record>-->
+
+
+    <record id="action_report_purchase_order_custom" model="ir.actions.report">
+            <field name="name">Custom Purchase Order Report</field>
+            <field name="model">purchase.order</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">custom_purchase_order_report.report_purchaseorder_custom</field>
+            <field name="report_file">custom_purchase_order_report.report_purchaseorder_custom</field>
+            <field name="print_report_name">
+                (object.state in ('draft', 'sent') and 'Request for Quotation - %s' % (object.name) or
+                'Purchase Order - %s' % (object.name))</field>
+            <field name="binding_model_id" ref="model_purchase_order"/>
+            <field name="binding_type">report</field>
+        </record>
+
+</odoo>
