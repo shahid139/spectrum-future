@@ -6,25 +6,63 @@
             <field name="model">purchase.requisition</field>
             <field name="inherit_id" ref="purchase_requisition.view_purchase_requisition_form"/>
             <field name="arch" type="xml">
+                <xpath expr="//button[@name='action_done']" position="replace">
+                    <button name="action_done"
+                            invisible="state not in ('open', 'ongoing','first_approval','second_approval')"
+                            string="Close" type="object" class="btn-primary"/>
+
+                </xpath>
+                <xpath expr="//button[@name='action_cancel']" position="replace">
+                    <button name="action_cancel"
+                            invisible="state not in ('draft', 'in_progress', 'ongoing', 'first_approval','second_approval')"
+                            string="Cancel" type="object"/>
+                </xpath>
+
+                <xpath expr="//button[2]" position="replace">
+                    <button name="%(purchase_requisition.action_purchase_requisition_to_so)d" type="action"
+                            string="New Quotation" class="btn-primary"
+                            context="{'default_currency_id': currency_id, 'default_user_id': user_id}"
+                            invisible="state != 'ongoing'"/>
+
+                </xpath>
+                <xpath expr="//button[@name='action_in_progress']" position="replace">
+                    <button name="action_in_progress" invisible="state != 'second_approval'" string="Confirm"
+                            type="object"
+                            class="btn-primary"/>
+
+
+                </xpath>
+                <xpath expr="//button[@name='action_in_progress']" position="after">
+
+                    <button name="first_approval" invisible="state != 'draft'" string="PR_Approval_1" type="object"
+                            class="btn-primary"/>
+                    <button name="second_approval" invisible="state != 'first_approval'" string="PR_Approval_2"
+                            type="object"
+                            class="btn-primary"/>
+                </xpath>
                 <xpath expr="//field[@name='user_id']" position="before">
                     <field name="business_unit" readonly="state in ['ongoing', 'done']"/>
                     <field name="project_id" readonly="state in ['ongoing', 'done']"/>
+                    <field name="is_po_need" invisible="1"/>
                 </xpath>
                 <xpath expr="//field[@name='date_end']" position="before">
-                    <field name="pr_type" readonly="state in ['ongoing', 'done']"/>
                     <field name="account_id" readonly="state in ['ongoing', 'done']"/>
                     <field name="budget_task" readonly="state in ['ongoing', 'done']"/>
                 </xpath>
                 <xpath expr="//tree/field[@name='price_unit']" position="after">
+                    <field name="currency_id" column_invisible="True"/>
                     <field name="total" sum="Total" readonly="1" force_save="1"/>
                 </xpath>
             </field>
         </record>
 
+        <menuitem action="purchase.purchase_rfq" id="purchase.menu_purchase_rfq"
+                  parent="purchase.menu_procurement_management"
+                  sequence="2"/>
 
         <menuitem
                 id="purchase_requisition.menu_purchase_requisition_pro_mgt"
-                sequence="10"
+                sequence="1"
                 name="Purchase Requisition"
                 parent="purchase.menu_procurement_management"
                 action="purchase_requisition.action_purchase_requisition"/>
