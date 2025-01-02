@@ -1,18 +1,40 @@
 <odoo>
     <data>
-        <record id="purchase_order_form_inherits" model="ir.ui.view">
+        <record id="purchase_order_form_inherit" model="ir.ui.view">
             <field name="name">purchase.order.form.inherited</field>
             <field name="model">purchase.order</field>
             <field name="inherit_id" ref="purchase.purchase_order_form"/>
             <field name="arch" type="xml">
-                <xpath expr="//field[@name='partner_id']" position="replace">
-                     <field name="partner_id" string="Supplier" widget="res_partner_many2one" context="{'res_partner_search_mode': 'supplier', 'show_vat': True}"
-                                placeholder="Name, TIN, Email, or Reference"
-                             readonly="state in ['cancel', 'done', 'purchase']"/>
+                <xpath expr="//button[@name='print_quotation']" position="after">
+                    <button name="first_approval" invisible="state not in ('draft','sent')" string="PO_Approval_1"
+                            type="object"
+                            class="btn-primary"/>
+                    <button name="second_approval" invisible="state != 'first_approval'" string="PO_Approval_2"
+                            type="object"
+                            class="btn-primary"/>
 
                 </xpath>
+                <xpath expr="//button[@name='button_cancel']" position="replace">
+                    <button name="button_cancel"
+                            invisible="state not in ('draft','first_approval','second_approval' ,'to approve', 'sent', 'purchase')"
+                            string="Cancel" type="object" data-hotkey="x"/>
+
+                </xpath>
+                <xpath expr="//button[@name='button_confirm'][2]" position="replace">
+                    <button name="button_confirm" type="object" invisible="state != 'second_approval'"
+                            context="{'validate_analytic': True}" string="Confirm Order" id="draft_confirm"
+                            data-hotkey="q"/>
+
+
+                </xpath>
+                <xpath expr="//field[@name='partner_id']" position="replace">
+                    <field name="partner_id" string="Supplier" widget="res_partner_many2one"
+                           context="{'res_partner_search_mode': 'supplier', 'show_vat': True}"
+                           placeholder="Name, TIN, Email, or Reference"
+                           readonly="state in ['cancel', 'done', 'purchase']"/>
+                </xpath>
                 <xpath expr="//field[@name='partner_ref']" position="replace">
-                     <field name="partner_ref" string="Supplier Reference"/>
+                    <field name="partner_ref" string="Supplier Reference"/>
                 </xpath>
                 <xpath expr="//tree/field[@name='taxes_id']" position="after">
                     <field name="tolerance"/>
@@ -26,8 +48,9 @@
             <field name="inherit_id" ref="purchase_requisition.purchase_order_form_inherit"/>
             <field name="arch" type="xml">
                 <xpath expr="//field[@name='requisition_id']" position="replace">
-                    <field name="requisition_id" string="Select PR" domain="[('state', 'in', ('in_progress', 'open', 'ongoing')), ('vendor_id', 'in', (partner_id, False)), ('company_id', '=', company_id)]"
-                options="{'no_create': True}"/>
+                    <field name="requisition_id" string="Select PR"
+                           domain="[('state', 'in', ('in_progress', 'open', 'ongoing')), ('vendor_id', 'in', (partner_id, False)), ('company_id', '=', company_id)]"
+                           options="{'no_create': True}"/>
                 </xpath>
                 <xpath expr="//field[@name='requisition_id']" position="after">
                     <field name="pr_type" readonly="1"/>
