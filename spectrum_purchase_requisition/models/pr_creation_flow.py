@@ -30,6 +30,12 @@ class PurchaseRequisitionCreation(models.Model):
     pr_type_check = fields.Boolean()
     is_po_need = fields.Boolean()
 
+    @api.onchange('currency_id')
+    def validate_currency(self):
+        if self.currency_id:
+            for rec in self.line_ids:
+                rec.currency_id = self.currency_id.id
+
 
     @api.onchange('type_id')
     def validate_pr_type(self):
@@ -51,6 +57,26 @@ class PurchaseRequisitionCreation(models.Model):
             requisition.state_blanket_order = requisition.state
 
     def first_approval(self):
+        if self.budget_task:
+            planned_amount = sum([v.planned_amount for v in self.budget_task.crossovered_budget_line])
+            practical_amount = sum([v.practical_amount for v in self.budget_task.crossovered_budget_line])
+            requisition_amount = sum([v.total for v in self.line_ids])
+            available_amount = planned_amount - practical_amount
+            if requisition_amount > available_amount:
+                self.state = 'cancel'
+                sticky_notify = {
+                    'type': 'ir.actions.client',
+                    'tag': 'display_notification',
+                    'params': {
+                        'title': _('Validation'),
+                        'message': 'No Fund Available for PR creation.',
+                        'sticky': False,
+                        'next': {
+                            'type': 'ir.actions.act_window_close'
+                        },
+                    }
+                }
+                return sticky_notify
         self.write({
             'state_blanket_order': 'first_approval',
             'state':'first_approval'
@@ -67,26 +93,7 @@ class PurchaseRequisitionCreation(models.Model):
         self.ensure_one()
         if not self.line_ids:
             raise UserError(_("You cannot confirm agreement '%s' because there is no product line.", self.name))
-        if self.budget_task:
-            planned_amount = sum([v.planned_amount for v in self.budget_task.crossovered_budget_line])
-            practical_amount = sum([v.practical_amount for v in self.budget_task.crossovered_budget_line])
-            requisition_amount = sum([v.total for v in self.line_ids])
-            available_amount = planned_amount-practical_amount
-            if requisition_amount > available_amount:
-                self.state = 'cancel'
-                sticky_notify = {
-                    'type': 'ir.actions.client',
-                    'tag': 'display_notification',
-                    'params': {
-                        'title': _('Validation'),
-                        'message': 'No Fund Available for PR creation.',
-                        'sticky': False,
-                        'next': {
-                            'type': 'ir.actions.act_window_close'
-                        },
-                    }
-                }
-                return sticky_notify
+
         if self.type_id.quantity_copy == 'none' and self.vendor_id:
             for requisition_line in self.line_ids:
                 if requisition_line.price_unit <= 0.0:
@@ -105,12 +112,43 @@ class PurchaseRequisitionLineInherited(models.Model):
     _inherit = "purchase.requisition.line"
 
     total = fields.Monetary(string="Total",store=True)
-    currency_id = fields.Many2one('res.currency', 'Currency', required=True,
-                                  default=lambda self: self.env.company.currency_id.id)
+    currency_id = fields.Many2one('res.currency', 'Currency', required=True, related='company_id.currency_id')
 
     @api.onchange('price_unit','product_qty')
     def validate_total(self):
         if self.price_unit:
             self.total= self.product_qty * self.price_unit
+
+    # @api.depends('product_qty', 'price_unit')
+    # def _compute_amount(self):
+    #     for line in self:
+    #         tax_results = self.env['account.tax']._compute_taxes([line._convert_to_tax_base_line_dict()])
+    #         # totals = next(iter(tax_results['totals'].values()))
+    #         # amount_untaxed = totals['amount_untaxed']
+    #         # amount_tax = totals['amount_tax']
+    #         #
+    #         # line.update({
+    #         #     'total': amount_untaxed,
+    #         #     'price_tax': amount_tax,
+    #         #     'price_total': amount_untaxed + amount_tax,
+    #         # })
+    #
+    #
+    #
+    # def _convert_to_tax_base_line_dict(self):
+    #     """ Convert the current record to a dictionary in order to use the generic taxes computation method
+    #     defined on account.tax.
+    #
+    #     :return: A python dictionary.
+    #     """
+    #     self.ensure_one()
+    #     return self.env['account.tax']._convert_to_tax_base_line_dict(
+    #         self,
+    #         currency=self.requisition_id.currency_id,
+    #         product=self.product_id,
+    #         price_unit=self.price_unit,
+    #         quantity=self.product_qty,
+    #         total=self.total,
+    #     )
 
 

@@ -2,18 +2,24 @@
     <data  noupdate="1">
          <record id="pr_type_1" model="purchase.requisition.type">
             <field name="name">Inventory</field>
+            <field name="quantity_copy">copy</field>
+
         </record>
         <record id="pr_type_2" model="purchase.requisition.type">
             <field name="name">Expense</field>
+            <field name="quantity_copy">copy</field>
         </record>
         <record id="pr_type_3" model="purchase.requisition.type">
             <field name="name">Asset</field>
+            <field name="quantity_copy">copy</field>
         </record>
          <record id="pr_type_4" model="purchase.requisition.type">
             <field name="name">Petty Cash</field>
+             <field name="quantity_copy">copy</field>
         </record>
         <record id="pr_type_5" model="purchase.requisition.type">
             <field name="name">Service</field>
+            <field name="quantity_copy">copy</field>
         </record>
 
     </data>

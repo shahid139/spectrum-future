@@ -34,9 +34,9 @@
                 </xpath>
                 <xpath expr="//button[@name='action_in_progress']" position="after">
 
-                    <button name="first_approval" invisible="state != 'draft'" string="PR_Approval_1" type="object"
+                    <button name="first_approval" invisible="state != 'draft'" string="Approval1" type="object"
                             class="btn-primary"/>
-                    <button name="second_approval" invisible="state != 'first_approval'" string="PR_Approval_2"
+                    <button name="second_approval" invisible="state != 'first_approval'" string="Approval2"
                             type="object"
                             class="btn-primary"/>
                 </xpath>

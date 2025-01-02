@@ -7,8 +7,9 @@ from odoo.exceptions import UserError
 class PurchaseOrderInherited(models.Model):
     _inherit = "purchase.order"
 
-    pr_type = fields.Many2one('purchase.requisition.type',string="Select PR Type",related="requisition_id.type_id",store=True)
+    pr_type = fields.Many2one('purchase.requisition.type',string="Select Payment Term",related="requisition_id.type_id",store=True)
     vat_applicability = fields.Float(string='VAT Applicability')
+    discount_applicable = fields.Float(string='Enter Discount If Applicable')
 
     state = fields.Selection([
         ('draft', 'RFQ'),
@@ -52,5 +53,6 @@ class PurchaseOrderLinesInherited(models.Model):
 
     tolerance = fields.Float(string='Tolerance',default=0.0)
     vat_applicability = fields.Float(string='VAT Applicability')
+    discount_applicable = fields.Float(string='Enter Discount If Applicable')
 
 
