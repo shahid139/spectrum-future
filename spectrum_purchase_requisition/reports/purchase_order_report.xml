@@ -1,26 +1,26 @@
 <odoo>
     <template id="custom_purchase_order_report" inherit_id="purchase.report_purchaseorder_document">
-        <xpath expr="//t[@t-call='web.external_layout']" position="replace">
-            <div class="page">
+        <t t-call="web.external_layout">
+            <xpath expr="//div[@class='page']" position="replace">
                 <!-- Header Section -->
-                <div class="row mb-4">
-                    <div class="col-6">
-                        <span t-if="o.company_id.logo">
-                            <img t-att-src="image_data_uri(o.company_id.logo)" style="max-height:45pt; max-width:90%" alt="Company Logo"/>
-                        </span>
-                    </div>
-                    <div class="col-6 text-right">
-                        <h2 t-if="o.state in ['draft', 'sent', 'to approve']">
-                            Request for Quotation #<span t-field="o.name"/>
-                        </h2>
-                        <h2 t-if="o.state in ['purchase', 'done']">
-                            Purchase Order #<span t-field="o.name"/>
-                        </h2>
-                        <h2 t-if="o.state == 'cancel'">
-                            Cancelled Purchase Order #<span t-field="o.name"/>
-                        </h2>
-                    </div>
-                </div>
+<!--                <div class="row mb-4">-->
+<!--                    <div class="col-6">-->
+<!--                        <span t-if="o.company_id.logo">-->
+<!--                            <img t-att-src="image_data_uri(o.company_id.logo)" style="max-height:45pt; max-width:90%" alt="Company Logo"/>-->
+<!--                        </span>-->
+<!--                    </div>-->
+<!--                    <div class="col-6 text-right">-->
+<!--                        <h2 t-if="o.state in ['draft', 'sent', 'to approve']">-->
+<!--                            Request for Quotation #<span t-field="o.name"/>-->
+<!--                        </h2>-->
+<!--                        <h2 t-if="o.state in ['purchase', 'done']">-->
+<!--                            Purchase Order #<span t-field="o.name"/>-->
+<!--                        </h2>-->
+<!--                        <h2 t-if="o.state == 'cancel'">-->
+<!--                            Cancelled Purchase Order #<span t-field="o.name"/>-->
+<!--                        </h2>-->
+<!--                    </div>-->
+<!--                </div>-->
 
                 <!-- Original Content Starts Here -->
                 <div class="horizontal-line"></div>  <!-- Horizontal line -->
@@ -287,15 +287,15 @@
 
 
                 <!-- Footer Section -->
-                <div class="horizontal-line"></div>  <!-- Horizontal line -->
-                <div class="footer" style="text-align: center; margin-top: 30px; font-size: 12pt; color: #333;">
-                    <p>This is a system-generated Purchase Order and does not require any signature or stamping.</p>
-                    <p>For queries or acknowledgement, please contact the procurement team at <strong>Procurement@fgc.sa</strong></p>
-                    <p>All invoices must be submitted with the corresponding PO numbers to <strong>Procurement@fgc.sa</strong> and <strong>AP@fgc.sa</strong></p>
-                </div>
+<!--                <div class="horizontal-line"></div>  &lt;!&ndash; Horizontal line &ndash;&gt;-->
+<!--                <div class="footer" style="text-align: center; margin-top: 30px; font-size: 12pt; color: #333;">-->
+<!--                    <p>This is a system-generated Purchase Order and does not require any signature or stamping.</p>-->
+<!--                    <p>For queries or acknowledgement, please contact the procurement team at <strong>Procurement@fgc.sa</strong></p>-->
+<!--                    <p>All invoices must be submitted with the corresponding PO numbers to <strong>Procurement@fgc.sa</strong> and <strong>AP@fgc.sa</strong></p>-->
+<!--                </div>-->
 
-            </div>
-        </xpath>
+            </xpath>
+        </t>
     </template>
 
     <template id="report_purchaseorder_custom">
