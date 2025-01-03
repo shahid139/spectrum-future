@@ -30,6 +30,77 @@ class PurchaseRequisitionCreation(models.Model):
     pr_type_check = fields.Boolean()
     is_po_need = fields.Boolean()
 
+
+    def _prepare_invoice(self):
+        """Prepare the dict of values to create the new invoice for a purchase order.
+        """
+        self.ensure_one()
+        move_type = self._context.get('default_move_type', 'in_invoice')
+
+        partner_invoice = self.env['res.partner'].browse(self.vendor_id.address_get(['invoice'])['invoice'])
+        partner_bank_id = self.vendor_id.commercial_partner_id.bank_ids.filtered_domain(['|', ('company_id', '=', False), ('company_id', '=', self.company_id.id)])[:1]
+
+        invoice_vals = {
+            'ref': '', # self.partner_ref or ''
+            'move_type': move_type,
+            'narration': '', #self.notes,
+            'currency_id': self.currency_id.id,
+            'partner_id': partner_invoice.id,
+            'fiscal_position_id': '',#(self.fiscal_position_id or self.fiscal_position_id._get_fiscal_position(partner_invoice)).id,
+            'payment_reference': '', # self.partner_ref or ''
+            'partner_bank_id': partner_bank_id.id,
+            'invoice_origin': self.name,
+            # 'invoice_payment_term_id': self.type_id, #self.payment_term_id.id,
+            'invoice_line_ids': [],
+            'company_id': self.company_id.id,
+        }
+        return invoice_vals
+
+    def _prepare_account_move_line(self, move=False):
+        self.ensure_one()
+        aml_currency = self.currency_id
+        date = move and move.date or fields.Date.today()
+        res = {
+            'display_type': self.display_type or 'product',
+            'name': '%s: %s' % (self.order_id.name, self.name),
+            'product_id': self.product_id.id,
+            'product_uom_id': self.product_uom.id,
+            'quantity': self.qty_to_invoice,
+            'discount': self.discount,
+            'price_unit': self.currency_id._convert(self.price_unit, aml_currency, self.company_id, date, round=False),
+            'tax_ids': [(6, 0, self.taxes_id.ids)],
+            'purchase_line_id': self.id,
+        }
+        if self.analytic_distribution and not self.display_type:
+            res['analytic_distribution'] = self.analytic_distribution
+        return res
+
+    def action_view_invoice(self, invoices=False):
+        """This function returns an action that display existing vendor bills of
+        given purchase order ids. When only one found, show the vendor bill
+        immediately.
+        """
+        if not invoices:
+            self.invalidate_model(['invoice_ids'])
+            invoices = self.invoice_ids
+
+        result = self.env['ir.actions.act_window']._for_xml_id('account.action_move_in_invoice_type')
+        # choose the view_mode accordingly
+        if len(invoices) > 1:
+            result['domain'] = [('id', 'in', invoices.ids)]
+        elif len(invoices) == 1:
+            res = self.env.ref('account.view_move_form', False)
+            form_view = [(res and res.id or False, 'form')]
+            if 'views' in result:
+                result['views'] = form_view + [(state, view) for state, view in result['views'] if view != 'form']
+            else:
+                result['views'] = form_view
+            result['res_id'] = invoices.id
+        else:
+            result = {'type': 'ir.actions.act_window_close'}
+
+        return result
+
     def action_create_invoice(self):
 
         """Create the invoice associated to the PO.
@@ -48,11 +119,12 @@ class PurchaseRequisitionCreation(models.Model):
             # Invoice values.
             invoice_vals = order._prepare_invoice()
             # Invoice line values (keep only necessary sections).
-            for line in order.order_line:
-                if line.display_type == 'line_section':
-                    pending_section = line
-                    continue
-                if not float_is_zero(line.qty_to_invoice, precision_digits=precision):
+            for line in order.line_ids:
+                pending_section = False
+                # if line.display_type == 'line_section':
+                #     pending_section = line
+                #     continue
+                if not float_is_zero(line.product_qty, precision_digits=precision):
                     if pending_section:
                         line_vals = pending_section._prepare_account_move_line()
                         line_vals.update({'sequence': sequence})
@@ -240,6 +312,26 @@ class PurchaseRequisitionLineInherited(models.Model):
         if self.price_unit:
             self.total= self.product_qty * self.price_unit
 
+
+    def _prepare_account_move_line(self, move=False):
+        self.ensure_one()
+        aml_currency = move and move.currency_id or self.currency_id
+        date = move and move.date or fields.Date.today()
+        res = {
+            'display_type': 'product',
+            'name': '%s: %s' % (self.requisition_id.name, self.product_description_variants),
+            'product_id': self.product_id.id,
+            'product_uom_id': self.product_uom_category_id.id,
+            'quantity': self.product_qty,
+            # 'discount': self.discount,
+            'price_unit': self.currency_id._convert(self.price_unit, aml_currency, self.company_id, date, round=False),
+            # 'tax_ids': [(6, 0, self.taxes_id.ids)],
+            'purchase_line_id': self.id,
+        }
+        if self.analytic_distribution:
+            res['analytic_distribution'] = self.analytic_distribution
+        return res
+
     # @api.depends('product_qty', 'price_unit')
     # def _compute_amount(self):
     #     for line in self:
@@ -271,5 +363,3 @@ class PurchaseRequisitionLineInherited(models.Model):
     #         quantity=self.product_qty,
     #         total=self.total,
     #     )
-
-
