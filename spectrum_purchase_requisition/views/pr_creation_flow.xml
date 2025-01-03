@@ -22,7 +22,14 @@
                     <button name="%(purchase_requisition.action_purchase_requisition_to_so)d" type="action"
                             string="New Quotation" class="btn-primary"
                             context="{'default_currency_id': currency_id, 'default_user_id': user_id}"
-                            invisible="state != 'ongoing'"/>
+                            invisible="state != 'ongoing' or is_po_need !=False"/>
+
+                </xpath>
+                <xpath expr="//button[1]" position="replace">
+                    <button name="%(purchase_requisition.action_purchase_requisition_to_so)d" type="action"
+                    string="New Quotation"
+                    context="{'default_currency_id': currency_id, 'default_user_id': user_id}"
+                   invisible="state != 'ongoing' or is_po_need !=False"/>
 
                 </xpath>
                 <xpath expr="//button[@name='action_in_progress']" position="replace">
@@ -33,12 +40,22 @@
 
                 </xpath>
                 <xpath expr="//button[@name='action_in_progress']" position="after">
-
+                    <button name="check_budget"
+                            type="object"
+                            string="Check Budget"
+                            class="btn-primary"
+                            invisible="state != 'draft'"
+                    />
                     <button name="first_approval" invisible="state != 'draft'" string="Approval1" type="object"
                             class="btn-primary"/>
                     <button name="second_approval" invisible="state != 'first_approval'" string="Approval2"
                             type="object"
                             class="btn-primary"/>
+                    <button name="action_create_invoice" string="Create Bill" type="object" class="oe_highlight"
+                            context="{'create_bill':True}"
+                            invisible="state != 'open' or is_po_need==False"
+                            data-hotkey="w"/>
+
                 </xpath>
                 <xpath expr="//field[@name='user_id']" position="before">
                     <field name="business_unit" readonly="state in ['ongoing', 'done']"/>
@@ -48,6 +65,7 @@
                 <xpath expr="//field[@name='date_end']" position="before">
                     <field name="account_id" readonly="state in ['ongoing', 'done']"/>
                     <field name="budget_task" readonly="state in ['ongoing', 'done']"/>
+
                 </xpath>
                 <xpath expr="//tree/field[@name='price_unit']" position="after">
                     <field name="currency_id" column_invisible="True"/>
