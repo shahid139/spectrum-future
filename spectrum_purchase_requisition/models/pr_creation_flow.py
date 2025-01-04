@@ -29,6 +29,34 @@ class PurchaseRequisitionCreation(models.Model):
     state_blanket_order = fields.Selection(PURCHASE_REQUISITION_STATES, compute='_set_state')
     pr_type_check = fields.Boolean()
     is_po_need = fields.Boolean()
+    invoice_count = fields.Integer(compute="_compute_invoice", string='Bill Count', copy=False, default=0, store=True)
+    invoice_ids = fields.Many2many('account.move', string='Bills', copy=False, store=True)
+    invoice_status = fields.Boolean(string="Invoice Status", compute="_compute_invoice_status")
+
+    @api.depends('invoice_ids')
+    def _compute_invoice_status(self):
+        self.invoice_status = False
+        if self.invoice_ids:
+            for move in self.invoice_ids:
+                print(f"move >>>>>>>>>>>>>>>>>>>>> :{move}")
+                if move.payment_state == 'paid' or move.payment_state == 'in_payment':
+                    print(f"move >>>>>>>>>>>>>>>>>>>>> 2222222:{move}")
+                    self.action_done()
+                    self.invoice_status = True
+                else:
+                    self.invoice_status = False
+
+
+    @api.depends('invoice_ids')
+    def _compute_invoice(self):
+        for order in self:
+            if self.invoice_ids:
+                order.invoice_count = len(self.invoice_ids.ids)
+            else:
+                order.invoice_count = False
+            # invoices = order.mapped('order_line.line_ids.move_id')
+            # order.invoice_ids = invoices
+            # order.invoice_count = len(invoices)
 
 
     def _prepare_invoice(self):
@@ -173,7 +201,9 @@ class PurchaseRequisitionCreation(models.Model):
         # We do this after the moves have been created since we need taxes, etc. to know if the total
         # is actually negative or not
         moves.filtered(lambda m: m.currency_id.round(m.amount_total) < 0).action_switch_move_type()
-
+        print(f"moves ------------------------------- :{moves}")
+        if moves:
+            self.invoice_ids = moves
         return self.action_view_invoice(moves)
 
     def check_budget(self):
@@ -326,7 +356,7 @@ class PurchaseRequisitionLineInherited(models.Model):
             # 'discount': self.discount,
             'price_unit': self.currency_id._convert(self.price_unit, aml_currency, self.company_id, date, round=False),
             # 'tax_ids': [(6, 0, self.taxes_id.ids)],
-            'purchase_line_id': self.id,
+            'purchase_requisition_line_id': self.id,
         }
         if self.analytic_distribution:
             res['analytic_distribution'] = self.analytic_distribution
@@ -363,3 +393,10 @@ class PurchaseRequisitionLineInherited(models.Model):
     #         quantity=self.product_qty,
     #         total=self.total,
     #     )
+
+
+class AccountMoveLine(models.Model):
+    """ Override AccountInvoice_line to add the link to the purchase order line it is related to"""
+    _inherit = 'account.move.line'
+
+    purchase_requisition_line_id = fields.Many2one('purchase.requisition.line', 'Purchase requisition Line', ondelete='set null', index='btree_not_null')

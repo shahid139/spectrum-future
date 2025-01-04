@@ -1,19 +1,21 @@
 <odoo>
     <template id="custom_rfq_report" inherit_id="purchase.report_purchasequotation_document">
-        <t t-call="web.external_layout">
-            <xpath expr="//div[@class='page']" position="replace">
-                <!-- Header Section -->
-<!--                <div class="row mb-4">-->
-<!--                    <div class="col-6">-->
-<!--                        <span t-if="o.company_id.logo">-->
-<!--                            <img t-att-src="image_data_uri(o.company_id.logo)" style="max-height:45pt; max-width:90%" alt="Company Logo"/>-->
-<!--                        </span>-->
-<!--                    </div>-->
-<!--                    <div class="col-6 text-right">-->
-<!--                        <h2 class="mt-4">Request for Quotation <span t-field="o.name"/></h2>-->
-<!--                    </div>-->
-<!--                </div>-->
-
+        <xpath expr="//t[@t-call='web.external_layout']" position="replace">
+            <t t-call="web.internal_layout">
+                    <!--                 Header Section -->
+                <div class="header">
+                    <div class="row mb-4">
+                        <div class="col-6">
+                            <span t-if="o.company_id.logo">
+                                <img t-att-src="image_data_uri(o.company_id.logo)" style="max-height:45pt; max-width:90%" alt="Company Logo"/>
+                            </span>
+                        </div>
+                        <div class="col-6 text-right">
+                            <h2 class="mt-4">Request for Quotation <span t-field="o.name"/></h2>
+                        </div>
+                    </div>
+                </div>
+                <div class="page">
                 <!-- Original Content Starts Here -->
                 <div class="horizontal-line"></div>  <!-- Horizontal line -->
                 <div class="row mb-4">
@@ -226,17 +228,19 @@
                 <div class="oe_structure"/>
 
                 <!-- Footer Section -->
-<!--                <div class="footer" style="text-align: center; margin-top: 30px; font-size: 12pt; color: #333;">-->
-<!--                    <div class="horizontal-line"></div>  &lt;!&ndash; Horizontal line &ndash;&gt;-->
-<!--                    <p>This is a system-generated Purchase Order and does not require any signature or stamping.</p>-->
-<!--                    <p>For queries or acknowledgement, please contact the procurement team at <strong>Procurement@fgc.sa</strong></p>-->
-<!--                    <p>All invoices must be submitted with the corresponding PO numbers to <strong>Procurement@fgc.sa</strong> and <strong>AP@fgc.sa</strong></p>-->
-<!--                    <p><div style="text-align: center; font-size: 10pt; position: fixed; bottom: 10px; left: 0; right: 0;">-->
-<!--                        <span t-esc="page"/> / <span t-esc="total_pages"/>-->
-<!--                    </div></p>-->
-<!--                </div>-->
-<!--                <div style="page-break-before: always;"></div> &lt;!&ndash; This forces a page break between each RFQ &ndash;&gt;-->
-            </xpath>
-        </t>
+                <div class="footer" style="text-align: center; margin-top: 30px; font-size: 12pt; color: #333;">
+                    <div class="horizontal-line"></div>  <!-- Horizontal line -->
+                    <p>This is a system-generated Purchase Order and does not require any signature or stamping.</p>
+                    <p>For queries or acknowledgement, please contact the procurement team at <strong>Procurement@fgc.sa</strong></p>
+                    <p>All invoices must be submitted with the corresponding PO numbers to <strong>Procurement@fgc.sa</strong> and <strong>AP@fgc.sa</strong></p>
+                    <p><div style="text-align: center; font-size: 10pt; position: fixed; bottom: 10px; left: 0; right: 0;">
+                        <span t-esc="page"/> / <span t-esc="total_pages"/>
+                    </div></p>
+                </div>
+                <div style="page-break-before: always;"></div> <!-- This forces a page break between each RFQ -->
+                </div>
+            </t>
+        </xpath>
     </template>
 </odoo>
+
