@@ -38,9 +38,7 @@ class PurchaseRequisitionCreation(models.Model):
         self.invoice_status = False
         if self.invoice_ids:
             for move in self.invoice_ids:
-                print(f"move >>>>>>>>>>>>>>>>>>>>> :{move}")
                 if move.payment_state == 'paid' or move.payment_state == 'in_payment':
-                    print(f"move >>>>>>>>>>>>>>>>>>>>> 2222222:{move}")
                     self.action_done()
                     self.invoice_status = True
                 else:
@@ -139,8 +137,8 @@ class PurchaseRequisitionCreation(models.Model):
         invoice_vals_list = []
         sequence = 10
         for order in self:
-            if order.state == 'open' and order.is_po_need:
-                continue
+            # if order.state == 'open' and order.is_po_need:
+            #     continue
 
             order = order.with_company(order.company_id)
             pending_section = None
@@ -255,7 +253,7 @@ class PurchaseRequisitionCreation(models.Model):
         # Call the super method with updated vals_list
         return super(PurchaseRequisitionCreation, self).create(vals_list)
 
-    @api.onchange('currency_id')
+    @api.onchange('currency_id','vendor_id')
     def validate_currency(self):
         if self.currency_id:
             for rec in self.line_ids:

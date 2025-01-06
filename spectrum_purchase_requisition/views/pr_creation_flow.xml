@@ -30,7 +30,7 @@
                     <button name="%(purchase_requisition.action_purchase_requisition_to_so)d" type="action"
                     string="New Quotation"
                     context="{'default_currency_id': currency_id, 'default_user_id': user_id}"
-                   invisible="state != 'ongoing' or is_po_need !=False"/>
+                   invisible="state not in ('ongoing','open') or is_po_need !=False"/>
 
                 </xpath>
                 <xpath expr="//button[@name='action_in_progress']" position="replace">
@@ -54,7 +54,7 @@
                             class="btn-primary"/>
                     <button name="action_create_invoice" string="Create Bill" type="object" class="oe_highlight"
                             context="{'create_bill':True}"
-                            invisible="state not in ['ongoing'] or is_po_need==False"
+                            invisible="state not in ['ongoing','open'] or is_po_need==False"
                             data-hotkey="w"/>
 <!--                    invisible="state != 'ongoing' and is_po_need==False"-->
 <!--                    ['draft', 'first_approval', 'second_approval', 'inprogress', 'done', 'cancel']-->
@@ -71,7 +71,7 @@
 
                 </xpath>
                 <xpath expr="//tree/field[@name='price_unit']" position="after">
-                    <field name="currency_id" column_invisible="True"/>
+                    <field name="currency_id" column_invisible="True" force_save="1"/>
                     <field name="total" sum="Total" readonly="1" force_save="1"/>
                 </xpath>
                 <xpath expr="//div[@name='button_box']" position="inside">
