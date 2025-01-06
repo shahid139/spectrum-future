@@ -17,8 +17,8 @@
         'views/configuration.xml',
         'views/pr_creation_flow.xml',
         'views/po_creation_flow.xml',
-        # 'reports/purchase_order_report.xml',
-        # 'reports/rfq_custom.xml',
+        'reports/purchase_order_report.xml',
+        'reports/rfq_custom.xml',
 
     ],
 
