@@ -6,13 +6,19 @@
             <field name="inherit_id" ref="purchase.purchase_order_form"/>
             <field name="arch" type="xml">
                 <xpath expr="//button[@name='print_quotation']" position="after">
-                    <button name="first_approval" invisible="state not in ('draft','sent')" string="Approval1"
+                    <button name="first_approval" invisible="state not in ('draft','sent')" string="Approval 1"
                             type="object"
                             class="btn-primary"/>
-                    <button name="second_approval" invisible="state != 'first_approval'" string="Approval2"
+                    <button name="second_approval" invisible="state != 'first_approval'" string="Approval 2"
                             type="object"
                             class="btn-primary"/>
 
+                </xpath>
+                <xpath expr="//field[@name='date_order']" position="after">
+                    <field name="type_of_discount" widget="radio"/>
+                    <field name="discount_value" invisible="type_of_discount == 'lumpsum'"/>
+                    <field name="discount_lumpsum" invisible="type_of_discount == 'percentage'"/>
+                    <field name="vat_applicability" readonly="1" force_save="1"/>
                 </xpath>
                 <xpath expr="//button[@name='button_cancel']" position="replace">
                     <button name="button_cancel"
@@ -39,7 +45,7 @@
                 <xpath expr="//tree/field[@name='taxes_id']" position="after">
                     <field name="tolerance"/>
                     <field name="vat_applicability"/>
-                    <field name="discount_applicable"/>
+                    <field name="lumps_um"/>
                 </xpath>
             </field>
         </record>
