@@ -27,6 +27,9 @@ class PurchaseOrderInherited(models.Model):
         ('done', 'Locked'),
         ('cancel', 'Cancelled')
     ], string='Status', readonly=True, index=True, copy=False, default='draft', tracking=True)
+    delivery_details = fields.Text(string="Delivery Details")
+    remarks = fields.Text(string="Remarks")
+    pr_type_text = fields.Text()
 
     @api.depends('vat_applicability')
     def _validate_vat_applicability(self):
