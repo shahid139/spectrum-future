@@ -5,6 +5,24 @@
             <field name="model">purchase.order</field>
             <field name="inherit_id" ref="purchase.purchase_order_form"/>
             <field name="arch" type="xml">
+
+                <xpath expr="//sheet" position="inside">
+                    <field name="pr_type_text" invisible="1"/>
+                </xpath>
+                <xpath expr="//header/button[@name='action_view_picking']" position="replace">
+                    <button name="action_view_picking"
+                        string="Receive Products" class="oe_highlight" type="object"
+                        invisible="is_shipped or state not in ('purchase', 'done') or incoming_picking_count == 0 or pr_type_text == 'Service'"
+                        data-hotkey="y" groups="stock.group_stock_user"/>
+                </xpath>
+
+                <xpath expr="//header/button[@name='confirm_reminder_mail']" position="replace">
+                    <button name="confirm_reminder_mail"
+                            string="Confirm Receipt Date" type="object"
+                            invisible="state not in ('purchase', 'done') or mail_reminder_confirmed or not date_planned or pr_type_text == 'Service'"
+                            groups="base.group_no_one" data-hotkey="o"/>
+                </xpath>
+
                 <xpath expr="//button[@name='print_quotation']" position="after">
                     <button name="first_approval" invisible="state not in ('draft','sent')" string="Approval 1"
                             type="object"
@@ -15,10 +33,19 @@
 
                 </xpath>
                 <xpath expr="//field[@name='date_order']" position="after">
+                    <field name="pr_type_text" invisible="1"/>
                     <field name="type_of_discount" widget="radio"/>
                     <field name="discount_value" invisible="type_of_discount == 'lumpsum'"/>
                     <field name="discount_lumpsum" invisible="type_of_discount == 'percentage'"/>
                     <field name="vat_applicability" readonly="1" force_save="1"/>
+                </xpath>
+                <xpath expr="//page[@name='purchase_delivery_invoice']" position="after">
+                    <page string="Delivery Details">
+                        <field name="delivery_details"/>
+                    </page>
+                    <page string="Remarks">
+                        <field name="remarks"/>
+                    </page>
                 </xpath>
                 <xpath expr="//button[@name='button_cancel']" position="replace">
                     <button name="button_cancel"
@@ -57,7 +84,7 @@
                 <xpath expr="//field[@name='requisition_id']" position="replace">
                     <field name="requisition_id" string="Select PR"
                            domain="[('state', 'in', ('in_progress', 'open', 'ongoing')), ('vendor_id', 'in', (partner_id, False)), ('company_id', '=', company_id)]"
-                           options="{'no_create': True}"/>
+                           options="{'no_create': True}" required="True"/>
                 </xpath>
                 <xpath expr="//field[@name='requisition_id']" position="after">
                     <field name="pr_type" readonly="1"/>

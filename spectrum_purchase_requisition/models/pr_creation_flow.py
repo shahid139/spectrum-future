@@ -33,7 +33,7 @@ class PurchaseRequisitionCreation(models.Model):
     invoice_ids = fields.Many2many('account.move', string='Bills', copy=False, store=True)
     invoice_status = fields.Boolean(string="Invoice Status", compute="_compute_invoice_status")
 
-    @api.depends('invoice_ids')
+    @api.depends('invoice_ids','purchase_ids.invoice_ids')
     def _compute_invoice_status(self):
         self.invoice_status = False
         if self.invoice_ids:
@@ -43,6 +43,17 @@ class PurchaseRequisitionCreation(models.Model):
                     self.invoice_status = True
                 else:
                     self.invoice_status = False
+
+        if self.purchase_ids:
+            if self.type_id.name == "Service":
+                for pos in self.purchase_ids:
+                    for move in pos.invoice_ids:
+                        if move.payment_state == 'paid' or move.payment_state == 'in_payment':
+                            self.action_done()
+                            self.invoice_status = True
+                        else:
+                            self.invoice_status = False
+
 
 
     @api.depends('invoice_ids')
@@ -199,7 +210,6 @@ class PurchaseRequisitionCreation(models.Model):
         # We do this after the moves have been created since we need taxes, etc. to know if the total
         # is actually negative or not
         moves.filtered(lambda m: m.currency_id.round(m.amount_total) < 0).action_switch_move_type()
-        print(f"moves ------------------------------- :{moves}")
         if moves:
             self.invoice_ids = moves
         return self.action_view_invoice(moves)

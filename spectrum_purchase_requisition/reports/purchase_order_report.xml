@@ -3,7 +3,7 @@
         <xpath expr="//t[@t-call='web.external_layout']" position="replace">
         <t t-call="web.internal_layout">
             <!--                 Header Section -->
-            <div class="header">
+            <div >
                 <div class="row mb-4">
                     <div class="col-6">
                         <span t-if="o.company_id.logo">
@@ -290,7 +290,7 @@
 
                 <!-- Footer Section -->
                 <div class="horizontal-line"></div>  <!-- Horizontal line -->
-                <div class="footer" style="text-align: center; margin-top: 30px; font-size: 12pt; color: #333;">
+                <div class="footer" style="text-align: center; margin-top: 30px; font-size: 8pt; color: #333;">
                     <p>This is a system-generated Purchase Order and does not require any signature or stamping.</p>
                     <p>For queries or acknowledgement, please contact the procurement team at <strong>Procurement@fgc.sa</strong></p>
                     <p>All invoices must be submitted with the corresponding PO numbers to <strong>Procurement@fgc.sa</strong> and <strong>AP@fgc.sa</strong></p>
