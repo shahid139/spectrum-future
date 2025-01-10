@@ -2,8 +2,8 @@
     <template id="custom_rfq_report" inherit_id="purchase.report_purchasequotation_document">
         <xpath expr="//t[@t-call='web.external_layout']" position="replace">
             <t t-call="web.internal_layout">
-                    <!--                 Header Section -->
-                <div class="header">
+                <div class="page">
+                     <div class="header">
                     <div class="row mb-4">
                         <div class="col-6">
                             <span t-if="o.company_id.logo">
@@ -15,7 +15,6 @@
                         </div>
                     </div>
                 </div>
-                <div class="page">
                 <!-- Original Content Starts Here -->
                 <div class="horizontal-line"></div>  <!-- Horizontal line -->
                 <div class="row mb-4">

@@ -39,6 +39,14 @@
                     <field name="discount_lumpsum" invisible="type_of_discount == 'percentage'"/>
                     <field name="vat_applicability" readonly="1" force_save="1"/>
                 </xpath>
+                <xpath expr="//page[@name='purchase_delivery_invoice']" position="after">
+                    <page string="Delivery Details">
+                        <field name="delivery_details"/>
+                    </page>
+                    <page string="Remarks">
+                        <field name="remarks"/>
+                    </page>
+                </xpath>
                 <xpath expr="//button[@name='button_cancel']" position="replace">
                     <button name="button_cancel"
                             invisible="state not in ('draft','first_approval','second_approval' ,'to approve', 'sent', 'purchase')"
@@ -76,7 +84,7 @@
                 <xpath expr="//field[@name='requisition_id']" position="replace">
                     <field name="requisition_id" string="Select PR"
                            domain="[('state', 'in', ('in_progress', 'open', 'ongoing')), ('vendor_id', 'in', (partner_id, False)), ('company_id', '=', company_id)]"
-                           options="{'no_create': True}"/>
+                           options="{'no_create': True}" required="True"/>
                 </xpath>
                 <xpath expr="//field[@name='requisition_id']" position="after">
                     <field name="pr_type" readonly="1"/>
