@@ -66,16 +66,16 @@
                             </tr>
                             <tr>
                                 <td><strong>CR No :</strong></td>
-                                <td><span t-field="o.partner_ref" /></td>
+                               <td><span t-field="o.company_id.cr_number" /></td>
                             </tr>
                             <tr>
                                 <td><strong>VAT No :</strong></td>
-                                <td><span t-field="o.partner_ref" /></td>
+                                <td><span t-field="o.company_id.vat_number" /></td>
                             </tr>
-                            <tr>
-                                <td><strong>Trade :</strong></td>
-                                <td><span t-field="o.partner_ref" /></td>
-                            </tr>
+<!--                            <tr>-->
+<!--                                <td><strong>Trade :</strong></td>-->
+<!--                                <td><span t-field="o.partner_ref" /></td>-->
+<!--                            </tr>-->
                         </table>
                     </div>
                 </div>
@@ -90,7 +90,7 @@
                             </tr>
                             <tr>
                                 <td><strong>VAT No.</strong></td>
-                                <td><span t-field="o.partner_id.vat" /></td>
+                               <td><span t-field="o.company_id.vat_number" /></td>
                             </tr>
                             <tr>
                                 <td><strong>Vendor Ref.</strong></td>

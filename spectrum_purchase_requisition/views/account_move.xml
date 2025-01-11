@@ -1,0 +1,29 @@
+<odoo>
+    <data>
+        <record id="account_move_inherited" model="ir.ui.view">
+            <field name="name">account.move.inherited</field>
+            <field name="model">account.move</field>
+            <field name="inherit_id" ref="account.view_move_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//button[@name='action_post'][2]" position="replace">
+                    <button name="action_post" string="Confirm" class="oe_highlight" type="object"
+                            groups="account.group_account_invoice" data-hotkey="q" context="{'validate_analytic': True}"
+                            invisible=" move_type !='out_invoice' and state in ('draft','first_approval','second_approval','posted') or hide_post_button or move_type == 'entry' or display_inactive_currency_warning"/>
+                </xpath>
+                <xpath expr="//button[@name='button_cancel'][2]" position="replace">
+                    <button name="button_cancel" string="Cancel" type="object" groups="account.group_account_invoice"
+                            data-hotkey="x"
+                            invisible="not id or state == 'posted' or move_type == 'entry'"/>
+                </xpath>
+                <xpath expr="//button[@name='action_post']" position="after">
+                    <button name="validate_first_approval" string="Approval 1" invisible="state != 'draft' or move_type =='out_invoice'"
+                            class="oe_highlight" type="object"/>
+                    <button name="validate_second_approval" string="Approval 2" invisible="state != 'first_approval' or move_type =='out_invoice'"
+                            class="oe_highlight" type="object"/>
+                    <button name="validate_third_approval" string="Approval 3" invisible="state != 'second_approval' or move_type =='out_invoice'"
+                            class="oe_highlight" type="object"/>
+                </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>
