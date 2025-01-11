@@ -341,7 +341,10 @@ class PurchaseRequisitionCreation(models.Model):
 
 class PurchaseRequisitionLineInherited(models.Model):
     _inherit = "purchase.requisition.line"
-
+    uom_id = fields.Many2one(
+        'uom.uom', 'Unit of Measure',
+       required=True,
+        help="Default unit of measure used for all stock operations.")
     total = fields.Monetary(string="Total",store=True)
     currency_id = fields.Many2one('res.currency', 'Currency', related='requisition_id.currency_id')
 
