@@ -1,0 +1,134 @@
+<odoo>
+    <data>
+         <record id="stock.action_report_picking" model="ir.actions.report">
+            <field name="name">RR(Incoming shipment)</field>
+            <field name="model">stock.picking</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">stock.report_picking</field>
+            <field name="report_file">stock.report_picking_operations</field>
+            <field name="print_report_name">'RR(Incoming shipment) - %s - %s' % (object.partner_id.name or '', object.name)</field>
+            <field name="binding_model_id" ref="stock.model_stock_picking"/>
+            <field name="binding_type">report</field>
+        </record>
+
+        <template id="custom_report_picking" inherit_id="stock.report_picking">
+            <xpath expr="//t[@t-call='web.external_layout']" position="replace">
+                <t t-call="web.internal_layout">
+                    <div class="page">
+                         <div class="row mb-4">
+                            <div class="col-6">
+                                <span t-if="o.company_id.logo">
+                                    <img t-att-src="image_data_uri(o.company_id.logo)"
+                                         style="max-height:45pt; max-width:90%" alt="Company Logo"/>
+                                </span>
+                            </div>
+                            <div class="col-6 text-right">
+                                <h2 class="mt-4">
+                                    <span t-field="o.company_id.name"/>
+                                </h2>
+                                 <strong>
+                                <span t-field="o.company_id.street"/>,
+                                <span t-field="o.company_id.street2"/>,
+                                <span t-field="o.company_id.city"/>,
+                                <span t-field="o.company_id.state_id"/>,
+                                <span t-field="o.company_id.zip"/>,
+                                <span t-field="o.company_id.country_id"/>,
+                            </strong>
+                            </div>
+                        </div>
+                        <table style="width: 100%; margin-bottom: 20px; border-collapse: collapse;">
+                            <tr>
+                                <td>
+                                    <strong>Receipt No.:</strong>
+                                    <t t-esc="o.name"/>
+                                </td>
+                                <td>
+                                    <strong>Date:</strong>
+                                        <t t-esc="o.scheduled_date.strftime('%d-%b-%Y') if o.scheduled_date else ''"/>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <strong>Received From:</strong>
+                                    <t t-esc="o.partner_id.name"/>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <strong>Ship to Org:</strong>
+                                    <!--                                    <t t-esc="doc.ship_to_org"/>-->
+                                </td>
+                                <td>
+                                    <strong>Project Code:</strong>
+                                    <!--                                    <t t-esc="doc.project_code"/>-->
+                                </td>
+                            </tr>
+                        </table>
+
+                        <table style="width: 100%; border: 1px solid #000; border-collapse: collapse;">
+                            <thead>
+                                <tr style="background-color: #f0f0f0;">
+                                    <th style="border: 1px solid #000;">Stock Description</th>
+                                    <th style="border: 1px solid #000;">Qty</th>
+                                    <th style="border: 1px solid #000;">Unit Price</th>
+                                    <th style="border: 1px solid #000;">Total Price</th>
+                                    <th style="border: 1px solid #000;">P.O. No</th>
+                                    <th style="border: 1px solid #000;">Date of Expiry</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <t t-set="grand_total" t-value="0.0" />
+                                <t t-foreach="o.move_ids_without_package" t-as="line">
+                                    <tr>
+                                        <td style="border: 1px solid #000;text-align: center;">
+                                            <t t-esc="line.description_picking"/>
+                                        </td>
+                                        <td style="border: 1px solid #000;text-align: center;">
+                                            <t t-esc="line.quantity"/>
+                                        </td>
+                                        <td style="border: 1px solid #000;text-align: center;">
+                                            <t t-esc="line.price_unit"/>
+                                        </td>
+                                        <td style="border: 1px solid #000;text-align: center;">
+                                            <t t-esc="line.quantity * line.price_unit"/>
+                                        </td>
+                                        <td style="border: 1px solid #000;text-align: center;">
+                                            <t t-esc="line.picking_id.origin"/>
+                                        </td>
+                                        <td style="border: 1px solid #000;text-align: center;">
+                                            <t t-esc="line.date_deadline.strftime('%d-%b-%Y') if line.date_deadline else ''"/>
+                                        </td>
+                                    </tr>
+                                    <t t-set="line_total" t-value="(line.quantity or 0.0) * (line.price_unit or 0.0)"/>
+                                    <t t-set="grand_total" t-value="grand_total + line_total"/>
+                                </t>
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <td colspan="3" style="border: 1px solid #000; text-align: right;">
+                                        <strong>Grand Total</strong>
+                                    </td>
+                                    <td style="border: 1px solid #000;text-align: center;">
+                                        <t t-esc="grand_total"/>
+                                    </td>
+                                    <td colspan="2" style="border: 1px solid #000;"/>
+                                </tr>
+                            </tfoot>
+                        </table>
+
+                        <p style="margin-top: 20px;">
+                            <strong>Prepared By:</strong>
+                            <!--                            <t t-esc="doc.prepared_by"/>-->
+                            <br/>
+                            <strong>Received By:</strong>
+                            <!--                            <t t-esc="doc.received_by"/>-->
+                            <br/>
+                            <strong>Approved By:</strong>
+                            <!--                            <t t-esc="doc.approved_by"/>-->
+                        </p>
+                    </div>
+                </t>
+            </xpath>
+        </template>
+    </data>
+</odoo>
