@@ -1,335 +1,457 @@
 <odoo>
     <template id="custom_purchase_order_report" inherit_id="purchase.report_purchaseorder_document">
         <xpath expr="//t[@t-call='web.external_layout']" position="replace">
-        <t t-call="web.internal_layout">
-            <!--                 Header Section -->
-            <div >
-                <div class="row mb-4">
-                    <div class="col-6">
-                        <span t-if="o.company_id.logo">
-                            <img t-att-src="image_data_uri(o.company_id.logo)" style="max-height:45pt; max-width:90%" alt="Company Logo"/>
-                        </span>
-                    </div>
-                    <div class="col-6 text-right">
-                        <h2 t-if="o.state in ['draft', 'sent', 'to approve']">
-                            Request for Quotation #<span t-field="o.name"/>
-                        </h2>
-                        <h2 t-if="o.state in ['purchase', 'done']">
-                            Purchase Order #<span t-field="o.name"/>
-                        </h2>
-                        <h2 t-if="o.state == 'cancel'">
-                            Cancelled Purchase Order #<span t-field="o.name"/>
-                        </h2>
-                    </div>
-                </div>
-            </div>
-            <div class="page">
-                <!-- Original Content Starts Here -->
-                <div class="horizontal-line"></div>  <!-- Horizontal line -->
-                <div class="row mb-4">
-                    <div class="col-6">
-                        <strong>Vendor:</strong>
-                        <table class="table table-borderless">
-                            <tr>
-                                <td><strong>Vendor Account</strong></td>
-                                <td>-</td>
-                            </tr>
-                            <tr>
-                                <td><strong>Vendor Name</strong></td>
-                                <td><span t-field="o.partner_id.name" /></td>
-                            </tr>
-                            <tr>
-                                <td><strong>Telephone</strong></td>
-                                <td><span t-field="o.partner_id.phone" /></td>
-                            </tr>
-                            <tr>
-                                <td><strong>Contact person</strong></td>
-                                <td>-</td>
-                            </tr>
-                            <tr>
-                                <td><strong>Mobile No</strong></td>
-                                <td><span t-field="o.partner_id.mobile" /></td>
-                            </tr>
-                            <tr>
-                                <td><strong>E-mail</strong></td>
-                                <td><span t-field="o.partner_id.email" /></td>
-                            </tr>
-                            <tr>
-                                <td><strong>Address</strong></td>
-                                <td><span t-field="o.partner_id.contact_address" /></td>
-                            </tr>
-                        </table>
-                    </div>
-                    <div class="col-6 text-right">
-                        <strong><span t-field="o.partner_id.name" /></strong><br/>
-                        <span t-field="o.partner_id.contact_address" /><br/>
-
-                        <table class="table table-borderless">
-                            <tr>
-                                <td><strong>Telephone :</strong></td>
-                                <td><span t-field="o.partner_id.phone" /></td>
-                            </tr>
-                            <tr>
-                                <td><strong>Email :</strong></td>
-                                <td><span t-field="o.partner_id.email" /></td>
-                            </tr>
-                            <tr>
-                                <td><strong>CR No :</strong></td>
-                                <td><span t-field="o.company_id.cr_number" /></td>
-                            </tr>
-                            <tr>
-                                <td><strong>VAT No :</strong></td>
-                                <td><span t-field="o.company_id.vat_number" /></td>
-                            </tr>
-<!--                            <tr>-->
-<!--                                <td><strong>Trade :</strong></td>-->
-<!--                                <td><span t-field="o.partner_ref" /></td>-->
-<!--                            </tr>-->
-                        </table>
+            <t t-call="web.internal_layout">
+                <!--                 Header Section -->
+                <div>
+                    <div class="row mb-4">
+                        <div class="col-6">
+                            <span t-if="o.company_id.logo">
+                                <img t-att-src="image_data_uri(o.company_id.logo)"
+                                     style="max-height:45pt; max-width:90%" alt="Company Logo"/>
+                            </span>
+                        </div>
+                        <div class="col-6 text-right">
+                            <h2 t-if="o.state in ['draft', 'sent', 'to approve']">
+                                Request for Quotation #
+                                <span t-field="o.name"/>
+                            </h2>
+                            <h2 t-if="o.state in ['purchase', 'done']">
+                                Purchase Order #
+                                <span t-field="o.name"/>
+                            </h2>
+                            <h2 t-if="o.state == 'cancel'">
+                                Cancelled Purchase Order #
+                                <span t-field="o.name"/>
+                            </h2>
+                        </div>
                     </div>
                 </div>
+                <div class="page">
+                    <!-- Original Content Starts Here -->
+                    <div class="horizontal-line"></div>  <!-- Horizontal line -->
+                    <div class="row mb-4">
+                        <div class="col-6">
+                            <strong>Vendor:</strong>
+                            <table class="table table-borderless">
+                                <tr>
+                                    <td>
+                                        <strong>Vendor Account</strong>
+                                    </td>
+                                    <td>-</td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <strong>Vendor Name</strong>
+                                    </td>
+                                    <td>
+                                        <span t-field="o.partner_id.name"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <strong>Telephone</strong>
+                                    </td>
+                                    <td>
+                                        <span t-field="o.partner_id.phone"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <strong>Contact person</strong>
+                                    </td>
+                                    <td>-</td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <strong>Mobile No</strong>
+                                    </td>
+                                    <td>
+                                        <span t-field="o.partner_id.mobile"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <strong>E-mail</strong>
+                                    </td>
+                                    <td>
+                                        <span t-field="o.partner_id.email"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <strong>Address</strong>
+                                    </td>
+                                    <td>
+                                        <span t-field="o.partner_id.contact_address"/>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="col-6 text-right">
+                            <strong>
+                                <span t-field="o.company_id.street"/>,
+                                <span t-field="o.company_id.street2"/>,
+                                <span t-field="o.company_id.city"/>,
+                                <span t-field="o.company_id.state_id"/>,
+                                <span t-field="o.company_id.zip"/>,
+                                <span t-field="o.company_id.country_id"/>,
+                            </strong>
 
-                <div class="row mb-4">
-                    <div class="col-6">
-                        <strong>Organization No :</strong><br/>
-                        <table class="table table-borderless">
-                            <tr>
-                                <td><strong>Date</strong></td>
-                                <td><span t-field="o.date_approve" /></td>
-                            </tr>
-                            <tr>
-                                <td><strong>VAT No.</strong></td>
-                               <td><span t-field="o.company_id.vat_number" /></td>
-                            </tr>
-                            <tr>
-                                <td><strong>Vendor Ref.</strong></td>
-                                <td><span t-field="o.partner_ref" /></td>
-                            </tr>
-                            <tr>
-                                <td><strong>PNR Number</strong></td>
-                                <td>-</td>
-                            </tr>
-                            <tr>
-                                <td><strong>Material</strong></td>
-                                <td>-</td>
-                            </tr>
-
-                        </table>
+                            <table class="table table-borderless">
+                                <tr>
+                                    <td>
+                                        <strong>Telephone :</strong>
+                                    </td>
+                                    <td>
+                                        <span t-field="o.partner_id.phone"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <strong>Email :</strong>
+                                    </td>
+                                    <td>
+                                        <span t-field="o.partner_id.email"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <strong>CR No :</strong>
+                                    </td>
+                                    <td>
+                                        <span t-field="o.company_id.cr_number"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <strong>VAT No :</strong>
+                                    </td>
+                                    <td>
+                                        <span t-field="o.company_id.vat_number"/>
+                                    </td>
+                                </tr>
+                                <!--                            <tr>-->
+                                <!--                                <td><strong>Trade :</strong></td>-->
+                                <!--                                <td><span t-field="o.partner_ref" /></td>-->
+                                <!--                            </tr>-->
+                            </table>
+                        </div>
                     </div>
 
-                    <div class="col-6 text-right">
-                        <strong>Location :</strong><br/><br/>
-                        <t t-if="o.company_id.name">
-                            <span t-field="o.company_id.name" /><br/>
-                        </t>
-                        <t t-if="o.company_id.street">
-                            <span t-field="o.company_id.street" /><br/>
-                        </t>
-                        <t t-if="o.company_id.city">
-                            <span t-field="o.company_id.city" /><br/>
-                        </t>
-                        <t t-if="o.company_id.state_id.name">
-                            <span t-field="o.company_id.state_id.name" /><br/>
-                        </t>
-                        <t t-if="o.company_id.zip">
-                            <span t-field="o.company_id.zip" /><br/>
-                        </t>
-                        <t t-if="o.company_id.country_id.name">
-                            <span t-field="o.company_id.country_id.name" />
-                        </t>
+                    <div class="row mb-4">
+                        <div class="col-6">
+                            <strong>Organization No :</strong>
+                            <br/>
+                            <table class="table table-borderless">
+                                <tr>
+                                    <td>
+                                        <strong>Date</strong>
+                                    </td>
+                                    <td>
+                                        <span t-field="o.date_approve"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <strong>VAT No.</strong>
+                                    </td>
+                                    <td>
+                                        <span t-field="o.company_id.vat_number"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <strong>Vendor Ref.</strong>
+                                    </td>
+                                    <td>
+                                        <span t-field="o.partner_ref"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <strong>PNR Number</strong>
+                                    </td>
+                                    <td>-</td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <strong>Material</strong>
+                                    </td>
+                                    <td>-</td>
+                                </tr>
+
+                            </table>
+                        </div>
+
+                        <div class="col-6 text-right">
+                            <strong>Location :</strong>
+                            <br/>
+                            <br/>
+                            <t t-if="o.company_id.name">
+                                <span t-field="o.company_id.name"/>
+                                <br/>
+                            </t>
+                            <t t-if="o.company_id.street">
+                                <span t-field="o.company_id.street"/>
+                                <br/>
+                            </t>
+                            <t t-if="o.company_id.city">
+                                <span t-field="o.company_id.city"/>
+                                <br/>
+                            </t>
+                            <t t-if="o.company_id.state_id.name">
+                                <span t-field="o.company_id.state_id.name"/>
+                                <br/>
+                            </t>
+                            <t t-if="o.company_id.zip">
+                                <span t-field="o.company_id.zip"/>
+                                <br/>
+                            </t>
+                            <t t-if="o.company_id.country_id.name">
+                                <span t-field="o.company_id.country_id.name"/>
+                            </t>
+
+                        </div>
+                    </div>
+
+                    <!-- Inline CSS -->
+                    <style>
+                        .horizontal-line {
+                        border-top: 2px solid #C70039; /* Creates a horizontal line */
+                        width: 100%; /* Makes the line span the full width */
+                        margin: 10px 0; /* Adds spacing above and below the line */
+                        }
+
+
+                        <!--                    .table-border_custom td {-->
+                        <!--                        border: none;-->
+                        <!--                        padding: 5px;-->
+                        <!--                    }-->
+
+                        <!--                    .table td {-->
+                        <!--                        padding: 8px;-->
+                        <!--                        vertical-align: middle;-->
+                        <!--                    }-->
+
+                        <!--                    .table td:first-child {-->
+                        <!--                        width: 30%; /* Left column width */-->
+                        <!--                        text-align: left;-->
+                        <!--                        border-right: 1px solid #ccc; /* Adds a line between label and value */-->
+                        <!--                    }-->
+
+                        <!--                    .table td:last-child {-->
+                        <!--                        width: 70%; /* Right column width */-->
+                        <!--                        text-align: left;-->
+                        <!--                    }-->
+                    </style>
+                    <div class="horizontal-line"></div>  <!-- Horizontal line -->
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <table class="table table-borderless">
+                                <tr>
+                                    <td>
+                                        <strong>Incoterms :</strong>
+                                    </td>
+                                    <td>
+                                        <span t-field="o.incoterm_id"/>
+                                    </td>
+                                    <td>
+                                        <strong>Payment Method :</strong>
+                                    </td>
+                                    <td>-</td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <strong>Delivery Date :</strong>
+                                    </td>
+                                    <td>
+                                        <span t-field="o.date_planned"/>
+                                    </td>
+                                    <td>
+                                        <strong>Payment terms:</strong>
+                                    </td>
+                                    <td>
+                                        <span t-field="o.payment_term_id"/>
+                                    </td>
+                                </tr>
+                            </table>
+
+                            <strong>Warranty :</strong>As per manufacturer's Standard Warranty, starting from Project's
+                            handover date
+                            <br/>
+                        </div>
+                    </div>
+                    <div class="horizontal-line"></div>  <!-- Horizontal line -->
+
+                    <!-- Table Section -->
+                    <table class="table table-borderless">
+                        <thead>
+                            <tr>
+                                <th>ITEM #</th>
+                                <th>PART NO</th>
+                                <th>Description</th>
+                                <th>Quantity</th>
+                                <th>Unit Price</th>
+                                <th>VAT %</th>
+                                <th>Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <t t-set="counter" t-value="0"/>
+                            <t t-foreach="o.order_line" t-as="line">
+                                <tr>
+                                    <td>
+                                        <t t-set="counter" t-value="counter + 1"/>
+                                        <span t-esc="counter"/>
+                                    </td>
+                                    <td>
+                                        <span t-field="line.product_id.default_code"
+                                              t-if="line.product_id.default_code">---
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span t-field="line.name"/>
+                                    </td>
+                                    <td>
+                                        <span t-field="line.product_qty"/>
+                                        <span t-field="line.product_uom.name"/>
+                                    </td>
+                                    <td>
+                                        <span t-field="line.price_unit"
+                                              t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
+                                    </td>
+                                    <t t-set="taxes"
+                                       t-value="', '.join([(tax.invoice_label or tax.name) for tax in line.taxes_id])"/>
+                                    <td name="td_taxes"
+                                        t-attf-class=" {{ 'text-nowrap' if len(taxes) &lt; 10 else '' }}">
+                                        <span t-out="taxes">Tax 15%</span>
+                                    </td>
+                                    <td>
+                                        <span t-field="line.price_subtotal"
+                                              t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
+                                    </td>
+                                </tr>
+                            </t>
+                        </tbody>
+                    </table>
+                    <div class="horizontal-line"></div>  <!-- Horizontal line -->
+
+
+                    <div class="row mb-4">
+                        <div class="col-8">
+                            <p>
+                                <strong>Amount in words:</strong>
+                                <span t-esc="o.currency_id.amount_to_text(o.amount_total)"/>
+                            </p>
+
+                            <p>
+                                <strong>Order Acknowledgement</strong>
+                            </p>
+                            <p>All prices specified in the Purchase Order shall be fixed and firm and not subject to
+                                escalation for the duration of the Purchase Order
+                            </p>
+                            <p>P.O Terms and Conditions are accepted by:</p>
+                            <p>Name :</p>
+                            <p>Date :</p>
+                            <p>
+                                <strong>Vendor Notes</strong>
+                            </p>
+                        </div>
+                        <!--                    <div class="row justify-content-end mt-4">-->
+                        <div class="col-4">
+                            <table class="table table-sm text-right table-bordered"
+                                   style="border: 1px solid #ccc; border-collapse: collapse;">
+                                <tr style="border: none;">
+                                    <td style="border: none;">Sub-Total</td>
+                                    <td class="text-right" style="border: none;">
+                                        <span t-field="o.amount_untaxed"
+                                              t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
+                                    </td>
+                                </tr>
+                                <tr style="border: none;">
+                                    <td style="border: none;">Total discount</td>
+                                    <td class="text-right" style="border: none;">
+                                        -
+                                    </td>
+                                </tr>
+                                <tr style="border: none;">
+                                    <td style="border: none;">Misc. charges</td>
+                                    <td class="text-right" style="border: none;">
+                                        -
+                                    </td>
+                                </tr>
+                                <tr style="border: none;">
+                                    <td style="border: none;">Total Tax</td>
+                                    <td class="text-right" style="border: none;">
+                                        <span t-field="o.amount_tax"
+                                              t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
+                                    </td>
+                                </tr>
+                                <tr style="border: none;">
+                                    <td style="border: none;">Grand Total</td>
+                                    <td class="text-right" style="border: none;">
+                                        <span t-field="o.amount_total"
+                                              t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
+                                    </td>
+                                </tr>
+                                <tr style="border: none;">
+                                    <td style="border: none;">Currency</td>
+                                    <td class="text-right" style="border: none;">
+                                        <span t-field="o.currency_id"/>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
 
                     </div>
-                </div>
 
-                <!-- Inline CSS -->
-                <style>
-                    .horizontal-line {
-                        border-top: 2px solid #C70039;  /* Creates a horizontal line */
-                        width: 100%;                 /* Makes the line span the full width */
-                        margin: 10px 0;              /* Adds spacing above and below the line */
-                    }
+                    <!-- Totals Section -->
 
 
-<!--                    .table-border_custom td {-->
-<!--                        border: none;-->
-<!--                        padding: 5px;-->
-<!--                    }-->
-
-<!--                    .table td {-->
-<!--                        padding: 8px;-->
-<!--                        vertical-align: middle;-->
-<!--                    }-->
-
-<!--                    .table td:first-child {-->
-<!--                        width: 30%; /* Left column width */-->
-<!--                        text-align: left;-->
-<!--                        border-right: 1px solid #ccc; /* Adds a line between label and value */-->
-<!--                    }-->
-
-<!--                    .table td:last-child {-->
-<!--                        width: 70%; /* Right column width */-->
-<!--                        text-align: left;-->
-<!--                    }-->
-                </style>
-                <div class="horizontal-line"></div>  <!-- Horizontal line -->
-                <div class="row mb-4">
-                    <div class="col-12">
-                        <table class="table table-borderless">
-                            <tr>
-                                <td><strong>Incoterms : </strong></td>
-                                <td><span t-field="o.incoterm_id" /></td>
-                                <td><strong>Payment Method :</strong></td>
-                                <td>-</td>
-                            </tr>
-                            <tr>
-                                <td><strong>Delivery Date : </strong></td>
-                                <td><span t-field="o.date_planned" /></td>
-                                <td><strong>Payment terms:</strong></td>
-                                <td><span t-field="o.payment_term_id" /></td>
-                            </tr>
-                        </table>
-
-                        <strong>Warranty : </strong>As per manufacturer's Standard Warranty, starting from Project's handover date <br/>
-                    </div>
-                </div>
-                <div class="horizontal-line"></div>  <!-- Horizontal line -->
-
-                <!-- Table Section -->
-                <table class="table table-borderless">
-                    <thead>
-                        <tr>
-                            <th>ITEM #</th>
-                            <th>PART NO</th>
-                            <th>Description</th>
-                            <th>Quantity</th>
-                            <th>Unit Price</th>
-                            <th>VAT %</th>
-                            <th>Amount</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <t t-foreach="o.order_line" t-as="line">
-                            <tr>
-                                <td><span t-field="line.sequence" t-if="line.sequence">---</span></td>
-                                <td><span t-field="line.product_id.default_code" t-if="line.product_id.default_code">---</span></td>
-                                <td><span t-field="line.name" /></td>
-                                <td><span t-field="line.product_qty" /> <span t-field="line.product_uom.name" /></td>
-                                <td><span t-field="line.price_unit" t-options='{"widget": "monetary", "display_currency": o.currency_id}' /></td>
-                                <t t-set="taxes" t-value="', '.join([(tax.invoice_label or tax.name) for tax in line.taxes_id])"/>
-                                <td name="td_taxes" t-attf-class=" {{ 'text-nowrap' if len(taxes) &lt; 10 else '' }}">
-                                    <span t-out="taxes">Tax 15%</span>
-                                </td>
-                                <td><span t-field="line.price_subtotal" t-options='{"widget": "monetary", "display_currency": o.currency_id}' /></td>
-                            </tr>
-                        </t>
-                    </tbody>
-                </table>
-                <div class="horizontal-line"></div>  <!-- Horizontal line -->
-
-
-                <div class="row mb-4">
-                    <div class="col-8">
-                        <p>
-                            <strong>Amount in words:</strong>
-                            <span t-esc="o.currency_id.amount_to_text(o.amount_total)" />
+                    <!-- Footer Section -->
+                    <div class="horizontal-line"></div>  <!-- Horizontal line -->
+                    <div class="footer" style="text-align: center; margin-top: 30px; font-size: 8pt; color: #333;">
+                        <p>This is a system-generated Purchase Order and does not require any signature or stamping.</p>
+                        <p>For queries or acknowledgement, please contact the procurement team at
+                            <strong>Procurement@fgc.sa</strong>
                         </p>
-
-                        <p><strong>Order Acknowledgement</strong></p>
-                        <p>All prices specified in the Purchase Order shall be fixed and firm and not subject to escalation for the duration of the Purchase Order</p>
-                        <p>P.O Terms and Conditions are accepted by:</p>
-                        <p>Name : </p>
-                        <p>Date : </p>
-                        <p><strong>Vendor Notes</strong></p>
-                    </div>
-<!--                    <div class="row justify-content-end mt-4">-->
-                    <div class="col-4">
-                        <table class="table table-sm text-right table-bordered" style="border: 1px solid #ccc; border-collapse: collapse;">
-                            <tr style="border: none;">
-                                <td style="border: none;">Sub-Total</td>
-                                <td class="text-right" style="border: none;">
-                                    <span t-field="o.amount_untaxed" t-options='{"widget": "monetary", "display_currency": o.currency_id}' />
-                                </td>
-                            </tr>
-                            <tr style="border: none;">
-                                <td style="border: none;">Total discount</td>
-                                <td class="text-right" style="border: none;">
-                                    -
-                                </td>
-                            </tr>
-                            <tr style="border: none;">
-                                <td style="border: none;">Misc. charges</td>
-                                <td class="text-right" style="border: none;">
-                                    -
-                                </td>
-                            </tr>
-                            <tr style="border: none;">
-                                <td style="border: none;">Total Tax</td>
-                                <td class="text-right" style="border: none;">
-                                    <span t-field="o.amount_tax" t-options='{"widget": "monetary", "display_currency": o.currency_id}' />
-                                </td>
-                            </tr>
-                            <tr style="border: none;">
-                                <td style="border: none;">Grand Total</td>
-                                <td class="text-right" style="border: none;">
-                                    <span t-field="o.amount_total" t-options='{"widget": "monetary", "display_currency": o.currency_id}' />
-                                </td>
-                            </tr>
-                            <tr style="border: none;">
-                                <td style="border: none;">Currency</td>
-                                <td class="text-right" style="border: none;">
-                                    <span t-field="o.currency_id"/>
-                                </td>
-                            </tr>
-                        </table>
+                        <p>All invoices must be submitted with the corresponding PO numbers to <strong>
+                            Procurement@fgc.sa
+                        </strong> and
+                            <strong>AP@fgc.sa</strong>
+                        </p>
                     </div>
 
                 </div>
-
-                <!-- Totals Section -->
-
-
-                <!-- Footer Section -->
-                <div class="horizontal-line"></div>  <!-- Horizontal line -->
-                <div class="footer" style="text-align: center; margin-top: 30px; font-size: 8pt; color: #333;">
-                    <p>This is a system-generated Purchase Order and does not require any signature or stamping.</p>
-                    <p>For queries or acknowledgement, please contact the procurement team at <strong>Procurement@fgc.sa</strong></p>
-                    <p>All invoices must be submitted with the corresponding PO numbers to <strong>Procurement@fgc.sa</strong> and <strong>AP@fgc.sa</strong></p>
-                </div>
-
-            </div>
-        </t>
+            </t>
         </xpath>
     </template>
 
-<!--    <template id="report_purchaseorder_custom" inherit_id="purchase.report_purchaseorder">-->
-<!--        <xpath expr="//t[@t-call='web.html_container']" position="replace">-->
-<!--            <t t-call="web.html_container">-->
-<!--                <t t-foreach="docs" t-as="o">-->
-<!--                    <t t-call="spectrum_purchase_requisition.custom_purchase_order_report" t-lang="o.partner_id.lang"/>-->
-<!--                </t>-->
-<!--            </t>-->
-<!--        </xpath>-->
-<!--    </template>-->
+    <!--    <template id="report_purchaseorder_custom" inherit_id="purchase.report_purchaseorder">-->
+    <!--        <xpath expr="//t[@t-call='web.html_container']" position="replace">-->
+    <!--            <t t-call="web.html_container">-->
+    <!--                <t t-foreach="docs" t-as="o">-->
+    <!--                    <t t-call="spectrum_purchase_requisition.custom_purchase_order_report" t-lang="o.partner_id.lang"/>-->
+    <!--                </t>-->
+    <!--            </t>-->
+    <!--        </xpath>-->
+    <!--    </template>-->
 
-<!--    <template id="custom_external_layout" inherit_id="web.external_layout">-->
-<!--        <xpath expr="//div[@class='header']" position="replace">-->
-<!--            &lt;!&ndash; Empty header to override company details and logo &ndash;&gt;-->
-<!--            <div class="header"></div>-->
-<!--        </xpath>-->
-<!--    </template>-->
+    <!--    <template id="custom_external_layout" inherit_id="web.external_layout">-->
+    <!--        <xpath expr="//div[@class='header']" position="replace">-->
+    <!--            &lt;!&ndash; Empty header to override company details and logo &ndash;&gt;-->
+    <!--            <div class="header"></div>-->
+    <!--        </xpath>-->
+    <!--    </template>-->
 
     <template id="custom_internal_layout" inherit_id="web.internal_layout">
         <!-- Use xpath to find and remove the header div -->
         <xpath expr="//div[@class='header']" position="replace">
-                <!-- Empty header to override company details and logo -->
+            <!-- Empty header to override company details and logo -->
             <div class="header"></div>
         </xpath>
     </template>
-
-
-
-
-
 
 
 </odoo>
