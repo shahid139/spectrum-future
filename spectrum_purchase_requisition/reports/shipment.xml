@@ -160,11 +160,11 @@
 
                             <tfoot>
                                 <tr>
-                                    <td colspan="3"
+                                    <td colspan="4"
                                         style="border: 1px solid #000; text-align: right; height: 50px;vertical-align: middle;">
                                         <strong>GRAND TOTAL</strong>
                                     </td>
-                                    <td style="border: 1px solid #000; text-align: center; height: 50px;">
+                                    <td style="border: 1px solid #000; text-align: center; height: 50px;vertical-align: middle;">
                                         <t t-esc="grand_total"/>
                                     </td>
                                     <td colspan="2" style="border: 1px solid #000; height: 50px;"/>
