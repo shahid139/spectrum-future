@@ -1,5 +1,206 @@
 <odoo>
     <data>
+        <record id="action_report_purchase_requisition" model="ir.actions.report">
+            <field name="name">Purchase Requisition_1</field>
+            <field name="model">purchase.requisition</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">spectrum_purchase_requisition.custom_report_purchaserequisition_document_2</field>
+            <field name="report_file">accounting_pdf_reports.custom_report_purchaserequisition_document_2</field>
+             <field name="binding_model_id" ref="model_purchase_requisition"/>
+        <field name="binding_type">report</field>
+        </record>
+        <template id="custom_report_purchaserequisition_document_2">
+             <t t-call="web.html_container">
+            <t t-set="data_report_margin_top" t-value="12"/>
+            <t t-set="data_report_header_spacing" t-value="9"/>
+            <t t-set="data_report_dpi" t-value="110"/>
+            <t t-call="web.internal_layout">
+
+                    <div class="page">
+
+                            <div class="col-6">
+                                <span t-if="res_company.logo">
+                                    <img t-att-src="image_data_uri(res_company.logo)"
+                                         style="max-height:30pt; max-width:60%" alt="Company Logo"/>
+                                </span>
+                            </div>
+                            <div class="row">
+                                <div class="row mb-4">
+
+                                    <div class="col-6 text-left">
+                                        <h2 class="mt-4">
+                                            <span t-field="res_company.name"/>
+                                        </h2>
+                                        <strong>
+                                            <span t-field="res_company.street"/>,
+                                            <span t-field="res_company.street2"/>,
+                                            <span t-field="res_company.city"/>,
+                                            <span t-field="res_company.state_id"/>,
+                                            <span t-field="res_company.zip"/>,
+                                            <span t-field="res_company.country_id"/>,
+                                            <span t-field="res_company.phone"/>,
+                                            <span t-field="res_company.mobile"/>,
+                                        </strong>
+                                    </div>
+                                    <div class="col-6 text-right">
+                                        <h2 class="mt-4">
+                                            <span t-field="res_company.trans_comapany_name"/>
+                                        </h2>
+                                        <strong>
+                                            <span t-field="res_company.trans_street"/>,
+                                            <span t-field="res_company.trans_street2"/>,
+                                            <span t-field="res_company.trans_city"/>,
+                                            <span t-field="res_company.trans_state_id"/>,
+                                            <span t-field="res_company.zip"/>,
+                                            <span t-field="res_company.trans_country_id"/>,
+                                            <span t-field="res_company.phone"/>,
+                                            <span t-field="res_company.mobile"/>,
+                                        </strong>
+                                    </div>
+                                </div>
+
+                        </div>
+                         <div class="col-4">
+                            <t>
+                                <strong>Date from :</strong>
+                                <span t-esc="data"/>
+                            </t>
+
+                        </div>
+<!--                    <table style="width: 100%; margin-bottom: 20px; border-collapse: collapse;">-->
+<!--                                <tr>-->
+<!--                                    <td colspan="2"-->
+<!--                                        style="height: 50px; vertical-align: middle; font-weight: 900; font-size: 18px; text-align: left; padding-left: 5px;">-->
+<!--                                        PURCHASE REQUISITION-->
+<!--                                    </td>-->
+<!--                                    <td colspan="2"-->
+<!--                                        style="height: 50px; vertical-align: middle; font-weight: 900; font-size: 18px; text-align: left; padding-left: 5px;">-->
+<!--                                        <strong>Receipt No.:-</strong>-->
+<!--                                        <t t-esc="purchase.name"/>-->
+<!--                                    </td>-->
+<!--                                    <td style="height: 50px; vertical-align: middle; font-weight: 900; font-size: 18px; text-align: left; padding-left: 5px;">-->
+<!--                                        DATE-->
+<!--                                    </td>-->
+<!--                                    <td style="height: 50px; vertical-align: middle; font-size: 18px; text-align: left; padding-left: 5px;">-->
+<!--                                        <t t-esc="o.ordering_date.strftime('%d-%b-%Y') if o.ordering_date else ''"/>-->
+<!--                                    </td>-->
+<!--                                </tr>-->
+<!--                                <tr>-->
+<!--                                    <td colspan="4"-->
+<!--                                        style="height: 50px; vertical-align: middle; font-size: 18px; text-align: left; padding-left: 5px;">-->
+<!--                                        RECEIVED FROM :-->
+<!--                                        <t t-esc="o.vendor_id.name"/>-->
+<!--                                    </td>-->
+<!--                                    <td style="height: 50px; vertical-align: middle; font-size: 18px; text-align: left; padding-left: 5px;">-->
+<!--                                        <strong>SHIP TO ORG</strong>-->
+<!--                                    </td>-->
+<!--                                    <td style="height: 50px; vertical-align: middle; font-size: 18px; text-align: left; padding-left: 5px;">-->
+<!--                                        CON-->
+<!--                                    </td>-->
+<!--                                </tr>-->
+<!--                                <tr>-->
+<!--                                    <td colspan="4"-->
+<!--                                        style="height: 50px; vertical-align: middle; font-size: 18px; text-align: left; padding-left: 5px;">-->
+<!--                                    </td>-->
+<!--                                    <td style="height: 50px; vertical-align: middle; font-size: 18px; text-align: left; padding-left: 5px;">-->
+<!--                                        PROJECT CODE-->
+<!--                                    </td>-->
+<!--                                    <td style="height: 50px; vertical-align: middle; font-size: 18px; text-align: left; padding-left: 5px;">-->
+<!--                                        1023-->
+<!--                                    </td>-->
+<!--                                </tr>-->
+<!--                                <tr style="background-color: #f0f0f0;">-->
+<!--                                    <th style="border: 1px solid #000;height: 50px; vertical-align: middle; font-size: 18px; text-align: left; padding-left: 10px;">-->
+<!--                                        STOCK DESCRIPTION-->
+<!--                                    </th>-->
+<!--                                    <th style="border: 1px solid #000;height: 50px; vertical-align: middle; font-size: 18px; text-align: left; padding-left: 10px;">-->
+<!--                                        UNIT-->
+<!--                                    </th>-->
+<!--                                    <th style="border: 1px solid #000;height: 50px; vertical-align: middle; font-size: 18px; text-align: left; padding-left: 10px;">-->
+<!--                                        QTY-->
+<!--                                    </th>-->
+<!--                                    <th style="border: 1px solid #000;height: 50px; vertical-align: middle; font-size: 18px; text-align: left; padding-left: 10px;">-->
+<!--                                        UNIT PRICE-->
+<!--                                    </th>-->
+<!--                                    <th style="border: 1px solid #000;height: 50px; vertical-align: middle; font-size: 18px; text-align: left; padding-left: 10px;">-->
+<!--                                        TOTAL PRICE-->
+<!--                                    </th>-->
+
+<!--                                    <th style="border: 1px solid #000;height: 50px; vertical-align: middle; font-size: 18px; text-align: left; padding-left: 10px;">-->
+<!--                                        DATE OF EXPIRY-->
+<!--                                    </th>-->
+<!--                                </tr>-->
+<!--                                <t t-set="grand_total" t-value="0.0"/>-->
+<!--                                <t t-foreach="o.line_ids" t-as="line">-->
+<!--                                    <tr>-->
+<!--                                        <td style="border: 1px solid #000; text-align: center; height: 50px;vertical-align: middle;">-->
+<!--                                            <t t-esc="line.product_id.name"/>-->
+<!--                                        </td>-->
+<!--                                        <td style="border: 1px solid #000; text-align: center; height: 50px;vertical-align: middle;">-->
+<!--                                            <t t-esc="line.uom_id.name"/>-->
+<!--                                        </td>-->
+<!--                                        <td style="border: 1px solid #000; text-align: center; height: 50px;vertical-align: middle;">-->
+<!--                                            <t t-esc="line.product_qty"/>-->
+<!--                                        </td>-->
+<!--                                        <td style="border: 1px solid #000; text-align: center; height: 50px;vertical-align: middle;">-->
+<!--                                            <t t-esc="line.price_unit"/>-->
+<!--                                        </td>-->
+<!--                                        <td style="border: 1px solid #000; text-align: center; height: 50px;vertical-align: middle;">-->
+<!--                                            <t t-esc="line.product_qty * line.price_unit"/>-->
+<!--                                        </td>-->
+<!--                                        <td style="border: 1px solid #000; text-align: center; height: 50px;vertical-align: middle;">-->
+<!--                                            <t t-esc="line.schedule_date.strftime('%d-%b-%Y') if line.schedule_date else ''"/>-->
+<!--                                        </td>-->
+<!--                                    </tr>-->
+<!--                                    <t t-set="line_total"-->
+<!--                                       t-value="(line.product_qty or 0.0) * (line.price_unit or 0.0)"/>-->
+<!--                                    <t t-set="grand_total" t-value="grand_total + line_total"/>-->
+<!--                                </t>-->
+
+<!--                                <tfoot>-->
+<!--                                    <tr>-->
+<!--                                        <td colspan="3"-->
+<!--                                            style="border: 1px solid #000; text-align: right; height: 50px;vertical-align: middle;">-->
+<!--                                            <strong>GRAND TOTAL</strong>-->
+<!--                                        </td>-->
+<!--                                        <td style="border: 1px solid #000; text-align: center; height: 50px;">-->
+<!--                                            <t t-esc="grand_total"/>-->
+<!--                                        </td>-->
+<!--                                        <td colspan="2" style="border: 1px solid #000; height: 50px;"/>-->
+<!--                                    </tr>-->
+<!--                                    <tr>-->
+<!--                                        <td colspan="3"-->
+<!--                                            style="height: 50px; vertical-align: middle; font-weight: 900; font-size: 18px; text-align: left; padding-left: 5px;">-->
+<!--                                            PREPARED BY :-->
+<!--                                            <t t-esc="o.create_uid.name"/>-->
+<!--                                        </td>-->
+<!--                                        <td colspan="3"-->
+<!--                                            style="height: 50px; vertical-align: middle; font-weight: 900; font-size: 18px; text-align: left; padding-left: 5px;">-->
+<!--                                            RECEIVED BY :-->
+<!--                                            <t t-esc="o.create_uid.name"/>-->
+<!--                                        </td>-->
+<!--                                    </tr>-->
+<!--                                    <tr>-->
+<!--                                        <td colspan="3"-->
+<!--                                            style="height: 50px; vertical-align: middle; font-weight: 900; font-size: 18px; text-align: left; padding-left: 5px;">-->
+<!--                                            APPROVED BY :-->
+<!--                                            <t t-esc="o.create_uid.name"/>-->
+<!--                                        </td>-->
+<!--                                        <td colspan="3"-->
+<!--                                            style="height: 50px; vertical-align: middle; font-weight: 900; font-size: 18px; text-align: left; padding-left: 5px;">-->
+<!--                                            STOCK CARDS :-->
+<!--                                        </td>-->
+<!--                                    </tr>-->
+<!--                                </tfoot>-->
+<!--                            </table>-->
+
+                    </div>
+
+                </t>
+             </t>
+
+        </template>
+
         <record id="purchase_requisition.action_report_purchase_requisitions" model="ir.actions.report">
             <field name="name">Purchase Requisition</field>
             <field name="model">purchase.requisition</field>
@@ -7,8 +208,9 @@
             <field name="report_name">purchase_requisition.report_purchaserequisitions</field>
             <field name="report_file">purchase_requisition.report.report_purchaserequisitions</field>
             <field name="print_report_name">'Purchase Requisition - %s' % (object.name)</field>
-            <field name="binding_model_id" ref="purchase_requisition.model_purchase_requisition"/>
-            <field name="binding_type">report</field>
+             <field name="binding_model_id" ref="model_purchase_requisition"/>
+        <field name="binding_type">report</field>
+
         </record>
         <template id="custom_report_purchaserequisition_document"
                   inherit_id="purchase_requisition.report_purchaserequisition_document">
