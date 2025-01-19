@@ -34,37 +34,41 @@
                                             <span t-field="o.company_id.name"/>
                                         </h2>
                                         <strong>
-                                            <span t-field="o.company_id.street"/>,
-                                            <span t-field="o.company_id.street2"/>,
-                                            <span t-field="o.company_id.city"/>,
-                                            <span t-field="o.company_id.state_id"/>,
-                                            <span t-field="o.company_id.zip"/>,
-                                            <span t-field="o.company_id.country_id"/>,
-                                            <span t-field="o.company_id.phone"/>,
-                                            <span t-field="o.company_id.mobile"/>,
+                                            <span t-if="o.company_id.street" t-field="o.company_id.street"/>
+                                            <span t-if="o.company_id.street2" t-field="o.company_id.street2"/>
+                                            <span t-if="o.company_id.city" t-field="o.company_id.city"/>
+                                            <span t-if="o.company_id.state_id" t-field="o.company_id.state_id"/>
+                                            <span t-if="o.company_id.zip" t-field="o.company_id.zip"/>
+                                            <span t-if="o.company_id.country_id" t-field="o.company_id.country_id"/>
+                                            <span t-if="o.company_id.phone" t-field="o.company_id.phone"/>
+                                            <span t-if="o.company_id.mobile" t-field="o.company_id.mobile"/>
                                         </strong>
+
                                     </div>
                                     <div class="col-6 text-right">
-                                        <h2 class="mt-4">
+                                        <h2 class="mt-4 text-left">
                                             <span t-field="o.company_id.trans_comapany_name"/>
                                         </h2>
                                         <strong>
-                                            <span t-field="o.company_id.trans_street"/>,
-                                            <span t-field="o.company_id.trans_street2"/>,
-                                            <span t-field="o.company_id.trans_city"/>,
-                                            <span t-field="o.company_id.trans_state_id"/>,
-                                            <span t-field="o.company_id.zip"/>,
-                                            <span t-field="o.company_id.trans_country_id"/>,
-                                            <span t-field="o.company_id.phone"/>,
-                                            <span t-field="o.company_id.mobile"/>,
+                                            <span t-if="o.company_id.trans_street" t-field="o.company_id.trans_street"/>
+                                            <span t-if="o.company_id.trans_street2"
+                                                  t-field="o.company_id.trans_street2"/>
+                                            <span t-if="o.company_id.trans_city" t-field="o.company_id.trans_city"/>
+                                            <span t-if="o.company_id.trans_state_id"
+                                                  t-field="o.company_id.trans_state_id"/>
+                                            <span t-if="o.company_id.zip" t-field="o.company_id.zip"/>
+                                            <span t-if="o.company_id.trans_country_id"
+                                                  t-field="o.company_id.trans_country_id"/>
+                                            <span t-if="o.company_id.phone" t-field="o.company_id.phone"/>
+                                            <span t-if="o.company_id.mobile" t-field="o.company_id.mobile"/>
                                         </strong>
+
                                     </div>
                                 </div>
                             </div>
                         </div>
-
                     </xpath>
-                <br/>
+                <br/><br/>
                     <div class="page">
                         <table style="width: 100%; margin-bottom: 20px; border-collapse: collapse;">
                             <tr>

@@ -8,12 +8,12 @@
                 <xpath expr="//field[@name='currency_id']" position="after">
                     <field name="vat_number"/>
                     <field name="cr_number"/>
-                    <field name="trans_comapany_name" force_save="1"/>
-                    <field name="trans_street" force_save="1"/>
-                    <field name="trans_street2" force_save="1"/>
-                    <field name="trans_city" force_save="1"/>
-                    <field name="trans_state_id" force_save="1"/>
-                    <field name="trans_country_id" force_save="1"/>
+                    <field name="trans_comapany_name" force_save="1" invisible="1"/>
+                    <field name="trans_street" force_save="1" invisible="1"/>
+                    <field name="trans_street2" force_save="1" invisible="1"/>
+                    <field name="trans_city" force_save="1" invisible="1"/>
+                    <field name="trans_state_id" force_save="1" invisible="1"/>
+                    <field name="trans_country_id" force_save="1" invisible="1"/>
                 </xpath>
             </field>
          </record>
