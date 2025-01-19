@@ -11,9 +11,9 @@
                 </xpath>
                 <xpath expr="//header/button[@name='action_view_picking']" position="replace">
                     <button name="action_view_picking"
-                        string="Receive Products" class="oe_highlight" type="object"
-                        invisible="is_shipped or state not in ('purchase', 'done') or incoming_picking_count == 0 or pr_type_text == 'Service'"
-                        data-hotkey="y" groups="stock.group_stock_user"/>
+                            string="Receive Products" class="oe_highlight" type="object"
+                            invisible="is_shipped or state not in ('purchase', 'done') or incoming_picking_count == 0 or pr_type_text == 'Service'"
+                            data-hotkey="y" groups="stock.group_stock_user"/>
                 </xpath>
 
                 <xpath expr="//header/button[@name='confirm_reminder_mail']" position="replace">
@@ -73,6 +73,9 @@
                     <field name="tolerance"/>
                     <field name="vat_applicability"/>
                     <field name="lumps_um"/>
+                </xpath>
+                <xpath expr="//tree/field[@name='discount']" position="replace">
+                    <field name="discount" string="Disc.%" readonly="qty_invoiced != 0" optional="hide" force_save="1"/>
                 </xpath>
             </field>
         </record>

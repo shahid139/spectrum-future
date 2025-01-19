@@ -1,35 +1,47 @@
 <odoo>
     <template id="custom_purchase_order_report" inherit_id="purchase.report_purchaseorder_document">
         <xpath expr="//t[@t-call='web.external_layout']" position="replace">
-            <t t-call="web.internal_layout">
+            <t t-call="web.basic_layout">
                 <!--                 Header Section -->
-                <div>
-                    <div class="row mb-4">
-                        <div class="col-6">
-                            <span t-if="o.company_id.logo">
-                                <img t-att-src="image_data_uri(o.company_id.logo)"
-                                     style="max-height:45pt; max-width:90%" alt="Company Logo"/>
-                            </span>
-                        </div>
-                        <div class="col-6 text-right">
-                            <h2 t-if="o.state in ['draft', 'sent', 'to approve']">
-                                Request for Quotation #
-                                <span t-field="o.name"/>
-                            </h2>
-                            <h2 t-if="o.state in ['purchase', 'done']">
-                                Purchase Order #
-                                <span t-field="o.name"/>
-                            </h2>
-                            <h2 t-if="o.state == 'cancel'">
-                                Cancelled Purchase Order #
-                                <span t-field="o.name"/>
-                            </h2>
+                <div class="page">
+                    <div class="header">
+                        <div class="row mb-4">
+                            <div class="col-6 d-flex align-items-center">
+                                <!-- Company Logo -->
+                                <div style="max-width: 45%; max-height: 45%;">
+                                    <span t-if="o.company_id.logo">
+                                        <img t-att-src="image_data_uri(o.company_id.logo)"
+                                             style="max-height: 45pt; max-width: 100%;" alt="Company Logo"/>
+                                    </span>
+                                </div>
+                                <!-- Company Name -->
+                                <div style="margin-left: 10px;">
+                                    <span t-field="o.company_id.name"
+                                          style="font-weight: bold; font-size: 18px; display: block;text-transform: uppercase;color: #C70039;"/>
+                                    <span t-field="o.company_id.trans_comapany_name"
+                                          style="font-weight: bold; font-size: 18px; display: block;"/>
+                                </div>
+                            </div>
+
+                            <div class="col-6 text-right">
+                                <h5 t-if="o.state in ['draft', 'sent', 'to approve']">
+                                    Request for Quotation #
+                                    <span t-field="o.name"/>
+                                </h5>
+                                <h5 t-if="o.state in ['purchase', 'done']">
+                                    Purchase Order #
+                                    <br/>
+                                    <span t-field="o.name"/>
+                                </h5>
+                                <h5 t-if="o.state == 'cancel'">
+                                    Cancelled Purchase Order #
+                                    <span t-field="o.name"/>
+                                </h5>
+                            </div>
                         </div>
                     </div>
-                </div>
-                <div class="page">
                     <!-- Original Content Starts Here -->
-                    <div class="horizontal-line"></div>  <!-- Horizontal line -->
+                    <div class="horizontal-line"/>  <!-- Horizontal line -->
                     <div class="row mb-4">
                         <div class="col-6">
                             <strong>Vendor:</strong>
@@ -38,7 +50,9 @@
                                     <td>
                                         <strong>Vendor Account</strong>
                                     </td>
-                                    <td>-</td>
+                                    <td>
+                                        <span t-field="o.partner_id.vendor_account"/>
+                                    </td>
                                 </tr>
                                 <tr>
                                     <td>
@@ -89,14 +103,21 @@
                             </table>
                         </div>
                         <div class="col-6 text-right">
-                            <strong>
-                                <span t-field="o.company_id.street"/>,
-                                <span t-field="o.company_id.street2"/>,
-                                <span t-field="o.company_id.city"/>,
-                                <span t-field="o.company_id.state_id"/>,
-                                <span t-field="o.company_id.zip"/>,
-                                <span t-field="o.company_id.country_id"/>,
-                            </strong>
+                            <span t-field="o.company_id.name"/>
+                            <br/>
+                            <span t-field="o.company_id.street"/>
+                            <br/>
+                            <span t-field="o.company_id.street2"/>
+                            <br/>
+                            <span t-field="o.company_id.city"/>
+                            <br/>
+                            <span t-field="o.company_id.state_id"/>
+                            <br/>
+                            <span t-field="o.company_id.zip"/>
+                            <br/>
+                            <span t-field="o.company_id.country_id"/>
+                            <br/>
+
 
                             <table class="table table-borderless">
                                 <tr>
@@ -131,10 +152,6 @@
                                         <span t-field="o.company_id.vat_number"/>
                                     </td>
                                 </tr>
-                                <!--                            <tr>-->
-                                <!--                                <td><strong>Trade :</strong></td>-->
-                                <!--                                <td><span t-field="o.partner_ref" /></td>-->
-                                <!--                            </tr>-->
                             </table>
                         </div>
                     </div>
@@ -218,34 +235,14 @@
                     <!-- Inline CSS -->
                     <style>
                         .horizontal-line {
-                        border-top: 2px solid #C70039; /* Creates a horizontal line */
+                        border-top: 8px solid #C70039; /* Creates a horizontal line */
                         width: 100%; /* Makes the line span the full width */
                         margin: 10px 0; /* Adds spacing above and below the line */
                         }
 
 
-                        <!--                    .table-border_custom td {-->
-                        <!--                        border: none;-->
-                        <!--                        padding: 5px;-->
-                        <!--                    }-->
-
-                        <!--                    .table td {-->
-                        <!--                        padding: 8px;-->
-                        <!--                        vertical-align: middle;-->
-                        <!--                    }-->
-
-                        <!--                    .table td:first-child {-->
-                        <!--                        width: 30%; /* Left column width */-->
-                        <!--                        text-align: left;-->
-                        <!--                        border-right: 1px solid #ccc; /* Adds a line between label and value */-->
-                        <!--                    }-->
-
-                        <!--                    .table td:last-child {-->
-                        <!--                        width: 70%; /* Right column width */-->
-                        <!--                        text-align: left;-->
-                        <!--                    }-->
                     </style>
-                    <div class="horizontal-line"></div>  <!-- Horizontal line -->
+                    <div class="horizontal-line"/>  <!-- Horizontal line -->
                     <div class="row mb-4">
                         <div class="col-12">
                             <table class="table table-borderless">
@@ -282,7 +279,7 @@
                             <br/>
                         </div>
                     </div>
-                    <div class="horizontal-line"></div>  <!-- Horizontal line -->
+                    <div class="horizontal-line"/>  <!-- Horizontal line -->
 
                     <!-- Table Section -->
                     <table class="table table-borderless">
@@ -335,7 +332,7 @@
                             </t>
                         </tbody>
                     </table>
-                    <div class="horizontal-line"></div>  <!-- Horizontal line -->
+                    <div class="horizontal-line"/>  <!-- Horizontal line -->
 
 
                     <div class="row mb-4">
@@ -372,7 +369,7 @@
                                 <tr style="border: none;">
                                     <td style="border: none;">Total discount</td>
                                     <td class="text-right" style="border: none;">
-                                        -
+                                        <span t-esc="'{}%'.format(o.discount_value)"/>
                                     </td>
                                 </tr>
                                 <tr style="border: none;">
@@ -410,7 +407,7 @@
 
 
                     <!-- Footer Section -->
-                    <div class="horizontal-line"></div>  <!-- Horizontal line -->
+                    <div class="horizontal-line"/>  <!-- Horizontal line -->
                     <div class="footer" style="text-align: center; margin-top: 30px; font-size: 8pt; color: #333;">
                         <p>This is a system-generated Purchase Order and does not require any signature or stamping.</p>
                         <p>For queries or acknowledgement, please contact the procurement team at
@@ -427,23 +424,6 @@
             </t>
         </xpath>
     </template>
-
-    <!--    <template id="report_purchaseorder_custom" inherit_id="purchase.report_purchaseorder">-->
-    <!--        <xpath expr="//t[@t-call='web.html_container']" position="replace">-->
-    <!--            <t t-call="web.html_container">-->
-    <!--                <t t-foreach="docs" t-as="o">-->
-    <!--                    <t t-call="spectrum_purchase_requisition.custom_purchase_order_report" t-lang="o.partner_id.lang"/>-->
-    <!--                </t>-->
-    <!--            </t>-->
-    <!--        </xpath>-->
-    <!--    </template>-->
-
-    <!--    <template id="custom_external_layout" inherit_id="web.external_layout">-->
-    <!--        <xpath expr="//div[@class='header']" position="replace">-->
-    <!--            &lt;!&ndash; Empty header to override company details and logo &ndash;&gt;-->
-    <!--            <div class="header"></div>-->
-    <!--        </xpath>-->
-    <!--    </template>-->
 
     <template id="custom_internal_layout" inherit_id="web.internal_layout">
         <!-- Use xpath to find and remove the header div -->
