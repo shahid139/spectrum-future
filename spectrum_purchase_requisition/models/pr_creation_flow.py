@@ -32,6 +32,7 @@ class PurchaseRequisitionCreation(models.Model):
     invoice_count = fields.Integer(compute="_compute_invoice", string='Bill Count', copy=False, default=0, store=True)
     invoice_ids = fields.Many2many('account.move', string='Bills', copy=False, store=True)
     invoice_status = fields.Boolean(string="Invoice Status", compute="_compute_invoice_status")
+    last_approved_by = fields.Many2one('res.users',string="Last Approved By")
 
     @api.depends('invoice_ids','purchase_ids.invoice_ids')
     def _compute_invoice_status(self):
@@ -260,6 +261,7 @@ class PurchaseRequisitionCreation(models.Model):
             company_id = vals.get('company_id', self.env.company.id)
             # Get the sequence value
             vals['name'] = self.env['ir.sequence'].with_company(company_id).next_by_code('purchase.requisition.code')
+
         # Call the super method with updated vals_list
         return super(PurchaseRequisitionCreation, self).create(vals_list)
 
@@ -322,7 +324,8 @@ class PurchaseRequisitionCreation(models.Model):
     def second_approval(self):
         self.write({
             'state':'second_approval',
-            'state_blanket_order':'second_approval'
+            'state_blanket_order':'second_approval',
+            'last_approved_by':self.env.user.id
         })
 
 

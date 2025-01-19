@@ -4,6 +4,8 @@ from odoo import api, fields, models, modules, _
 from odoo.exceptions import UserError
 from odoo.tools import format_amount, format_date, formatLang, groupby
 from odoo.tools.float_utils import float_is_zero
+from odoo.tools.float_utils import float_compare, float_round
+from odoo.tools import DEFAULT_SERVER_DATETIME_FORMAT, get_lang
 
 
 
@@ -30,6 +32,7 @@ class PurchaseOrderInherited(models.Model):
     delivery_details = fields.Text(string="Delivery Details")
     remarks = fields.Text(string="Remarks")
     pr_type_text = fields.Text()
+    last_approved_by = fields.Many2one('res.users', string="Last Approved By")
 
     @api.depends('vat_applicability')
     def _validate_vat_applicability(self):
@@ -116,6 +119,7 @@ class PurchaseOrderInherited(models.Model):
         # We do this after the moves have been created since we need taxes, etc. to know if the total
         # is actually negative or not
         moves.filtered(lambda m: m.currency_id.round(m.amount_total) < 0).action_switch_move_type()
+        self.partner_id.vendor_account = self.env['ir.sequence'].next_by_code('vendor.sequence')
 
         return self.action_view_invoice(moves)
 
@@ -131,6 +135,7 @@ class PurchaseOrderInherited(models.Model):
             percentage = self.discount_value
             final_percentage = percentage/len(self.order_line)
             for rec in self.order_line:
+                rec.lumps_um = False
                 rec.discount = final_percentage
         if self.type_of_discount == 'lumpsum':
             percentage = self.discount_lumpsum
@@ -145,6 +150,7 @@ class PurchaseOrderInherited(models.Model):
     def second_approval(self):
         self.write({
             'state': 'second_approval',
+            'last_approved_by':self.env.user.id
 
         })
 
@@ -210,6 +216,8 @@ class PurchaseOrderLinesInherited(models.Model):
         if self.analytic_distribution and not self.display_type:
             res['analytic_distribution'] = self.analytic_distribution
         return res
+
+
 
 
 

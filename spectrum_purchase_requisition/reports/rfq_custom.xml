@@ -1,20 +1,41 @@
 <odoo>
     <template id="custom_rfq_report" inherit_id="purchase.report_purchasequotation_document">
         <xpath expr="//t[@t-call='web.external_layout']" position="replace">
-            <t t-call="web.internal_layout">
+            <t t-call="web.basic_layout">
                 <div class="page">
-                    <div class="header">
+                   <div class="header">
                         <div class="row mb-4">
-                            <div class="col-6">
-                                <span t-if="o.company_id.logo">
-                                    <img t-att-src="image_data_uri(o.company_id.logo)"
-                                         style="max-height:45pt; max-width:90%" alt="Company Logo"/>
-                                </span>
+                            <div class="col-6 d-flex align-items-center">
+                                <!-- Company Logo -->
+                                <div style="max-width: 45%; max-height: 45%;">
+                                    <span t-if="o.company_id.logo">
+                                        <img t-att-src="image_data_uri(o.company_id.logo)"
+                                             style="max-height: 45pt; max-width: 100%;" alt="Company Logo"/>
+                                    </span>
+                                </div>
+                                <!-- Company Name -->
+                                <div style="margin-left: 10px;">
+                                    <span t-field="o.company_id.name"
+                                          style="font-weight: bold; font-size: 18px; display: block;text-transform: uppercase;color: #C70039;"/>
+                                    <span t-field="o.company_id.trans_comapany_name"
+                                          style="font-weight: bold; font-size: 18px; display: block;"/>
+                                </div>
                             </div>
+
                             <div class="col-6 text-right">
-                                <h2 class="mt-4">Request for Quotation
+                                <h5 t-if="o.state in ['draft', 'sent', 'to approve']">
+                                    Request for Quotation #
                                     <span t-field="o.name"/>
-                                </h2>
+                                </h5>
+                                <h5 t-if="o.state in ['purchase', 'done']">
+                                    Purchase Order #
+                                    <br/>
+                                    <span t-field="o.name"/>
+                                </h5>
+                                <h5 t-if="o.state == 'cancel'">
+                                    Cancelled Purchase Order #
+                                    <span t-field="o.name"/>
+                                </h5>
                             </div>
                         </div>
                     </div>
@@ -28,7 +49,7 @@
                                     <td>
                                         <strong>Vendor Account</strong>
                                     </td>
-                                    <td>-</td>
+                                    <td> <span t-field="o.partner_id.vendor_account"/></td>
                                 </tr>
                                 <tr>
                                     <td>
@@ -209,32 +230,12 @@
                     <!-- Inline CSS -->
                     <style>
                         .horizontal-line {
-                        border-top: 2px solid #C70039; /* Creates a horizontal line */
+                        border-top: 8px solid #C70039; /* Creates a horizontal line */
                         width: 100%; /* Makes the line span the full width */
                         margin: 10px 0; /* Adds spacing above and below the line */
                         }
 
 
-                        <!--                    .table-border_custom td {-->
-                        <!--                        border: none;-->
-                        <!--                        padding: 5px;-->
-                        <!--                    }-->
-
-                        <!--                    .table td {-->
-                        <!--                        padding: 8px;-->
-                        <!--                        vertical-align: middle;-->
-                        <!--                    }-->
-
-                        <!--                    .table td:first-child {-->
-                        <!--                        width: 30%; /* Left column width */-->
-                        <!--                        text-align: left;-->
-                        <!--                        border-right: 1px solid #ccc; /* Adds a line between label and value */-->
-                        <!--                    }-->
-
-                        <!--                    .table td:last-child {-->
-                        <!--                        width: 70%; /* Right column width */-->
-                        <!--                        text-align: left;-->
-                        <!--                    }-->
                     </style>
                     <div class="horizontal-line"></div>  <!-- Horizontal line -->
                     <div class="row mb-4">
