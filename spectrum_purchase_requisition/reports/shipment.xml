@@ -31,7 +31,8 @@
 
                                     <div class="col-6 text-left">
                                         <h2 class="mt-4">
-                                            <span t-field="o.company_id.name"/>
+<!--                                            <span t-field="o.company_id.name"/>-->
+                                            <span>&amp;nbsp;</span>
                                         </h2>
                                         <strong>
                                             <span t-if="o.company_id.street" t-field="o.company_id.street"/>
@@ -117,40 +118,47 @@
                                     STOCK DESCRIPTION
                                 </th>
                                 <th style="border: 1px solid #000;height: 50px; vertical-align: middle; font-size: 18px; text-align: left; padding-left: 10px;">
+                                    DEMAND
+                                </th>
+                                <th style="border: 1px solid #000;height: 50px; vertical-align: middle; font-size: 18px; text-align: left; padding-left: 10px;">
                                     QTY
                                 </th>
-                                <th style="border: 1px solid #000;height: 50px; vertical-align: middle; font-size: 18px; text-align: left; padding-left: 10px;">
-                                    UNIT PRICE
-                                </th>
-                                <th style="border: 1px solid #000;height: 50px; vertical-align: middle; font-size: 18px; text-align: left; padding-left: 10px;">
-                                    TOTAL PRICE
-                                </th>
+
+<!--                                <th style="border: 1px solid #000;height: 50px; vertical-align: middle; font-size: 18px; text-align: left; padding-left: 10px;">-->
+<!--                                    UNIT PRICE-->
+<!--                                </th>-->
+<!--                                <th style="border: 1px solid #000;height: 50px; vertical-align: middle; font-size: 18px; text-align: left; padding-left: 10px;">-->
+<!--                                    TOTAL PRICE-->
+<!--                                </th>-->
                                 <th style="border: 1px solid #000;height: 50px; vertical-align: middle; font-size: 18px; text-align: left; padding-left: 10px;">
                                     P.O. NO
                                 </th>
-                                <th style="border: 1px solid #000;height: 50px; vertical-align: middle; font-size: 18px; text-align: left; padding-left: 10px;">
+                                <th colspan="2" style="border: 1px solid #000;height: 50px; vertical-align: middle; font-size: 18px; text-align: left; padding-left: 10px;">
                                     DATE OF EXPIRY
                                 </th>
                             </tr>
                             <t t-set="grand_total" t-value="0.0"/>
                             <t t-foreach="o.move_ids_without_package" t-as="line">
                                 <tr>
-                                    <td style="border: 1px solid #000; text-align: center; height: 50px;vertical-align: middle;">
+                                    <td style="border: 1px solid #000; text-align: left; height: 50px;vertical-align: middle;">
                                         <t t-esc="line.description_picking"/>
+                                    </td>
+                                    <td style="border: 1px solid #000; text-align: center; height: 50px;vertical-align: middle;">
+                                        <t t-esc="line.product_uom_qty"/>
                                     </td>
                                     <td style="border: 1px solid #000; text-align: center; height: 50px;vertical-align: middle;">
                                         <t t-esc="line.quantity"/>
                                     </td>
-                                    <td style="border: 1px solid #000; text-align: center; height: 50px;vertical-align: middle;">
-                                        <t t-esc="line.price_unit"/>
-                                    </td>
-                                    <td style="border: 1px solid #000; text-align: center; height: 50px;vertical-align: middle;">
-                                        <t t-esc="line.quantity * line.price_unit"/>
-                                    </td>
+<!--                                    <td style="border: 1px solid #000; text-align: center; height: 50px;vertical-align: middle;">-->
+<!--                                        <t t-esc="line.price_unit"/>-->
+<!--                                    </td>-->
+<!--                                    <td style="border: 1px solid #000; text-align: center; height: 50px;vertical-align: middle;">-->
+<!--                                        <t t-esc="line.quantity * line.price_unit"/>-->
+<!--                                    </td>-->
                                     <td style="border: 1px solid #000; text-align: center; height: 50px;vertical-align: middle;">
                                         <t t-esc="line.picking_id.origin"/>
                                     </td>
-                                    <td style="border: 1px solid #000; text-align: center; height: 50px;vertical-align: middle;">
+                                    <td colspan="2" style="border: 1px solid #000; text-align: center; height: 50px;vertical-align: middle;">
                                         <t t-esc="line.date_deadline.strftime('%d-%b-%Y') if line.date_deadline else ''"/>
                                     </td>
                                 </tr>
@@ -159,16 +167,16 @@
                             </t>
 
                             <tfoot>
-                                <tr>
-                                    <td colspan="4"
-                                        style="border: 1px solid #000; text-align: right; height: 50px;vertical-align: middle;">
-                                        <strong>GRAND TOTAL</strong>
-                                    </td>
-                                    <td style="border: 1px solid #000; text-align: center; height: 50px;vertical-align: middle;">
-                                        <t t-esc="grand_total"/>
-                                    </td>
-                                    <td colspan="2" style="border: 1px solid #000; height: 50px;"/>
-                                </tr>
+<!--                                <tr>-->
+<!--                                    <td colspan="4"-->
+<!--                                        style="border: 1px solid #000; text-align: right; height: 50px;vertical-align: middle;">-->
+<!--                                        <strong>GRAND TOTAL</strong>-->
+<!--                                    </td>-->
+<!--                                    <td style="border: 1px solid #000; text-align: center; height: 50px;vertical-align: middle;">-->
+<!--                                        <t t-esc="grand_total"/>-->
+<!--                                    </td>-->
+<!--                                    <td colspan="2" style="border: 1px solid #000; height: 50px;"/>-->
+<!--                                </tr>-->
                                 <tr>
                                     <td colspan="3"
                                         style="height: 50px; vertical-align: middle; font-weight: 900; font-size: 18px; text-align: left; padding-left: 5px;">

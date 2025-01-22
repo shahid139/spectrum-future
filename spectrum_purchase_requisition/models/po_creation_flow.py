@@ -6,6 +6,7 @@ from odoo.tools import format_amount, format_date, formatLang, groupby
 from odoo.tools.float_utils import float_is_zero
 from odoo.tools.float_utils import float_compare, float_round
 from odoo.tools import DEFAULT_SERVER_DATETIME_FORMAT, get_lang
+from datetime import datetime
 
 
 
@@ -32,7 +33,10 @@ class PurchaseOrderInherited(models.Model):
     delivery_details = fields.Text(string="Delivery Details")
     remarks = fields.Text(string="Remarks")
     pr_type_text = fields.Text()
+    first_approved_by = fields.Many2one('res.users',string="First Approved BY")
     last_approved_by = fields.Many2one('res.users', string="Last Approved By")
+    final_approval_date = fields.Datetime(string="Final Approval date")
+    first_approval_date = fields.Datetime(string="First Approval date")
 
     @api.depends('vat_applicability')
     def _validate_vat_applicability(self):
@@ -144,13 +148,16 @@ class PurchaseOrderInherited(models.Model):
                 rec.lumps_um = final_percentage
     def first_approval(self):
         self.write({
-            'state': 'first_approval'
+            'state': 'first_approval',
+            'first_approved_by':self.env.user.id,
+            'first_approval_date':datetime.now()
         })
 
     def second_approval(self):
         self.write({
             'state': 'second_approval',
-            'last_approved_by':self.env.user.id
+            'last_approved_by':self.env.user.id,
+            'final_approval_date': datetime.now()
 
         })
 
