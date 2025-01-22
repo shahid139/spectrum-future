@@ -14,15 +14,19 @@
                                     </span>
                                 </div>
                                 <!-- Company Name -->
-                                <div style="margin-left: 10px;">
-                                    <span t-field="o.company_id.name"
+<!--                                <div style="margin-left: 10px;">-->
+<!--                                    <span t-field="o.company_id.name"-->
+<!--                                          style="font-weight: bold; font-size: 18px; display: block;text-transform: uppercase;color: #C70039;"/>-->
+<!--                                    <span t-field="o.company_id.trans_comapany_name"-->
+<!--                                          style="font-weight: bold; font-size: 18px; display: block;"/>-->
+<!--                                </div>-->
+                            </div>
+
+                            <div class="col-6" style="text-align: right;">
+                                <span t-field="o.company_id.name"
                                           style="font-weight: bold; font-size: 18px; display: block;text-transform: uppercase;color: #C70039;"/>
                                     <span t-field="o.company_id.trans_comapany_name"
                                           style="font-weight: bold; font-size: 18px; display: block;"/>
-                                </div>
-                            </div>
-
-                            <div class="col-6 text-right">
                                 <h5 t-if="o.state in ['draft', 'sent', 'to approve']">
                                     Request for Quotation #
                                     <span t-field="o.name"/>
@@ -230,7 +234,7 @@
                     <!-- Inline CSS -->
                     <style>
                         .horizontal-line {
-                        border-top: 8px solid #C70039; /* Creates a horizontal line */
+                        border-top: 8px solid #046c8c; /* Creates a horizontal line */
                         width: 100%; /* Makes the line span the full width */
                         margin: 10px 0; /* Adds spacing above and below the line */
                         }

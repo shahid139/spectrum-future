@@ -29,7 +29,8 @@
 
                                     <div class="col-6 text-left">
                                         <h2 class="mt-4">
-                                            <span t-field="o.company_id.name"/>
+<!--                                            <span t-field="o.company_id.name"/>-->
+                                            <span>&amp;nbsp;</span>
                                         </h2>
                                         <strong>
                                             <span t-if="o.company_id.street" t-field="o.company_id.street"/>

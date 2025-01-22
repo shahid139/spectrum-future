@@ -14,16 +14,13 @@
                                              style="max-height: 45pt; max-width: 100%;" alt="Company Logo"/>
                                     </span>
                                 </div>
-                                <!-- Company Name -->
-                                <div style="margin-left: 10px;">
-                                    <span t-field="o.company_id.name"
-                                          style="font-weight: bold; font-size: 18px; display: block;text-transform: uppercase;color: #C70039;"/>
-                                    <span t-field="o.company_id.trans_comapany_name"
-                                          style="font-weight: bold; font-size: 18px; display: block;"/>
-                                </div>
                             </div>
 
-                            <div class="col-6 text-right">
+                            <div class="col-6" style="text-align: right;">
+                                <span t-field="o.company_id.name"
+                                      style="font-weight: bold; font-size: 18px; display: block;text-transform: uppercase;color: #f4941c;"/>
+                                <span t-field="o.company_id.trans_comapany_name"
+                                      style="font-weight: bold; font-size: 18px; display: block;"/>
                                 <h5 t-if="o.state in ['draft', 'sent', 'to approve']">
                                     Request for Quotation #
                                     <span t-field="o.name"/>
@@ -37,6 +34,9 @@
                                     Cancelled Purchase Order #
                                     <span t-field="o.name"/>
                                 </h5>
+
+
+
                             </div>
                         </div>
                     </div>
@@ -235,7 +235,7 @@
                     <!-- Inline CSS -->
                     <style>
                         .horizontal-line {
-                        border-top: 8px solid #C70039; /* Creates a horizontal line */
+                        border-top: 8px solid #046c8c; /* Creates a horizontal line */
                         width: 100%; /* Makes the line span the full width */
                         margin: 10px 0; /* Adds spacing above and below the line */
                         }
@@ -355,6 +355,7 @@
                                 <strong>Vendor Notes</strong>
                             </p>
                         </div>
+
                         <!--                    <div class="row justify-content-end mt-4">-->
                         <div class="col-4">
                             <table class="table table-sm text-right table-bordered"
@@ -402,6 +403,33 @@
                         </div>
 
                     </div>
+                    <table style="width: 100%; margin-bottom: 20px; border-collapse: collapse;">
+                        <tr>
+                            <td colspan="3"
+                                style="height: 50px; vertical-align: middle; font-weight: 900; font-size: 18px; text-align: left; padding-left: 5px;">
+                                FIRST APPROVAL BY :
+                                <t t-esc="o.first_approved_by.name"/>
+                            </td>
+                             <td colspan="3"
+                                style="height: 50px; vertical-align: middle; font-weight: 900; font-size: 18px; text-align: left; padding-left: 5px;">
+                                FIRST APPROVAL DATE :
+                                 <t t-esc="o.first_approval_date.strftime('%d-%b-%Y') if o.first_approval_date else ''"/>
+                            </td>
+
+                        </tr>
+                        <tr>
+                           <td colspan="3"
+                                style="height: 50px; vertical-align: middle; font-weight: 900; font-size: 18px; text-align: left; padding-left: 5px;">
+                                SECOND APPROVAL BY :
+                                <t t-esc="o.last_approved_by.name"/>
+                            </td>
+                             <td colspan="3"
+                                style="height: 50px; vertical-align: middle; font-weight: 900; font-size: 18px; text-align: left; padding-left: 5px;">
+                                FINAL APPROVAL DATE :
+                                 <t t-esc="o.final_approval_date.strftime('%d-%b-%Y') if o.final_approval_date else ''"/>
+                            </td>
+                        </tr>
+                    </table>
 
                     <!-- Totals Section -->
 
