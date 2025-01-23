@@ -1,359 +1,817 @@
 <odoo>
-    <template id="custom_rfq_report" inherit_id="purchase.report_purchasequotation_document">
-        <xpath expr="//t[@t-call='web.external_layout']" position="replace">
-            <t t-call="web.basic_layout">
-                <div class="page">
-                   <div class="header">
-                        <div class="row mb-4">
-                            <div class="col-6 d-flex align-items-center">
-                                <!-- Company Logo -->
-                                <div style="max-width: 45%; max-height: 45%;">
-                                    <span t-if="o.company_id.logo">
-                                        <img t-att-src="image_data_uri(o.company_id.logo)"
-                                             style="max-height: 45pt; max-width: 100%;" alt="Company Logo"/>
-                                    </span>
+    <data>
+        <template id="custom_rfq_report" inherit_id="purchase.report_purchasequotation_document">
+            <xpath expr="//t[@t-call='web.external_layout']" position="replace">
+                <t t-call="web.basic_layout">
+                    <div class="page">
+                       <div class="header">
+                            <div class="row mb-4">
+                                <div class="col-6 d-flex align-items-center">
+                                    <!-- Company Logo -->
+                                    <div style="max-width: 45%; max-height: 45%;">
+                                        <span t-if="o.company_id.logo">
+                                            <img t-att-src="image_data_uri(o.company_id.logo)"
+                                                 style="max-height: 45pt; max-width: 100%;" alt="Company Logo"/>
+                                        </span>
+                                    </div>
+                                    <!-- Company Name -->
+                                    <!--                                <div style="margin-left: 10px;">-->
+                                        <!--                                    <span t-field="o.company_id.name"-->
+    <!--                                          style="font-weight: bold; font-size: 18px; display: block;text-transform: uppercase;color: #C70039;"/>-->
+                                        <!--                                    <span t-field="o.company_id.trans_comapany_name"-->
+    <!--                                          style="font-weight: bold; font-size: 18px; display: block;"/>-->
+                                    <!--                                </div>-->
                                 </div>
-                                <!-- Company Name -->
-<!--                                <div style="margin-left: 10px;">-->
-<!--                                    <span t-field="o.company_id.name"-->
-<!--                                          style="font-weight: bold; font-size: 18px; display: block;text-transform: uppercase;color: #C70039;"/>-->
-<!--                                    <span t-field="o.company_id.trans_comapany_name"-->
-<!--                                          style="font-weight: bold; font-size: 18px; display: block;"/>-->
-<!--                                </div>-->
-                            </div>
 
-                            <div class="col-6" style="text-align: right;">
+                                <div class="col-6 " style="text-align: right;">
                                 <span t-field="o.company_id.name"
                                           style="font-weight: bold; font-size: 18px; display: block;text-transform: uppercase;color: #C70039;"/>
                                     <span t-field="o.company_id.trans_comapany_name"
                                           style="font-weight: bold; font-size: 18px; display: block;"/>
-                                <h5 t-if="o.state in ['draft', 'sent', 'to approve']">
-                                    Request for Quotation #
-                                    <span t-field="o.name"/>
-                                </h5>
-                                <h5 t-if="o.state in ['purchase', 'done']">
-                                    Purchase Order #
-                                    <br/>
-                                    <span t-field="o.name"/>
-                                </h5>
-                                <h5 t-if="o.state == 'cancel'">
-                                    Cancelled Purchase Order #
-                                    <span t-field="o.name"/>
-                                </h5>
+                                    <h5 t-if="o.state in ['draft', 'sent', 'to approve']">
+                                        Request for Quotation #
+                                        <span t-field="o.name"/>
+                                    </h5>
+                                    <h5 t-if="o.state in ['purchase', 'done']">
+                                        Purchase Order #
+                                        <br/>
+                                        <span t-field="o.name"/>
+                                    </h5>
+                                    <h5 t-if="o.state == 'cancel'">
+                                        Cancelled Purchase Order #
+                                        <span t-field="o.name"/>
+                                    </h5>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    <!-- Original Content Starts Here -->
-                    <div class="horizontal-line"/>  <!-- Horizontal line -->
-                    <div class="row mb-4">
-                        <div class="col-6">
-                            <strong>Vendor:</strong>
-                            <table class="table table-borderless">
-                                <tr>
-                                    <td>
-                                        <strong>Vendor Account</strong>
-                                    </td>
-                                    <td> <span t-field="o.partner_id.vendor_account"/></td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <strong>Vendor Name</strong>
-                                    </td>
-                                    <td>
-                                        <span t-field="o.partner_id.name"/>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <strong>Telephone</strong>
-                                    </td>
-                                    <td>
-                                        <span t-field="o.partner_id.phone"/>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <strong>Contact person</strong>
-                                    </td>
-                                    <td>-</td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <strong>Mobile No</strong>
-                                    </td>
-                                    <td>
-                                        <span t-field="o.partner_id.mobile"/>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <strong>E-mail</strong>
-                                    </td>
-                                    <td>
-                                        <span t-field="o.partner_id.email"/>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <strong>Address</strong>
-                                    </td>
-                                    <td>
-                                        <span t-field="o.partner_id.contact_address"/>
-                                    </td>
-                                </tr>
-                            </table>
-                        </div>
-                        <div class="col-6 text-right">
-                            <strong>
-                                <span t-field="o.company_id.street"/>,
-                                <span t-field="o.company_id.street2"/>,
-                                <span t-field="o.company_id.city"/>,
-                                <span t-field="o.company_id.state_id"/>,
-                                <span t-field="o.company_id.zip"/>,
-                                <span t-field="o.company_id.country_id"/>,
-                            </strong>
-
-
-                            <table class="table table-borderless">
-                                <tr>
-                                    <td>
-                                        <strong>Telephone :</strong>
-                                    </td>
-                                    <td>
-                                        <span t-field="o.partner_id.phone"/>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <strong>Email :</strong>
-                                    </td>
-                                    <td>
-                                        <span t-field="o.partner_id.email"/>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <strong>CR No :</strong>
-                                    </td>
-                                    <td>
-                                        <span t-field="o.company_id.cr_number"/>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <strong>VAT No :</strong>
-                                    </td>
-                                    <td>
-                                        <span t-field="o.company_id.vat_number"/>
-                                    </td>
-                                </tr>
-                                <!--                            <tr>-->
-                                <!--                                <td><strong>Trade :</strong></td>-->
-                                <!--                                <td><span t-field="o.partner_ref" /></td>-->
-                                <!--                            </tr>-->
-                            </table>
-                        </div>
-                    </div>
-
-                    <div class="row mb-4">
-                        <div class="col-6">
-                            <strong>Organization No :</strong>
-                            <br/>
-                            <table class="table table-borderless">
-                                <tr>
-                                    <td>
-                                        <strong>Date</strong>
-                                    </td>
-                                    <td>
-                                        <span t-field="o.date_approve"/>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <strong>VAT No.</strong>
-                                    </td>
-                                    <td>
-                                        <span t-field="o.company_id.vat_number"/>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <strong>Vendor Ref.</strong>
-                                    </td>
-                                    <td>
-                                        <span t-field="o.partner_ref"/>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <strong>PNR Number</strong>
-                                    </td>
-                                    <td>-</td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <strong>Material</strong>
-                                    </td>
-                                    <td>-</td>
-                                </tr>
-
-                            </table>
-                        </div>
-
-                        <div class="col-6 text-right">
-                            <strong>Location :</strong>
-                            <br/>
-                            <br/>
-                            <t t-if="o.company_id.name">
-                                <span t-field="o.company_id.name"/>
-                                <br/>
-                            </t>
-                            <t t-if="o.company_id.street">
-                                <span t-field="o.company_id.street"/>
-                                <br/>
-                            </t>
-                            <t t-if="o.company_id.city">
-                                <span t-field="o.company_id.city"/>
-                                <br/>
-                            </t>
-                            <t t-if="o.company_id.state_id.name">
-                                <span t-field="o.company_id.state_id.name"/>
-                                <br/>
-                            </t>
-                            <t t-if="o.company_id.zip">
-                                <span t-field="o.company_id.zip"/>
-                                <br/>
-                            </t>
-                            <t t-if="o.company_id.country_id.name">
-                                <span t-field="o.company_id.country_id.name"/>
-                            </t>
-
-                        </div>
-                    </div>
-
-                    <!-- Inline CSS -->
-                    <style>
-                        .horizontal-line {
-                        border-top: 8px solid #046c8c; /* Creates a horizontal line */
-                        width: 100%; /* Makes the line span the full width */
-                        margin: 10px 0; /* Adds spacing above and below the line */
-                        }
-
-
-                    </style>
-                    <div class="horizontal-line"></div>  <!-- Horizontal line -->
-                    <div class="row mb-4">
-                        <div class="col-12">
-                            <table class="table table-borderless">
-                                <tr>
-                                    <td>
-                                        <strong>Incoterms :</strong>
-                                    </td>
-                                    <td>
-                                        <span t-field="o.incoterm_id"/>
-                                    </td>
-                                    <td>
-                                        <strong>Payment Method :</strong>
-                                    </td>
-                                    <td>-</td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <strong>Delivery Date :</strong>
-                                    </td>
-                                    <td>
-                                        <span t-field="o.date_planned"/>
-                                    </td>
-                                    <td>
-                                        <strong>Payment terms:</strong>
-                                    </td>
-                                    <td>
-                                        <span t-field="o.payment_term_id"/>
-                                    </td>
-                                </tr>
-                            </table>
-
-                            <strong>Warranty :</strong>As per manufacturer's Standard Warranty, starting from Project's
-                            handover date
-                            <br/>
-                        </div>
-                    </div>
-                    <div class="horizontal-line"></div>  <!-- Horizontal line -->
-
-                    <!-- Table Section -->
-                    <table class="table table-borderless">
-                        <thead style="display: table-row-group">
-                            <tr>
-                                <th name="th_description">
-                                    <strong>Description</strong>
-                                </th>
-                                <th name="th_expected_date" class="text-center">
-                                    <strong>Expected Date</strong>
-                                </th>
-                                <th name="th_quantity" class="text-end">
-                                    <strong>Qty</strong>
-                                </th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <t t-foreach="o.order_line" t-as="order_line">
-                                <tr t-att-class="'bg-200 fw-bold o_line_section' if order_line.display_type == 'line_section' else 'fst-italic o_line_note' if order_line.display_type == 'line_note' else ''">
-                                    <t t-if="not order_line.display_type">
-                                        <td id="product">
-                                            <span t-field="order_line.name"/>
-                                        </td>
-                                        <td class="text-center">
-                                            <span t-field="order_line.date_planned"/>
-                                        </td>
-                                        <td class="text-end">
-                                            <span t-field="order_line.product_qty"/>
-                                            <span t-field="order_line.product_uom" groups="uom.group_uom"/>
-                                            <span t-if="order_line.product_packaging_id">
-                                                (
-                                                <span t-field="order_line.product_packaging_qty"
-                                                      t-options='{"widget": "integer"}'/>
-                                                <span t-field="order_line.product_packaging_id"/>)
-                                            </span>
-                                        </td>
-                                    </t>
-                                    <t t-else="">
-                                        <td colspan="99" id="section">
-                                            <span t-field="order_line.name"/>
-                                        </td>
-                                    </t>
-                                </tr>
-                            </t>
-                        </tbody>
-                    </table>
-
-                    <p t-field="o.notes" class="mt-4"/>
-
-                    <div class="oe_structure"/>
-
-                    <!-- Footer Section -->
-                    <div class="footer" style="text-align: center; margin-top: 30px; font-size: 12pt; color: #333;">
+                        <!-- Original Content Starts Here -->
                         <div class="horizontal-line"/>  <!-- Horizontal line -->
-                        <p>This is a system-generated Purchase Order and does not require any signature or stamping.</p>
-                        <p>For queries or acknowledgement, please contact the procurement team at
-                            <strong>Procurement@fgc.sa</strong>
-                        </p>
-                        <p>All invoices must be submitted with the corresponding PO numbers to <strong>
-                            Procurement@fgc.sa
-                        </strong> and
-                            <strong>AP@fgc.sa</strong>
-                        </p>
-                        <p>
-                            <div style="text-align: center; font-size: 10pt; position: fixed; bottom: 10px; left: 0; right: 0;">
-                                <span t-esc="page"/>
-                                /
-                                <span t-esc="total_pages"/>
+                        <div class="row mb-4">
+                            <div class="col-6">
+                                <strong>Vendor:</strong>
+                                <table class="table table-borderless">
+                                    <tr>
+                                        <td>
+                                            <strong>Vendor Account</strong>
+                                        </td>
+                                        <td> <span t-field="o.partner_id.vendor_account"/></td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <strong>Vendor Name</strong>
+                                        </td>
+                                        <td>
+                                            <span t-field="o.partner_id.name"/>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <strong>Telephone</strong>
+                                        </td>
+                                        <td>
+                                            <span t-field="o.partner_id.phone"/>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <strong>Contact person</strong>
+                                        </td>
+                                        <td>-</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <strong>Mobile No</strong>
+                                        </td>
+                                        <td>
+                                            <span t-field="o.partner_id.mobile"/>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <strong>E-mail</strong>
+                                        </td>
+                                        <td>
+                                            <span t-field="o.partner_id.email"/>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <strong>Address</strong>
+                                        </td>
+                                        <td>
+                                            <span t-field="o.partner_id.contact_address"/>
+                                        </td>
+                                    </tr>
+                                </table>
                             </div>
-                        </p>
+                            <div class="col-6 text-right">
+                                <strong>
+                                    <span t-field="o.company_id.street"/>,
+                                    <span t-field="o.company_id.street2"/>,
+                                    <span t-field="o.company_id.city"/>,
+                                    <span t-field="o.company_id.state_id"/>,
+                                    <span t-field="o.company_id.zip"/>,
+                                    <span t-field="o.company_id.country_id"/>,
+                                </strong>
+
+
+                                <table class="table table-borderless">
+                                    <tr>
+                                        <td>
+                                            <strong>Telephone :</strong>
+                                        </td>
+                                        <td>
+                                            <span t-field="o.partner_id.phone"/>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <strong>Email :</strong>
+                                        </td>
+                                        <td>
+                                            <span t-field="o.partner_id.email"/>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <strong>CR No :</strong>
+                                        </td>
+                                        <td>
+                                            <span t-field="o.company_id.cr_number"/>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <strong>VAT No :</strong>
+                                        </td>
+                                        <td>
+                                            <span t-field="o.company_id.vat_number"/>
+                                        </td>
+                                    </tr>
+                                    <!--                            <tr>-->
+                                    <!--                                <td><strong>Trade :</strong></td>-->
+                                    <!--                                <td><span t-field="o.partner_ref" /></td>-->
+                                    <!--                            </tr>-->
+                                </table>
+                            </div>
+                        </div>
+
+                        <div class="row mb-4">
+                            <div class="col-6">
+                                <strong>Organization No :</strong>
+                                <br/>
+                                <table class="table table-borderless">
+                                    <tr>
+                                        <td>
+                                            <strong>Date</strong>
+                                        </td>
+                                        <td>
+                                            <span t-field="o.date_approve"/>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <strong>VAT No.</strong>
+                                        </td>
+                                        <td>
+                                            <span t-field="o.company_id.vat_number"/>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <strong>Vendor Ref.</strong>
+                                        </td>
+                                        <td>
+                                            <span t-field="o.partner_ref"/>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <strong>PNR Number</strong>
+                                        </td>
+                                        <td>-</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <strong>Material</strong>
+                                        </td>
+                                        <td>-</td>
+                                    </tr>
+
+                                </table>
+                            </div>
+
+                            <div class="col-6 text-right">
+                                <strong>Location :</strong>
+                                <br/>
+                                <br/>
+                                <t t-if="o.company_id.name">
+                                    <span t-field="o.company_id.name"/>
+                                    <br/>
+                                </t>
+                                <t t-if="o.company_id.street">
+                                    <span t-field="o.company_id.street"/>
+                                    <br/>
+                                </t>
+                                <t t-if="o.company_id.city">
+                                    <span t-field="o.company_id.city"/>
+                                    <br/>
+                                </t>
+                                <t t-if="o.company_id.state_id.name">
+                                    <span t-field="o.company_id.state_id.name"/>
+                                    <br/>
+                                </t>
+                                <t t-if="o.company_id.zip">
+                                    <span t-field="o.company_id.zip"/>
+                                    <br/>
+                                </t>
+                                <t t-if="o.company_id.country_id.name">
+                                    <span t-field="o.company_id.country_id.name"/>
+                                </t>
+
+                            </div>
+                        </div>
+
+                        <!-- Inline CSS -->
+                        <style>
+                            .horizontal-line {
+                            border-top: 8px solid #046c8c; /* Creates a horizontal line */
+                            width: 100%; /* Makes the line span the full width */
+                            margin: 10px 0; /* Adds spacing above and below the line */
+                            }
+
+
+                        </style>
+                        <div class="horizontal-line"></div>  <!-- Horizontal line -->
+                        <div class="row mb-4">
+                            <div class="col-12">
+                                <table class="table table-borderless">
+                                    <tr>
+                                        <td>
+                                            <strong>Incoterms :</strong>
+                                        </td>
+                                        <td>
+                                            <span t-field="o.incoterm_id"/>
+                                        </td>
+                                        <td>
+                                            <strong>Payment Method :</strong>
+                                        </td>
+                                        <td>-</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <strong>Delivery Date :</strong>
+                                        </td>
+                                        <td>
+                                            <span t-field="o.date_planned"/>
+                                        </td>
+                                        <td>
+                                            <strong>Payment terms:</strong>
+                                        </td>
+                                        <td>
+                                            <span t-field="o.payment_term_id"/>
+                                        </td>
+                                    </tr>
+                                </table>
+
+                                <strong>Warranty :</strong>As per manufacturer's Standard Warranty, starting from Project's
+                                handover date
+                                <br/>
+                            </div>
+                        </div>
+                        <div class="horizontal-line"></div>  <!-- Horizontal line -->
+
+                        <!-- Table Section -->
+                        <table class="table table-borderless">
+                            <thead style="display: table-row-group">
+                                <tr>
+                                    <th name="th_description">
+                                        <strong>Description</strong>
+                                    </th>
+                                    <th name="th_expected_date" class="text-center">
+                                        <strong>Expected Date</strong>
+                                    </th>
+                                    <th name="th_quantity" class="text-end">
+                                        <strong>Qty</strong>
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <t t-foreach="o.order_line" t-as="order_line">
+                                    <tr t-att-class="'bg-200 fw-bold o_line_section' if order_line.display_type == 'line_section' else 'fst-italic o_line_note' if order_line.display_type == 'line_note' else ''">
+                                        <t t-if="not order_line.display_type">
+                                            <td id="product">
+                                                <span t-field="order_line.name"/>
+                                            </td>
+                                            <td class="text-center">
+                                                <span t-field="order_line.date_planned"/>
+                                            </td>
+                                            <td class="text-end">
+                                                <span t-field="order_line.product_qty"/>
+                                                <span t-field="order_line.product_uom" groups="uom.group_uom"/>
+                                                <span t-if="order_line.product_packaging_id">
+                                                    (
+                                                    <span t-field="order_line.product_packaging_qty"
+                                                          t-options='{"widget": "integer"}'/>
+                                                    <span t-field="order_line.product_packaging_id"/>)
+                                                </span>
+                                            </td>
+                                        </t>
+                                        <t t-else="">
+                                            <td colspan="99" id="section">
+                                                <span t-field="order_line.name"/>
+                                            </td>
+                                        </t>
+                                    </tr>
+                                </t>
+                            </tbody>
+                        </table>
+
+                        <p t-field="o.notes" class="mt-4"/>
+
+                        <div class="oe_structure"/>
+
+                        <!-- Footer Section -->
+                        <div class="footer" style="text-align: center; margin-top: 30px; font-size: 12pt; color: #333;">
+                            <div class="horizontal-line"/>  <!-- Horizontal line -->
+                            <p>This is a system-generated Purchase Order and does not require any signature or stamping.</p>
+                            <p>For queries or acknowledgement, please contact the procurement team at
+                                <strong>Procurement@fgc.sa</strong>
+                            </p>
+                            <p>All invoices must be submitted with the corresponding PO numbers to <strong>
+                                Procurement@fgc.sa
+                            </strong> and
+                                <strong>AP@fgc.sa</strong>
+                            </p>
+                            <p>
+                                <div style="text-align: center; font-size: 10pt; position: fixed; bottom: 10px; left: 0; right: 0;">
+                                    <span t-esc="page"/>
+                                    /
+                                    <span t-esc="total_pages"/>
+                                </div>
+                            </p>
+                        </div>
+                        <div style="page-break-before: always;"/> <!-- This forces a page break between each RFQ -->
                     </div>
-                    <div style="page-break-before: always;"/> <!-- This forces a page break between each RFQ -->
-                </div>
-            </t>
-        </xpath>
-    </template>
+                </t>
+            </xpath>
+        </template>
+
+        <!-- Define the Custom Report Template -->
+            <template id="custom_report_invoice_document">
+                <t t-call="web.basic_layout">
+                    <div class="page">
+                        <!-- Title: Tax Invoice -->
+                        <h2 style="text-align: center; font-size: 15px;">
+                            TAX INVOICE / <span t-esc="o.translate_to_arabic('TAX INVOICE')"/>
+                        </h2>
+
+                        <!-- Page Content with Border -->
+                        <div class="page" style="border: 1px solid black; padding: 20px;">
+                            <!-- Flex container for company name alignment -->
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <!-- English Company Name -->
+                                <strong><span t-field="o.company_id.name"
+                                      style="font-weight: bold; font-size: 18px;" /></strong>
+
+                                <!-- Arabic Company Name -->
+                                <strong><span t-esc="o.translate_to_arabic(o.company_id.name)"
+                                      style="font-weight: bold; font-size: 18px; text-align: right;" /></strong>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <span t-esc="o.company_id.partner_id.contact_address.split('\n', 1)[-1]" t-att-class="'hide-company-name'"></span>
+                                <span t-esc="o.translate_to_arabic(o.company_id.partner_id.contact_address.split('\n', 1)[-1])"  style="font-size: 15px; text-align: right;"></span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <span t-esc="'ID /CR No : ' + (o.company_id.cr_number if o.company_id.cr_number else '')" />
+
+                                <span t-esc="o.translate_to_arabic('ID /CR No : ' + (o.company_id.cr_number if o.company_id.cr_number else '') )" style="font-size: 15px; text-align: right;"></span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <span t-esc="'VAT No : ' + (o.company_id.vat_number if o.company_id.vat_number else '') "/>
+                                <span t-esc="o.translate_to_arabic('VAT No : ' + (o.company_id.vat_number if o.company_id.vat_number else '') )" style="font-size: 15px; text-align: right;"></span>
+                            </div>
+<!--                            <div style="display: flex; justify-content: space-between; width: 100%; padding: 10px;">-->
+                                <!-- Left side (60% width) -->
+                            <div style="display: flex; width: 100%; justify-content: space-between;">
+                                <!-- Left Table (Customer Information) -->
+                                <div style="width: 60%; text-align: left;">
+                                    <table style="width: 100%; border: 1px solid black; border-collapse: collapse;">
+                                        <tr style="border: 1px solid black;">
+                                            <td style="padding: 8px;">Customer Name :</td>
+                                            <td style="padding: 8px;"><span t-field="o.partner_id.name" style="font-size: 15px;" /></td>
+                                            <td style="padding: 8px;">-</td>
+                                            <td style="padding: 8px; text-align: right;"><span t-esc="o.translate_to_arabic('Customer Name :')" style="font-size: 15px;"/></td>
+                                        </tr>
+                                        <tr style="border: 1px solid black;">
+                                            <td style="padding: 8px;">Building/Street</td>
+                                            <td style="padding: 8px;"><span t-field="o.partner_id.street" style="font-size: 15px;" /></td>
+                                            <td style="padding: 8px;">-</td>
+                                            <td style="padding: 8px; text-align: right;"><span t-esc="o.translate_to_arabic('Building/Street')" style="font-size: 15px;"/></td>
+                                        </tr>
+                                        <tr style="border: 1px solid black;">
+                                            <td style="padding: 8px;">District/City</td>
+                                            <td style="padding: 8px;"><span t-field="o.partner_id.city" style="font-size: 15px;" /></td>
+                                            <td style="padding: 8px;">-</td>
+                                            <td style="padding: 8px; text-align: right;"><span t-esc="o.translate_to_arabic('District/City')" style="font-size: 15px;"/></td>
+                                        </tr>
+                                        <tr style="border: 1px solid black;">
+                                            <td style="padding: 8px;">Country</td>
+                                            <td style="padding: 8px;"><span t-field="o.partner_id.country_id" style="font-size: 15px;" /></td>
+                                            <td style="padding: 8px;">-</td>
+                                            <td style="padding: 8px; text-align: right;"><span t-esc="o.translate_to_arabic('Country')" style="font-size: 15px;"/></td>
+                                        </tr>
+                                        <tr style="border: 1px solid black;">
+                                            <td style="padding: 8px;">Postal/Addl No</td>
+                                            <td style="padding: 8px;"><span t-field="o.partner_id.zip" style="font-size: 15px;" /></td>
+                                            <td style="padding: 8px;">-</td>
+                                            <td style="padding: 8px; text-align: right;"><span t-esc="o.translate_to_arabic('Postal/Addl No')" style="font-size: 15px;"/></td>
+                                        </tr>
+                                        <tr style="border: 1px solid black;">
+                                            <td style="padding: 8px;">VAT No</td>
+                                            <td style="padding: 8px;">-</td>
+                                            <td style="padding: 8px;">-</td>
+                                            <td style="padding: 8px; text-align: right;"><span t-esc="o.translate_to_arabic('VAT No')" style="font-size: 15px;"/></td>
+                                        </tr>
+                                        <tr style="border: 1px solid black;">
+                                            <td style="padding: 8px;">ID/CR No</td>
+                                            <td style="padding: 8px;">-</td>
+                                            <td style="padding: 8px;">-</td>
+                                            <td style="padding: 8px; text-align: right;"><span t-esc="o.translate_to_arabic('ID/CR No')" style="font-size: 15px; text-align: right;"/></td>
+                                        </tr>
+                                    </table>
+                                </div>
+
+                                <!-- Right Table (Invoice Information) -->
+                                <div style="width: 40%; text-align: right;">
+                                    <table style="width: 100%; border: 1px solid black; border-collapse: collapse;">
+                                        <tr>
+                                            <td style="padding: 8px; text-align: left;">Invoice No :</td>
+                                            <td style="padding: 8px; text-align: left;"><span t-field="o.name" style="font-size: 15px;" /></td>
+                                            <td style="padding: 8px; text-align: right;"><span t-esc="o.translate_to_arabic('Invoice No :')" style="font-size: 15px; text-align: right;"/></td>
+                                        </tr>
+                                        <tr>
+                                            <td style="padding: 8px; text-align: left;">Invoice Date :</td>
+                                            <td style="padding: 8px; text-align: left;"><span t-field="o.invoice_date" style="font-size: 15px;" /></td>
+                                            <td style="padding: 8px; text-align: right;"><span t-esc="o.translate_to_arabic('Invoice Date :')" style="font-size: 15px; text-align: right;"/></td>
+                                        </tr>
+                                        <tr>
+                                            <td style="padding: 8px; text-align: left;">Due Date :</td>
+                                            <td style="padding: 8px; text-align: left;"><span t-field="o.invoice_date_due" style="font-size: 15px;" /></td>
+                                            <td style="padding: 8px; text-align: right;"><span t-esc="o.translate_to_arabic('Due Date :')" style="font-size: 15px; text-align: right;"/></td>
+                                        </tr>
+                                        <tr style="border: 1px solid black;"></tr>
+                                        <tr>
+                                            <td style="padding: 8px; text-align: left;">Delivery No :</td>
+                                            <td style="padding: 8px; text-align: left;">-</td>
+                                            <td style="padding: 8px; text-align: right;"><span t-esc="o.translate_to_arabic('Delivery No :')" style="font-size: 15px; text-align: right;"/></td>
+                                        </tr>
+                                        <tr>
+                                            <td style="padding: 8px; text-align: left;">Delivery Date :</td>
+                                            <td style="padding: 8px; text-align: left;"><span t-field="o.delivery_date" style="font-size: 15px;" /></td>
+                                            <td style="padding: 8px; text-align: right;"><span t-esc="o.translate_to_arabic('Delivery Date :')" style="font-size: 15px; text-align: right;"/></td>
+                                        </tr>
+                                        <tr>
+                                            <td style="padding: 8px; text-align: left;">Customer PO No :</td>
+                                            <td style="padding: 8px; text-align: left;"><span t-field="o.purchase_id" style="font-size: 15px;" /></td>
+                                            <td style="padding: 8px; text-align: right;"><span t-esc="o.translate_to_arabic('Customer PO No :')" style="font-size: 15px; text-align: right;"/></td>
+                                        </tr>
+                                        <tr>
+                                            <td style="padding: 8px; text-align: left;">Customer PO Date :</td>
+                                            <td style="padding: 8px; text-align: left;"><span t-field="o.purchase_id.date_approve" style="font-size: 15px;" /></td>
+                                            <td style="padding: 8px; text-align: right;"><span t-esc="o.translate_to_arabic('Customer PO Date :')" style="font-size: 15px; text-align: right;"/></td>
+                                        </tr>
+                                    </table>
+                                </div>
+
+                            </div>
+                            <div style="width: 100%; text-align: left;">
+                                <table style="width: 100%; border: 1px solid black; border-collapse: collapse; font-size: 12px;">
+                                    <thead>
+                                        <tr style="background-color: #f2f2f2; border: 1px solid black;" >
+                                            <th style="padding: 8px; text-align: left; border: 1px solid black;">
+                                                <span t-esc="o.translate_to_arabic('Total (SAR)')"/>
+                                                <br/>
+                                                Total (SAR)
+                                            </th>
+                                            <th style="padding: 8px; text-align: left; border: 1px solid black;">
+                                                <span t-esc="o.translate_to_arabic('VAT Amount (SAR)')"/>
+                                                <br/>
+                                                VAT Amount (SAR)
+                                            </th>
+                                            <th style="padding: 8px; text-align: left; border: 1px solid black;">
+                                                <span t-esc="o.translate_to_arabic('VAT %')"/>
+                                                <br/>
+                                                VAT %
+                                            </th>
+                                            <th style="padding: 8px; text-align: left; border: 1px solid black;">
+                                                <span t-esc="o.translate_to_arabic('Total Excl. Vat (SAR)')"/>
+                                                <br/>
+                                                Total Excl. Vat (SAR)
+                                            </th>
+                                            <th style="padding: 8px; text-align: left; border: 1px solid black;">
+                                                <span t-esc="o.translate_to_arabic('(SAR) Disc')"/>
+                                                <br/>
+                                                (SAR) Disc
+                                            </th>
+                                            <th style="padding: 8px; text-align: left; border: 1px solid black;">
+                                                <span t-esc="o.translate_to_arabic('(SAR) Unit Price')"/>
+                                                <br/>
+                                                (SAR) Unit Price
+                                            </th>
+                                            <th style="padding: 8px; text-align: right; border: 1px solid black;">
+                                                <span t-esc="o.translate_to_arabic('No. of Pkg')"/>
+                                                <br/>
+                                                No. of Pkg
+                                            </th>
+                                            <th style="padding: 8px; text-align: right; border: 1px solid black;">
+                                                <span t-esc="o.translate_to_arabic('Quantity')"/>
+                                                <br/>
+                                                Quantity
+                                            </th>
+                                            <th style="padding: 8px; text-align: right; border: 1px solid black;">
+                                                <span t-esc="o.translate_to_arabic('UOM')"/>
+                                                <br/>
+                                                UOM
+                                            </th>
+                                            <th style="padding: 8px; text-align: right; border: 1px solid black;">
+                                                <span t-esc="o.translate_to_arabic('Description')"/>
+                                                <br/>
+                                                Description
+                                            </th>
+                                            <th style="padding: 8px; text-align: right; border: 1px solid black;">
+                                                <span t-esc="o.translate_to_arabic('Item / Job No')"/>
+                                                <br/>
+                                                Item / Job No
+                                            </th>
+                                            <th style="padding: 8px; text-align: right; border: 1px solid black;">
+                                                <span t-esc="o.translate_to_arabic('S. No')"/>
+                                                <br/>
+                                                S. No
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <t t-foreach="o.invoice_line_ids" t-as="line" t-enum="index">
+                                            <tr style="border: 1px solid black;">
+                                                <td style="padding: 8px; border: 1px solid black;"><span t-field="line.price_total" style="font-size: 15px;" /></td>
+                                                <td style="padding: 8px; text-align: right; border: 1px solid black;"> - </td>
+                                                <td style="padding: 8px; text-align: right border: 1px solid black;"> - </td>
+                                                <td style="padding: 8px; text-align: right; border: 1px solid black;"><span t-field="line.price_subtotal" style="font-size: 15px;" /></td>
+                                                <td style="padding: 8px; text-align: right; border: 1px solid black;"><span t-field="line.discount" style="font-size: 15px;" /></td>
+                                                <td style="padding: 8px; text-align: right; border: 1px solid black;"><span t-field="line.price_unit" style="font-size: 15px;" /></td>
+                                                <td style="padding: 8px; text-align: right; border: 1px solid black;"> - </td>
+                                                <td style="padding: 8px; text-align: right; border: 1px solid black;"><span t-field="line.quantity" style="font-size: 15px;" /></td>
+                                                <td style="padding: 8px; text-align: right; border: 1px solid black;"><span t-field="line.product_uom_id.name" style="font-size: 15px;" /></td>
+                                                <td style="padding: 8px; text-align: right; border: 1px solid black;"><span t-field="line.name" style="font-size: 15px;" /></td>
+                                                <td style="padding: 8px; text-align: right; border: 1px solid black;"> - </td>
+                                                <td style="padding: 8px; text-align: right; border: 1px solid black;">
+                                                    <span t-esc="index + 1 if index is not None else 0" style="font-size: 15px;" />
+                                                </td>
+                                            </tr>
+                                        </t>
+                                    </tbody>
+                                </table>
+
+                            </div>
+                            <div style="display: flex; width: 100%; justify-content: space-between;">
+                                <div style="width: 40%; text-align: left;">
+                                    <table style="width: 100%; border: 1px solid black; font-size: 12px;">
+                                        <tr style="border: 1px solid black;" >
+                                            <th style="padding: 8px; text-align: left; border: 1px solid black;">
+                                                52,048.00
+                                            </th>
+                                            <th style="padding: 8px; text-align: left;">Total Excl. VAT (SA)</th>
+                                            <th style="padding: 8px; text-align: right;">
+                                                <span t-esc="o.translate_to_arabic('Total Excl. VAT (SA)')" style="text-align: right;"/>
+                                            </th>
+
+                                        </tr>
+                                        <tr style="border: 1px solid black;" >
+                                            <th style="padding: 8px; text-align: left;border: 1px solid black;">
+                                                -
+                                            </th>
+                                            <th style="padding: 8px; text-align: left;">Transportation (SAR)</th>
+                                            <th style="padding: 8px; text-align: right;">
+                                                <span t-esc="o.translate_to_arabic('Transportation (SAR)')" style="text-align: right;"/>
+                                            </th>
+                                        </tr>
+                                        <tr style="border: 1px solid black;" >
+                                            <th style="padding: 8px; text-align: left; border: 1px solid black;">
+                                                -
+                                            </th>
+                                            <th style="padding: 8px; text-align: left;">Discount (SAR)</th>
+                                            <th style="padding: 8px; text-align: right;">
+                                                <span t-esc="o.translate_to_arabic('Discount (SAR)')" style="text-align: right;"/>
+                                            </th>
+                                        </tr>
+
+                                        <tr style="border: 1px solid black;" >
+                                            <th style="padding: 8px; text-align: left; border: 1px solid black;">
+                                                -
+                                            </th>
+                                            <th style="padding: 8px; text-align: left;">Total VAT Amount (SAR)</th>
+                                            <th style="padding: 8px; text-align: right;">
+                                                <span t-esc="o.translate_to_arabic('Total VAT Amount (SAR)')" style="text-align: right;"/>
+                                            </th>
+                                        </tr>
+
+                                        <tr style="border: 1px solid black;" >
+                                            <th style="padding: 8px; text-align: left; border: 1px solid black;">
+                                                -
+                                            </th>
+                                            <th style="padding: 8px; text-align: left;">Total Amount with VAT (SAR)</th>
+                                            <th style="padding: 8px; text-align: right;">
+                                                <span t-esc="o.translate_to_arabic('Total Amount with VAT (SAR)')" style="text-align: right;"/>
+                                            </th>
+                                        </tr>
+                                        <tr style="border: 1px solid black;" >
+                                            <th style="padding: 8px; text-align: left; border: 1px solid black;">
+                                                -
+                                            </th>
+                                            <th style="padding: 8px;">
+                                                Due Amount (SAR)
+                                            </th>
+                                            <th style="padding: 8px; text-align: right;">
+                                                <span t-esc="o.translate_to_arabic('Due Amount (SAR)')" style="text-align: right;"/>
+                                            </th>
+                                        </tr>
+                                    </table>
+                                </div>
+                                <div style="width: 60%; text-align: right;">
+                                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                                        <span style="font-size: 12px;">Amount in words :</span>
+                                        <span t-esc="o.translate_to_arabic('Amount in words :')" style="font-size: 12px; text-align: right;" />
+                                    </div>
+                                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                                        <span t-esc="o.currency_id.amount_to_text(o.amount_total)" style="font-size: 12px;"/>
+                                        <span t-esc="o.translate_to_arabic(o.currency_id.amount_to_text(o.amount_total))" style="font-size: 12px; text-align: right;" />
+                                    </div>
+
+                                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                                        <span style="font-size: 12px;">Delivery Number</span>
+                                        <span style="font-size: 12px;"> ----- </span>
+                                        <span t-esc="o.translate_to_arabic('Delivery Number')" style="font-size: 12px; text-align: right;" />
+                                    </div>
+
+                                    <table style="width: 100%; border: 1px solid black; font-size: 12px;">
+                                        <tr>
+                                            <td style="width: 25%; border: 1px solid black; padding: 10px;">
+                                                <table style="width: 100%; font-size: 12px;">
+                                                    <tr>
+                                                        <td style="text-align: left; padding-bottom: 5px;">Prepared By</td>
+                                                        <td style="text-align: right; padding-bottom: 5px;">
+                                                            <span t-esc="o.translate_to_arabic('Prepared By')" style="text-align: right;"/>
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td style="text-align: left;">
+                                                            <span t-esc="o.translate_to_arabic('Name')" style="text-align: right;"/>
+                                                            <br/>
+                                                            Name:
+                                                        </td>
+                                                        <td style="text-align: right;">-</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td style="text-align: left;">
+                                                            <span t-esc="o.translate_to_arabic('Sign')" style="text-align: right;"/>
+                                                            <br/>Sign:
+                                                        </td>
+                                                        <td style="text-align: right;">-</td>
+                                                    </tr>
+                                                </table>
+                                            </td>
+                                            <td style="width: 25%; border: 1px solid black; padding: 10px;">
+                                                <table style="width: 100%; font-size: 12px;">
+                                                    <tr>
+                                                        <td style="text-align: left; padding-bottom: 5px;">Approved By</td>
+                                                        <td style="text-align: right; padding-bottom: 5px;">
+                                                            <span t-esc="o.translate_to_arabic('Approved By')" style="text-align: right;"/>
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td style="text-align: left;">
+                                                            <span t-esc="o.translate_to_arabic('Name')" style="text-align: right;"/>
+                                                            <br/>
+                                                            Name:
+                                                        </td>
+                                                        <td style="text-align: right;">-</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td style="text-align: left;">
+                                                            <span t-esc="o.translate_to_arabic('Sign')" style="text-align: right;"/>
+                                                            <br/>
+                                                            Sign:
+                                                        </td>
+                                                        <td style="text-align: right;">-</td>
+                                                    </tr>
+                                                </table>
+                                            </td>
+                                            <td style="width: 25%; border: 1px solid black; padding: 10px;">
+                                                <table style="width: 100%; font-size: 12px;">
+                                                    <tr>
+                                                        <td style="text-align: left; padding-bottom: 5px;">Salesman</td>
+                                                        <td style="text-align: right; padding-bottom: 5px;">
+                                                            <span t-esc="o.translate_to_arabic('Salesman')" style="text-align: right;"/>
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td style="text-align: left;">
+                                                            <span t-esc="o.translate_to_arabic('Name')" style="text-align: right;"/>
+                                                            <br/>
+                                                            Name:
+                                                        </td>
+                                                        <td style="text-align: right;"> - </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td style="text-align: left;">
+                                                            <span t-esc="o.translate_to_arabic('Sign')" style="text-align: right;"/>
+                                                            <br/>
+                                                            Sign:
+                                                        </td>
+                                                        <td style="text-align: right;">-</td>
+                                                    </tr>
+                                                </table>
+                                            </td>
+                                            <td style="width: 25%; border: 1px solid black; padding: 10px;">
+                                                <table style="width: 100%; font-size: 12px;">
+                                                    <tr>
+                                                        <td style="text-align: left; padding-bottom: 5px;">Received By</td>
+                                                        <td style="text-align: right; padding-bottom: 5px;">
+                                                            <span t-esc="o.translate_to_arabic('Received By')" style="text-align: right;"/>
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td style="text-align: left;">
+                                                            <span t-esc="o.translate_to_arabic('Name')" style="text-align: right;"/>
+                                                            <br/>
+                                                            Name:
+                                                        </td>
+                                                        <td style="text-align: right;">-</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td style="text-align: left;">
+                                                            <span t-esc="o.translate_to_arabic('Sign')" style="text-align: right;"/>
+                                                            <br/>
+                                                            Sign:
+                                                        </td>
+                                                        <td style="text-align: right;">-</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td style="text-align: left;">Date  Time</td>
+                                                        <td style="text-align: right;">-</td>
+                                                    </tr>
+                                                </table>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </div>
+
+                            </div>
+                            <div style="display: flex; width: 100%; justify-content: space-between;">
+                                <div style="width: 40%; text-align: left;">
+                                    <table style="width: 100%; border: 1px solid black; font-size: 12px;">
+                                        <tr>
+                                            <td style="text-align: right;">
+                                                <span t-esc="o.translate_to_arabic('I have received the above mentioned goods/services and I agree to pay the amount on due date.')" style="text-align: right;"/>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td style="text-align: left;">
+                                                I have received the above mentioned goods/services and I agree to pay the amount on due date.
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="footer">
+                            <span style="text-align: left;" t-esc="'Website : ' + (o.company_id.website if o.company_id.website else '') + ' ' + 'Email Id :' + (o.company_id.email if o.company_id.email else '') + ' ' + 'Phone No :' + (o.company_id.email if o.company_id.email else '')" />
+                            <span style="text-align: right;">This is system generated invoice, no signature required.</span>
+                        </div>
+                    </div>
+                </t>
+            </template>
+
+
+            <!-- Extend and Modify the Existing Invoice Report -->
+            <template id="customr_report_invoice" inherit_id="account.report_invoice">
+                <xpath expr="//t[@t-call='web.html_container']" position="replace">
+                    <t t-call="web.html_container">
+                        <t t-foreach="docs" t-as="o">
+                            <t t-set="lang" t-value="o.partner_id.lang"/>
+                            <t t-call="spectrum_purchase_requisition.custom_report_invoice_document"
+                               t-lang="lang"/>
+<!--                            <t t-else="">-->
+<!--                                &lt;!&ndash; Default report template &ndash;&gt;-->
+<!--                                <t t-call="account.report_invoice_document"/>-->
+<!--                            </t>-->
+                        </t>
+                    </t>
+                </xpath>
+            </template>
+
+    </data>
 </odoo>
 

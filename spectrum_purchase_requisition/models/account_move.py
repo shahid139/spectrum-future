@@ -1,5 +1,6 @@
 from odoo import api, fields, models, modules, _
 from odoo.exceptions import UserError
+from deep_translator import GoogleTranslator
 
 class AccountInherited(models.Model):
     _inherit = 'account.move'
@@ -35,3 +36,7 @@ class AccountInherited(models.Model):
         self.write({'state':'second_approval'})
     def validate_third_approval(self):
         self.write({'state':'third_approval'})
+
+    def translate_to_arabic(self, text):
+        translated_text = GoogleTranslator(source='en', target='ar').translate(text)
+        return translated_text
