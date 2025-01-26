@@ -21,7 +21,7 @@
                             <div class="col-6">
                                 <span t-if="o.company_id.logo">
                                     <img t-att-src="image_data_uri(o.company_id.logo)"
-                                         style="max-height:30pt; max-width:60%" alt="Company Logo"/>
+                                         style="max-height:50pt; max-width:65%" alt="Company Logo"/>
                                 </span>
                             </div>
                             <div class="row">
@@ -29,7 +29,7 @@
 
                                     <div class="col-6 text-left">
                                         <h2 class="mt-4">
-<!--                                            <span t-field="o.company_id.name"/>-->
+                                            <!--                                            <span t-field="o.company_id.name"/>-->
                                             <span>&amp;nbsp;</span>
                                         </h2>
                                         <strong>
@@ -44,11 +44,11 @@
                                         </strong>
 
                                     </div>
-                                    <div class="col-6 text-right">
-                                        <h2 class="mt-4 text-left">
+                                    <div class="col-6">
+                                        <h2 class="mt-4" style="text-align: right;">
                                             <span t-field="o.company_id.trans_comapany_name"/>
                                         </h2>
-                                        <strong>
+                                        <strong style="text-align: right;">
                                             <span t-if="o.company_id.trans_street" t-field="o.company_id.trans_street"/>
                                             <span t-if="o.company_id.trans_street2"
                                                   t-field="o.company_id.trans_street2"/>
