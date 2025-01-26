@@ -40,3 +40,13 @@ class AccountInherited(models.Model):
     def translate_to_arabic(self, text):
         translated_text = GoogleTranslator(source='en', target='ar').translate(text)
         return translated_text
+
+    def get_delivery_number(self,po_number):
+        if po_number:
+            stock_picking_id = self.env['stock.picking'].search([('origin','=',po_number)],limit=1)
+            return stock_picking_id.name
+    def get_purchase_order_date(self,po_number):
+        if po_number:
+            purchase_order = self.env['purchase.order'].search([('name','=',po_number)],limit=1)
+            return purchase_order.create_date
+
