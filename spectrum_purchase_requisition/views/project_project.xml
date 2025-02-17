@@ -10,6 +10,18 @@
                     <field name="spent_amount"/>
                     <field name="available_budget"/>
                 </xpath>
+                <xpath expr="//page[@name='settings']" position="after">
+                    <page name="budget_history" string="Budget History">
+                        <field name="budget_history">
+                            <tree create="0" delete="0">
+                                <field name="write_uid"/>
+                                <field name="write_date"/>
+                                <field name="old_value"/>
+                                <field name="new_value"/>
+                            </tree>
+                        </field>
+                    </page>
+                </xpath>
             </field>
          </record>
 
