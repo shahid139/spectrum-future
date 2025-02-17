@@ -3,6 +3,7 @@ from odoo.exceptions import UserError
 from odoo.tools import format_amount, format_date, formatLang, groupby
 from odoo.tools.float_utils import float_is_zero
 from odoo.exceptions import UserError, ValidationError
+from datetime import datetime
 
 PURCHASE_REQUISITION_STATES = [
     ('draft', 'Draft'),
@@ -22,7 +23,7 @@ class PurchaseRequisitionCreation(models.Model):
     business_unit = fields.Many2one('business.unit', string='Select BU',required=True)
     project_id = fields.Many2one('project.project',string="Select Project")
     account_id = fields.Many2one('account.analytic.account',string="Select Natural Account",required=True)
-    budget_task = fields.Many2one('crossovered.budget',string="Select Budget Task",required=True)
+    # budget_task = fields.Many2one('crossovered.budget',string="Select Budget Task",required=True)
     state = fields.Selection(PURCHASE_REQUISITION_STATES,
                              'Status', tracking=True, required=True,
                              copy=False, default='draft')
@@ -32,7 +33,11 @@ class PurchaseRequisitionCreation(models.Model):
     invoice_count = fields.Integer(compute="_compute_invoice", string='Bill Count', copy=False, default=0, store=True)
     invoice_ids = fields.Many2many('account.move', string='Bills', copy=False, store=True)
     invoice_status = fields.Boolean(string="Invoice Status", compute="_compute_invoice_status")
-    last_approved_by = fields.Many2one('res.users',string="Last Approved By")
+
+    first_approved_user = fields.Many2one('res.users',string="First Approved By")
+    first_approved_date = fields.Datetime(string="First Approved On")
+    last_approved_by = fields.Many2one('res.users', string="Second Approved By")
+    second_approved_date = fields.Datetime(string="Second Approved On")
 
     @api.depends('invoice_ids','purchase_ids.invoice_ids')
     def _compute_invoice_status(self):
@@ -219,40 +224,40 @@ class PurchaseRequisitionCreation(models.Model):
         self.ensure_one()
         if not self.line_ids:
             raise UserError(_("You cannot confirm agreement '%s' because there is no product line.", self.name))
-        if self.budget_task:
-            planned_amount = sum([v.planned_amount for v in self.budget_task.crossovered_budget_line])
-            practical_amount = sum([v.practical_amount for v in self.budget_task.crossovered_budget_line])
-            requisition_amount = sum([v.total for v in self.line_ids])
-            available_amount = planned_amount - practical_amount
-            if requisition_amount > available_amount:
-                self.state = 'cancel'
-                sticky_notify = {
-                    'type': 'ir.actions.client',
-                    'tag': 'display_notification',
-                    'params': {
-                        'title': _('Validation'),
-                        'message': 'No Funds Available for PR creation.',
-                        'sticky': False,
-                        'next': {
-                            'type': 'ir.actions.act_window_close'
-                        },
-                    }
+        # planned_amount = sum([v.planned_amount for v in self.budget_task.crossovered_budget_line])
+        # practical_amount = sum([v.practical_amount for v in self.budget_task.crossovered_budget_line])
+        requisition_amount = sum([v.total for v in self.line_ids])
+        # available_amount = planned_amount - practical_amount
+        available_amount = self.project_id.available_budget
+        if requisition_amount <= available_amount:
+            self.state = 'cancel'
+            sticky_notify = {
+                'type': 'ir.actions.client',
+                'tag': 'display_notification',
+                'params': {
+                    'title': _('Validation'),
+                    'message': 'No Funds Available for PR creation.',
+                    'sticky': False,
+                    'next': {
+                        'type': 'ir.actions.act_window_close'
+                    },
                 }
-            else:
-                sticky_notify = {
-                    'type': 'ir.actions.client',
-                    'tag': 'display_notification',
-                    'params': {
-                        'title': _('Validation'),
-                        'message': 'Funds Available for PR creation.',
-                        'sticky': False,
-                        'next': {
-                            'type': 'ir.actions.act_window_close'
-                        },
-                    }
+            }
+        else:
+            sticky_notify = {
+                'type': 'ir.actions.client',
+                'tag': 'display_notification',
+                'params': {
+                    'title': _('Validation'),
+                    'message': 'Funds Available for PR creation.',
+                    'sticky': False,
+                    'next': {
+                        'type': 'ir.actions.act_window_close'
+                    },
                 }
+            }
 
-            return sticky_notify
+        return sticky_notify
     @api.model_create_multi
     def create(self, vals_list):
         # Ensure `company_id` is available in the input values
@@ -295,37 +300,59 @@ class PurchaseRequisitionCreation(models.Model):
         self.ensure_one()
         if not self.line_ids:
             raise UserError(_("You cannot confirm agreement '%s' because there is no product line.", self.name))
-        if self.budget_task:
-            planned_amount = sum([v.planned_amount for v in self.budget_task.crossovered_budget_line])
-            practical_amount = sum([v.practical_amount for v in self.budget_task.crossovered_budget_line])
-            requisition_amount = sum([v.total for v in self.line_ids])
-            available_amount = planned_amount - practical_amount
-            if requisition_amount > available_amount:
-                self.state = 'cancel'
-                sticky_notify = {
-                    'type': 'ir.actions.client',
-                    'tag': 'display_notification',
-                    'params': {
-                        'title': _('Validation'),
-                        'message': 'No Fund Available for PR creation.',
-                        'sticky': False,
-                        'next': {
-                            'type': 'ir.actions.act_window_close'
-                        },
-                    }
-                }
+        login_user = self.env.user
+        approval_config = self.env['approval.configuration'].search([('project_id','in',self.project_id.id),('approval_type','=','pr_approval'),('pr_approval_levels','=','level_1'),('approved_user','in',login_user.id),('is_active','=',True)],limit=1)
+        approve_users = [v.name for v in approval_config.approved_user]
+        if not approval_config:
+            raise UserError(
+                f"You do not have permission to approve this Purchase Requisition at the first approval level.\n"
+                f"Authorized users for the first approval: {', '.join(approve_users)}"
+            )
 
-                return sticky_notify
+        # planned_amount = sum([v.planned_amount for v in self.budget_task.crossovered_budget_line])
+        # practical_amount = sum([v.practical_amount for v in self.budget_task.crossovered_budget_line])
+        requisition_amount = sum([v.total for v in self.line_ids])
+        # available_amount = planned_amount - practical_amount
+        available_amount = self.project_id.available_budget
+        if requisition_amount <= available_amount:
+            self.state = 'cancel'
+            sticky_notify = {
+                'type': 'ir.actions.client',
+                'tag': 'display_notification',
+                'params': {
+                    'title': _('Validation'),
+                    'message': 'No Fund Available for PR creation.',
+                    'sticky': False,
+                    'next': {
+                        'type': 'ir.actions.act_window_close'
+                    },
+                }
+            }
+
+            return sticky_notify
         self.write({
             'state_blanket_order': 'first_approval',
-            'state':'first_approval'
+            'state':'first_approval',
+            'first_approved_user':login_user.id,
+            'first_approved_date':datetime.now()
         })
 
     def second_approval(self):
+        login_user = self.env.user
+        approval_config = self.env['approval.configuration'].search(
+            [('project_id','in',self.project_id.id),('approval_type', '=', 'pr_approval'), ('pr_approval_levels', '=', 'level_2'),
+             ('approved_user', 'in', login_user.id), ('is_active', '=', True)], limit=1)
+        approve_users = [v.name for v in approval_config.approved_user]
+        if not approval_config:
+            raise UserError(
+                f"You do not have permission to approve this Purchase Requisition at the first approval level.\n"
+                f"Authorized users for the first approval: {', '.join(approve_users)}"
+            )
         self.write({
             'state':'second_approval',
             'state_blanket_order':'second_approval',
-            'last_approved_by':self.env.user.id
+            'last_approved_by':self.env.user.id,
+            'second_approved_date':datetime.now()
         })
 
 

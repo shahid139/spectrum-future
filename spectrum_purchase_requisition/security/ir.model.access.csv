@@ -2,3 +2,6 @@ id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
 
 access_business_unit,business.unit,model_business_unit,base.group_user,1,1,1,1
 access_purchase_requisition_type,purchase.requisition.type,purchase_requisition.model_purchase_requisition_type,base.group_user,1,1,1,1
+access_subject_subject,subject.subject,model_subject_subject,base.group_user,1,1,1,1
+access_mail_subject,mail.subject,model_mail_subject,base.group_user,1,1,1,1
+access_approval_configuration,approval.configuration,model_approval_configuration,base.group_user,1,1,1,1

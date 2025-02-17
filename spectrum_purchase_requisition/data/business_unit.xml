@@ -21,9 +21,9 @@
         <record id="business_unit_5" model="business.unit">
             <field name="name">TRD</field>
         </record>
-        <record id="mail_subject_configuration" model="ir.config_parameter">
-            <field name="key">spectrum_purchase_requisition.crm_lead_subject</field>
-            <field name="value">spectrum_purchase_requisition</field>
-        </record>
+<!--        <record id="mail_subject_configuration" model="ir.config_parameter">-->
+<!--            <field name="key">spectrum_purchase_requisition.crm_lead_subject</field>-->
+<!--            <field name="value">spectrum_purchase_requisition</field>-->
+<!--        </record>-->
     </data>
 </odoo>

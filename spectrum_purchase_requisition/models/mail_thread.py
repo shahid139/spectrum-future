@@ -25,9 +25,8 @@ class MailThreadInhrited(models.AbstractModel):
            :return: the id of the newly created thread object
         """
         data = {}
-        crm_lead_subject = (
-            self.env["ir.config_parameter"].sudo().get_param("spectrum_purchase_requisition.crm_lead_subject")
-        )
+        crm_lead_subject = self.env["mail.subject"].search([('name','=','spectrum_purchase_requisition.crm_lead_subject')],limit=1)
+        crm_mail_subjects = [v.name for v in crm_lead_subject.value ]
         if isinstance(custom_values, dict):
             data = custom_values.copy()
         model_fields = self.fields_get()
@@ -40,6 +39,6 @@ class MailThreadInhrited(models.AbstractModel):
         if primary_email and msg_dict.get('email_from'):
             data[primary_email] = msg_dict['email_from']
         data['description'] = msg_dict.get('body', '')
-        if data.get('name') == crm_lead_subject:
+        if data.get('name') in crm_mail_subjects:
             return self.create(data)
         return

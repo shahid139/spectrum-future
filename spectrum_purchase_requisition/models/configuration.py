@@ -6,9 +6,3 @@ class BusinessUnit(models.Model):
 
     name = fields.Char(string="Name")
 
-
-# class PurchaseRequisitionType(models.Model):
-#     _name = "purchase.requisition.type"
-#     _description = "Purchase Requisition Type"
-#
-#     name = fields.Char(string="Name")

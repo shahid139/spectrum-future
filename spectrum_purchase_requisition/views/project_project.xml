@@ -1,0 +1,17 @@
+<odoo>
+    <data>
+         <record id="project_project_inherited" model="ir.ui.view">
+            <field name="name">project.project.inherited</field>
+            <field name="model">project.project</field>
+            <field name="inherit_id" ref="project.edit_project"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='date_start']" position="after">
+                    <field name="total_budget"/>
+                    <field name="spent_amount"/>
+                    <field name="available_budget"/>
+                </xpath>
+            </field>
+         </record>
+
+    </data>
+</odoo>
