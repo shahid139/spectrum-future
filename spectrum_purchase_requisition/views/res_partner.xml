@@ -8,7 +8,7 @@
                 <xpath expr="//form/div[@name='warning_tax']" position="before">
                     <header>
                         <button name="block_customer" invisible="customer_status == 'block'" type="object" string="Block" confirm="Do you want to block the Customer?"/>
-                        <button name="unblock_block_customer" invisible="customer_status == 'unblock'" type="object" string="UnBlock" confirm="Do you want to block the Customer?"/>
+                        <button name="unblock_block_customer" invisible="customer_status == 'unblock'" type="object" string="Un Block" confirm="Do you want to block the Customer?"/>
                     </header>
                 </xpath>
                 <field name="industry_id" position="after">
@@ -48,11 +48,10 @@
                 <xpath expr="//field[@name='vat']" position="replace">
                     <field name="vat" required="1" placeholder="e.g. BE0477472701" readonly="parent_id"/>
                 </xpath>
-                <xpath expr="//field[@name='vat']" position="after">
+                <xpath expr="//field[@name='category_id']" position="after">
                     <field name="cr_number" required="1" placeholder="e.g. BE0477472701" readonly="parent_id"/>
                     <field name="customer_currency" required="1" readonly="parent_id"/>
                     <field name="customer_tax" required="1"  readonly="parent_id"/>
-
                     <field name="customer_status" invisible="1"/>
                 </xpath>
 

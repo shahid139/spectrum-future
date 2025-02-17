@@ -229,27 +229,14 @@ class PurchaseRequisitionCreation(models.Model):
         requisition_amount = sum([v.total for v in self.line_ids])
         # available_amount = planned_amount - practical_amount
         available_amount = self.project_id.available_budget
-        if requisition_amount <= available_amount:
-            self.state = 'cancel'
-            sticky_notify = {
+        print(requisition_amount,'======',available_amount)
+        def create_sticky_notification(title, message):
+            return {
                 'type': 'ir.actions.client',
                 'tag': 'display_notification',
                 'params': {
-                    'title': _('Validation'),
-                    'message': 'No Funds Available for PR creation.',
-                    'sticky': False,
-                    'next': {
-                        'type': 'ir.actions.act_window_close'
-                    },
-                }
-            }
-        else:
-            sticky_notify = {
-                'type': 'ir.actions.client',
-                'tag': 'display_notification',
-                'params': {
-                    'title': _('Validation'),
-                    'message': 'Funds Available for PR creation.',
+                    'title': _(title),
+                    'message': message,
                     'sticky': False,
                     'next': {
                         'type': 'ir.actions.act_window_close'
@@ -257,7 +244,15 @@ class PurchaseRequisitionCreation(models.Model):
                 }
             }
 
-        return sticky_notify
+        if requisition_amount >= available_amount:
+            print('====================')
+            self.state = 'cancel'
+            return create_sticky_notification('Validation', 'No Funds Available for PR creation.')
+
+        else:
+            print('22222222222')
+            return create_sticky_notification('Validation', 'Funds Available for PR creation.')
+
     @api.model_create_multi
     def create(self, vals_list):
         # Ensure `company_id` is available in the input values
@@ -314,7 +309,7 @@ class PurchaseRequisitionCreation(models.Model):
         requisition_amount = sum([v.total for v in self.line_ids])
         # available_amount = planned_amount - practical_amount
         available_amount = self.project_id.available_budget
-        if requisition_amount <= available_amount:
+        if requisition_amount >= available_amount:
             self.state = 'cancel'
             sticky_notify = {
                 'type': 'ir.actions.client',

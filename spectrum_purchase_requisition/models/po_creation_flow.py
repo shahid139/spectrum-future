@@ -49,7 +49,8 @@ class PurchaseOrderInherited(models.Model):
     vat = fields.Char(string='Tax ID', index=True, help="The Tax Identification Number. Values here will be validated based on the country format. You can use '/' to indicate that the partner is not subject to tax.")
     cr_number = fields.Char(string="CR Number")
     customer_currency = fields.Many2one("res.currency", string='Currency', tracking=True)
-    customer_tax = fields.Float(string="Customer Tax")
+    customer_tax = fields.Many2one('account.tax',string="Customer Tax")
+
 
 
 
@@ -63,6 +64,9 @@ class PurchaseOrderInherited(models.Model):
                 'city':self.partner_id.city,
                 'state_id':self.partner_id.state_id.id,
                 'country_id':self.partner_id.country_id.id,
+                'cr_number': self.partner_id.cr_number,
+                'customer_currency': self.partner_id.customer_currency.id,
+                'customer_tax': self.partner_id.customer_tax.id
                     }
             self.write(vals)
 
@@ -243,6 +247,7 @@ class PurchaseOrderLinesInherited(models.Model):
     def _compute_last_price_unit(self):
         for line in self:
             if line.product_id:
+                line.taxes_id = line.order_id.customer_tax.ids
                 last_purchase_price = self.env['purchase.order.line'].search([
                     ('product_id', '=', line.product_id.id),
                     ('state', 'in', ['purchase', 'done']),  # Consider only confirmed or done sales

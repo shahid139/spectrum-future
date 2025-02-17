@@ -48,7 +48,11 @@
                     </page>
                     <page string="Vendor Details">
                         <group>
-                             <div class="o_address_format">
+                            <group>
+                                <span class="o_form_label o_td_label" name="address_name">
+                                <b>Address</b>
+                                  </span>
+                                    <div class="o_address_format">
                                 <field name="street" placeholder="Street..." class="o_address_street" readonly="1"/>
                                 <field name="street2" placeholder="Street 2..." class="o_address_street" readonly='1'/>
                                 <field name="city" placeholder="City" class="o_address_city" readonly='1'/>
@@ -56,10 +60,15 @@
                                        readonly="1"
                                        />
                                 <field name="zip" placeholder="ZIP" class="o_address_zip" readonly="1"/>
+                                    <div name="partner_address_country" class="d-flex justify-content-between">
+
                                  <field name="country_id" placeholder="Country" class="o_address_country"
                                            options="{&quot;no_open&quot;: True, &quot;no_create&quot;: True}"
                                            readonly="1"/>
+                                    </div>
                             </div>
+                            </group>
+
                         </group>
                         <group>
                             <field name="cr_number"  placeholder="e.g. BE0477472701" readonly="1"/>
