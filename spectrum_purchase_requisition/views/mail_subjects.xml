@@ -1,0 +1,42 @@
+<odoo>
+    <data>
+        <record id="mail_subjects_tree_view" model="ir.ui.view">
+             <field name="name">mail.subject</field>
+            <field name="model">mail.subject</field>
+            <field name="arch" type="xml">
+                <tree>
+                    <field name="name"/>
+                    <field name="value" widget="many2many_tags"/>
+                </tree>
+            </field>
+        </record>
+         <record id="mail_subjects_form_view" model="ir.ui.view">
+             <field name="name">mail.subject</field>
+            <field name="model">mail.subject</field>
+            <field name="arch" type="xml">
+                <form >
+                    <sheet>
+                        <group>
+                            <group>
+                                 <field name="name"/>
+                                <field name="value" widget="many2many_tags"/>
+                            </group>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record id="mail_subjects_action_view" model="ir.actions.act_window">
+            <field name="name">Mail Subjects</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">mail.subject</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+        <menuitem id="mail_subjects_menu"
+                    name="Mail Subjects"
+                     parent="crm.crm_menu_config"
+                    action="mail_subjects_action_view"
+                    sequence="1"/>
+    </data>
+</odoo>

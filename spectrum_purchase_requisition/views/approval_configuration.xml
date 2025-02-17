@@ -1,0 +1,52 @@
+<odoo>
+    <data>
+        <record id="approval_configuration_tree" model="ir.ui.view">
+            <field name="name">approval.configuration.tree</field>
+            <field name="model">approval.configuration</field>
+            <field name="arch" type="xml">
+                <tree>
+                    <field name="approval_type"/>
+                    <field name="approved_user" widget="many2many_tags"/>
+                    <field name="project_id" widget="many2many_tags"/>
+                    <field name="is_active" widget="boolean_toggle"/>
+                </tree>
+            </field>
+        </record>
+        <record id="approval_configuration_form" model="ir.ui.view">
+            <field name="name">approval.configuration</field>
+            <field name="model">approval.configuration</field>
+            <field name="arch" type="xml">
+                <form>
+                    <sheet>
+                        <group>
+                            <group>
+                                <field name="approval_type"/>
+                                <field name="approved_user" widget="many2many_tags"/>
+                                <field name="project_id" widget="many2many_tags"/>
+                                <field name="is_active" widget="boolean_toggle"/>
+                            </group>
+                            <group>
+                                <field name="pr_approval_levels" invisible="approval_type != 'pr_approval'" required = "approval_type == 'pr_approval'"/>
+                                <field name="po_approval_levels" invisible = "approval_type != 'po_approval'" required = "approval_type == 'po_approval'"/>
+                                <field name="so_approval_levels" invisible = "approval_type  != 'so_approval'" required =  "approval_type  == 'so_approval'" />
+                                <field name="invoice_approval_levels" invisible = "approval_type != 'invoice'" required = "approval_type == 'invoice'"/>
+                            </group>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record id="approval_configuration_act_window" model="ir.actions.act_window">
+            <field name="name">Approvals</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">approval.configuration</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+        <menuitem id="approval_configuration_menu_item"
+                  name="Approval Configuration"
+                  parent="crm.crm_menu_config"
+                  action="approval_configuration_act_window"
+                  sequence="2"/>
+    </data>
+</odoo>

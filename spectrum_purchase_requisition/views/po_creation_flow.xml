@@ -46,6 +46,27 @@
                     <page string="Remarks">
                         <field name="remarks"/>
                     </page>
+                    <page string="Vendor Details">
+                        <group>
+                             <div class="o_address_format">
+                                <field name="street" placeholder="Street..." class="o_address_street" readonly="1"/>
+                                <field name="street2" placeholder="Street 2..." class="o_address_street" readonly='1'/>
+                                <field name="city" placeholder="City" class="o_address_city" readonly='1'/>
+                                <field name="state_id" class="o_address_state" placeholder="State" options="{'no_open': True, 'no_quick_create': True}"
+                                       readonly="1"
+                                       />
+                                <field name="zip" placeholder="ZIP" class="o_address_zip" readonly="1"/>
+                                 <field name="country_id" placeholder="Country" class="o_address_country"
+                                           options="{&quot;no_open&quot;: True, &quot;no_create&quot;: True}"
+                                           readonly="1"/>
+                            </div>
+                        </group>
+                        <group>
+                            <field name="cr_number"  placeholder="e.g. BE0477472701" readonly="1"/>
+                            <field name="customer_currency"  readonly='1'/>
+                            <field name="customer_tax"   readonly="1"/>
+                        </group>
+                    </page>
                 </xpath>
                 <xpath expr="//button[@name='button_cancel']" position="replace">
                     <button name="button_cancel"
@@ -61,7 +82,7 @@
 
                 </xpath>
                 <xpath expr="//field[@name='partner_id']" position="replace">
-                    <field name="partner_id" string="Supplier" widget="res_partner_many2one"
+                    <field name="partner_id" domain="[('customer_status', '=', 'unblock')]" string="Supplier" widget="res_partner_many2one"
                            context="{'res_partner_search_mode': 'supplier', 'show_vat': True}"
                            placeholder="Name, TIN, Email, or Reference"
                            readonly="state in ['cancel', 'done', 'purchase']"/>
@@ -73,6 +94,7 @@
                     <field name="tolerance"/>
                     <field name="vat_applicability"/>
                     <field name="lumps_um"/>
+                    <field name="last_buying_price"/>
                 </xpath>
                 <xpath expr="//tree/field[@name='discount']" position="replace">
                     <field name="discount" string="Disc.%" readonly="qty_invoiced != 0" optional="hide" force_save="1"/>

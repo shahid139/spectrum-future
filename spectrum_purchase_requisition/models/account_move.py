@@ -21,6 +21,14 @@ class AccountInherited(models.Model):
         tracking=True,
         default='draft',
     )
+    project_id = fields.Many2one('project.project', string="Project")
+
+    def action_post(self):
+        for invoice in self:
+            if invoice.project_id:
+                invoice.project_id._compute_spent_amount()
+                invoice.project_id._compute_available_budget()
+        return super(AccountInherited, self).action_post()
 
     @api.depends('date', 'auto_post')
     def _compute_hide_post_button(self):
@@ -31,12 +39,42 @@ class AccountInherited(models.Model):
     def validate_first_approval(self):
         if not self.invoice_date:
             raise UserError('The Bill/Refund date is required to validate this document.')
+        login_user = self.env.user
+        approval_config = self.env['approval.configuration'].search(
+            [('project_id','in',self.project_id.id),('approval_type', '=', 'invoice'), ('invoice_approval_levels', '=', 'level_1'),
+             ('approved_user', 'in', login_user.id), ('is_active', '=', True)], limit=1)
+        approve_users = [v.name for v in approval_config.approved_user]
+        if not approval_config:
+            raise UserError(
+                f"You do not have permission to approve this Invoice at the first approval level.\n"
+                f"Authorized users for the first approval: {', '.join(approve_users)}"
+            )
+
         self.write({'state':'first_approval'})
     def validate_second_approval(self):
+        login_user = self.env.user
+        approval_config = self.env['approval.configuration'].search(
+            [('project_id','in',self.project_id.id),('approval_type', '=', 'invoice'), ('invoice_approval_levels', '=', 'level_2'),
+             ('approved_user', 'in', login_user.id), ('is_active', '=', True)], limit=1)
+        approve_users = [v.name for v in approval_config.approved_user]
+        if not approval_config:
+            raise UserError(
+                f"You do not have permission to approve this Invoice at the first approval level.\n"
+                f"Authorized users for the first approval: {', '.join(approve_users)}"
+            )
         self.write({'state':'second_approval'})
     def validate_third_approval(self):
+        login_user = self.env.user
+        approval_config = self.env['approval.configuration'].search(
+            [('project_id','in',self.project_id.id),('approval_type', '=', 'invoice'), ('invoice_approval_levels', '=', 'level_3'),
+             ('approved_user', 'in', login_user.id), ('is_active', '=', True)], limit=1)
+        approve_users = [v.name for v in approval_config.approved_user]
+        if not approval_config:
+            raise UserError(
+                f"You do not have permission to approve this Invoice at the first approval level.\n"
+                f"Authorized users for the first approval: {', '.join(approve_users)}"
+            )
         self.write({'state':'third_approval'})
-
     def translate_to_arabic(self, text):
         translated_text = GoogleTranslator(source='en', target='ar').translate(text)
         return translated_text

@@ -38,6 +38,34 @@ class PurchaseOrderInherited(models.Model):
     final_approval_date = fields.Datetime(string="Final Approval date")
     first_approval_date = fields.Datetime(string="First Approval date")
 
+    street = fields.Char()
+    street2 = fields.Char()
+    zip = fields.Char(change_default=True)
+    city = fields.Char()
+    state_id = fields.Many2one("res.country.state", string='State', ondelete='restrict',
+                               domain="[('country_id', '=?', country_id)]")
+    country_id = fields.Many2one('res.country', string='Country', ondelete='restrict')
+    country_code = fields.Char(related='country_id.code', string="Country Code")
+    vat = fields.Char(string='Tax ID', index=True, help="The Tax Identification Number. Values here will be validated based on the country format. You can use '/' to indicate that the partner is not subject to tax.")
+    cr_number = fields.Char(string="CR Number")
+    customer_currency = fields.Many2one("res.currency", string='Currency', tracking=True)
+    customer_tax = fields.Float(string="Customer Tax")
+
+
+
+    @api.onchange('partner_id')
+    def get_vendor_details(self):
+        if self.partner_id:
+            vals = {
+                'street':self.partner_id.street,
+                'street2':self.partner_id.street2,
+                'zip':self.partner_id.zip,
+                'city':self.partner_id.city,
+                'state_id':self.partner_id.state_id.id,
+                'country_id':self.partner_id.country_id.id,
+                    }
+            self.write(vals)
+
     @api.depends('vat_applicability')
     def _validate_vat_applicability(self):
         total = sum([line.vat_applicability for line in self.order_line])
@@ -109,6 +137,7 @@ class PurchaseOrderInherited(models.Model):
                 'ref': ', '.join(refs)[:2000],
                 'invoice_origin': ', '.join(origins),
                 'payment_reference': len(payment_refs) == 1 and payment_refs.pop() or False,
+                'project_id':self.requisition_id.project_id.id
             })
             new_invoice_vals_list.append(ref_invoice_vals)
         invoice_vals_list = new_invoice_vals_list
@@ -133,20 +162,35 @@ class PurchaseOrderInherited(models.Model):
     def _validate_type_of_discount(self):
         self.write({'discount_value':False,'discount_lumpsum':False})
 
-    @api.onchange('discount_value','discount_lumpsum')
+    @api.onchange('discount_value', 'discount_lumpsum')
     def _validate_the_discount(self):
+        if not self.order_line:
+            return  # Exit early if there are no order lines to avoid division by zero
+
         if self.type_of_discount == 'percentage':
             percentage = self.discount_value
-            final_percentage = percentage/len(self.order_line)
+            final_percentage = percentage / len(self.order_line)
             for rec in self.order_line:
                 rec.lumps_um = False
                 rec.discount = final_percentage
+
         if self.type_of_discount == 'lumpsum':
             percentage = self.discount_lumpsum
             final_percentage = percentage / len(self.order_line)
             for rec in self.order_line:
                 rec.lumps_um = final_percentage
+
     def first_approval(self):
+        login_user = self.env.user
+        approval_config = self.env['approval.configuration'].search(
+            [('project_id','in',self.requisition_id.project_id.id),('approval_type', '=', 'po_approval'), ('po_approval_levels', '=', 'level_1'),
+             ('approved_user', 'in', login_user.id), ('is_active', '=', True)], limit=1)
+        approve_users = [v.name for v in approval_config.approved_user]
+        if not approval_config:
+            raise UserError(
+                f"You do not have permission to approve this Purchase Order at the first approval level.\n"
+                f"Authorized users for the first approval: {', '.join(approve_users)}"
+            )
         self.write({
             'state': 'first_approval',
             'first_approved_by':self.env.user.id,
@@ -154,6 +198,16 @@ class PurchaseOrderInherited(models.Model):
         })
 
     def second_approval(self):
+        login_user = self.env.user
+        approval_config = self.env['approval.configuration'].search(
+            [('project_id','in',self.requisition_id.project_id.id),('approval_type', '=', 'po_approval'), ('po_approval_levels', '=', 'level_2'),
+             ('approved_user', 'in', login_user.id), ('is_active', '=', True)], limit=1)
+        approve_users = [v.name for v in approval_config.approved_user]
+        if not approval_config:
+            raise UserError(
+                f"You do not have permission to approve this Purchase Order at the second approval level.\n"
+                f"Authorized users for the first approval: {', '.join(approve_users)}"
+            )
         self.write({
             'state': 'second_approval',
             'last_approved_by':self.env.user.id,
@@ -182,6 +236,24 @@ class PurchaseOrderLinesInherited(models.Model):
     tolerance = fields.Float(string='Tolerance',default=0.0)
     vat_applicability = fields.Float(string='VAT Applicability')
     lumps_um = fields.Float('Lumps Um')
+    last_buying_price = fields.Float(string='Last Purchase price', compute='_compute_last_price_unit',
+                                      store=True)  # Added store=True
+
+    @api.depends('product_id')  # Important: Add dependency on product_id
+    def _compute_last_price_unit(self):
+        for line in self:
+            if line.product_id:
+                last_purchase_price = self.env['purchase.order.line'].search([
+                    ('product_id', '=', line.product_id.id),
+                    ('state', 'in', ['purchase', 'done']),  # Consider only confirmed or done sales
+                ], order='id desc', limit=1)
+
+                if last_purchase_price:
+                    line.last_buying_price = last_purchase_price.price_unit  # Use price_unit, not unit_price
+                else:
+                    line.last_buying_price = 0.0  # Default to 0 if no prior sale
+            else:
+                line.last_buying_price = 0.0  # Default to 0 if no product
 
 
 

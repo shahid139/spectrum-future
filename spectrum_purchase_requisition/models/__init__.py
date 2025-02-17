@@ -5,3 +5,7 @@ from . import account_move
 from . import res_company
 from . import res_partner
 from . import mail_thread
+from . import mail_subjects
+from . import approval_confirations
+from . import sale_order_inherit
+from . import project_project

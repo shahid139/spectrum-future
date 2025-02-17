@@ -1,0 +1,45 @@
+<odoo>
+    <data>
+        <record id="view_order_form_spectrum_inherit" model="ir.ui.view">
+            <field name="name">Sale Order</field>
+            <field name="model">sale.order</field>
+            <field name="inherit_id" ref="sale.view_order_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//header/button[@name='action_quotation_send']" position="after">
+                    <button name="first_approval" invisible="state not in ('draft','sent')" string="Approval 1"
+                            type="object"
+                            class="btn-primary"/>
+                    <button name="second_approval" invisible="state != 'first_approval'" string="Approval 2"
+                            type="object"
+                            class="btn-primary"/>
+                    <button name="third_approval" invisible="state != 'second_approval'" string="Approval 3"
+                            type="object"
+                            class="btn-primary"/>
+                    <button name="fourth_approval" invisible="state != 'third_approval'" string="Approval 4"
+                            type="object"
+                            class="btn-primary"/>
+                </xpath>
+                <xpath expr="//header/button[@name='action_cancel']" position="replace">
+                    <button name="action_cancel" type="object" string="Cancel"
+                            invisible="state not in ['draft', 'sent', 'sale', 'first_approval', 'second_approval', 'third_approval', 'fourth_approval'] or not id or locked" data-hotkey="x"/>
+                </xpath>
+
+                <xpath expr="//button[@name='action_confirm'][2]" position="replace">
+                    <button name="action_confirm" data-hotkey="q" string="Confirm" type="object"
+                            context="{'validate_analytic': True}" invisible="state != 'fourth_approval'"/>
+                </xpath>
+<!--                <xpath expr="//field[@name='order_line']/tree/field[@name='unit_price']" position="after">-->
+<!--                    <field name="last_selling_price"/>-->
+<!--                </xpath>-->
+                <xpath expr="//tree/field[@name='price_unit']" position="after">
+                    <field name="last_selling_price"/>
+                </xpath>
+
+            </field>
+        </record>
+
+
+
+
+    </data>
+</odoo>
