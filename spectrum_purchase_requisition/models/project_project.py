@@ -10,6 +10,11 @@ class ProjectBudget(models.Model):
     available_budget = fields.Float(string="Available Budget", compute="_compute_available_budget", store=True)
     account_invoice_ids = fields.One2many('account.move', 'project_id', string="Invoices")
 
+    def write(self, vals):
+        print(self.total_budget,vals,'==========================')
+
+        return super(ProjectBudget, self).write(vals)
+
     @api.depends('account_invoice_ids.amount_total')
     def _compute_spent_amount(self):
         """ Calculate the total spent amount for the project. """
@@ -22,5 +27,15 @@ class ProjectBudget(models.Model):
         """ Calculate the available budget. """
         for project in self:
             project.available_budget = project.total_budget - project.spent_amount
+
+class BudgetHistory(models.Model):
+    _name = 'budget.history'
+
+    old_value = fields.Float(string="Old Value")
+    new_value = fields.Float(string="New Value")
+    budget_project_id = fields.Many2one()
+
+
+
 
 

@@ -111,7 +111,7 @@ class SaleOrderInherited(models.Model):
             for s_order in second_approval_stage:
                 if s_order.first_approval_date and (current_time - s_order.first_approval_date) > timedelta(minutes=240):
                     print(f"Auto approving purchase order {s_order.name} created at {s_order.first_approval_date} : {current_time}")
-                    s_order.second_approval()  # Call first approval function
+                    s_order.second_approval()
 
 
 class SaleOrderLineInherit(models.Model):
