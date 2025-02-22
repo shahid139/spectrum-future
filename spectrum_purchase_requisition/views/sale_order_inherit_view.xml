@@ -5,6 +5,19 @@
             <field name="model">sale.order</field>
             <field name="inherit_id" ref="sale.view_order_form"/>
             <field name="arch" type="xml">
+                <xpath expr="//field[@name='name']" position="replace">
+                    <field name="name" readonly="1" invisible="state in ('draft','sent','first_approval','second_approval','third_approval','fourth_approval')"/>
+                </xpath>
+                <xpath expr="//field[@name='name']" position="after">
+                    <field name="sequence" readonly="1" invisible="state not in ('draft','sent','first_approval','second_approval','third_approval','fourth_approval')"/>
+                </xpath>
+                <xpath expr="//button[@name='action_quotation_send']" position="replace">
+                    <button name="action_quotation_send" id="send_by_email_primary" string="Send by Email" type="object" data-hotkey="g" invisible="state != 'sale'" class="btn-primary" context="{'validate_analytic': True}"/>
+                </xpath>
+                <xpath expr="//button[@id='send_by_email']" position="replace">
+                                    <button name="action_quotation_send" id="send_by_email" string="Send by Email" type="object" invisible="1" data-hotkey="g" context="{'validate_analytic': True}"/>
+
+                </xpath>
                 <xpath expr="//header/button[@name='action_quotation_send']" position="after">
                     <button name="first_approval" invisible="state not in ('draft','sent')" string="Approval 1"
                             type="object"
@@ -37,6 +50,18 @@
 
             </field>
         </record>
+
+        <record id="crm_case_kanban_view_leads_inherited" model="ir.ui.view">
+        <field name="name">crm.lead.kanban.lead.inherit.iap.mine.inherited</field>
+        <field name="model">crm.lead</field>
+        <field name="inherit_id" ref="crm_iap_mine.crm_case_kanban_view_leads"/>
+        <field name="arch" type="xml">
+            <xpath expr="//button[@name='action_generate_leads']" position="replace">
+                <button name="action_generate_leads" type="object" class="o_button_generate_leads" string="Generate Leads"
+                            groups="sales_team.group_sale_manager" display="always" invisible="1"/>
+            </xpath>
+        </field>
+    </record>
 
 
 

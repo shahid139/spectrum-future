@@ -28,8 +28,33 @@ class SaleOrderInherited(models.Model):
     second_approval_date = fields.Datetime(string="Second Approval date")
     third_approval_date = fields.Datetime(string="Third Approval date")
     final_approval_date = fields.Datetime(string="Final Approval date")
+    sequence = fields.Char(default=lambda self: _('New'))
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        for vals in vals_list:
+            if 'company_id' in vals:
+                self = self.with_company(vals['company_id'])
+
+            # If the custom sequence field is missing, create a sequence
+            if vals.get('sequence', _("New")) == _("New"):
+                # Use 'date_order' to generate sequence based on the correct date
+                seq_date = fields.Datetime.context_timestamp(
+                    self, fields.Datetime.to_datetime(vals['date_order'])
+                ) if 'date_order' in vals else None
+
+                # Replace 'name' with the 'sequence' field to generate sequence number
+                vals['sequence'] = self.env['ir.sequence'].next_by_code(
+                    'sale.order.1', sequence_date=seq_date
+                ) or _("New")
+
+        return super(SaleOrderInherited, self).create(vals_list)
+
+
 
     def first_approval(self):
+        if not self.order_line:
+            raise UserError("No products found in the order. Please add products before proceeding.")
         login_user = self.env.user
         approval_config = self.env['approval.configuration'].search(
             [('approval_type', '=', 'so_approval'), ('so_approval_levels', '=', 'level_1'),
@@ -95,12 +120,7 @@ class SaleOrderInherited(models.Model):
     def sale_order_auto_approval(self):
         first_approval_stage = self.env['sale.order'].search([('state' , '=', 'draft')])
         second_approval_stage = self.env['sale.order'].search([('state', '=', 'first_approval')])
-
-        print(f"first_approval_stage >>>>>> :{first_approval_stage}")
-        print(f"second_approval_stage >>>>>> :{second_approval_stage}")
-
         current_time = fields.Datetime.now()
-
         if first_approval_stage:
             for s_order in first_approval_stage:
                 if s_order.create_date and (current_time - s_order.create_date) > timedelta(minutes=240):

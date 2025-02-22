@@ -24,6 +24,7 @@
         'views/approval_configuration.xml',
         'views/sale_order_inherit_view.xml',
         'views/project_project.xml',
+        'views/qr_code_invoice_view.xml',
         'reports/purchase_order_report.xml',
         'reports/rfq_custom.xml',
         'reports/shipment.xml',
