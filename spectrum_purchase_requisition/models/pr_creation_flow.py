@@ -224,12 +224,8 @@ class PurchaseRequisitionCreation(models.Model):
         self.ensure_one()
         if not self.line_ids:
             raise UserError(_("You cannot confirm agreement '%s' because there is no product line.", self.name))
-        # planned_amount = sum([v.planned_amount for v in self.budget_task.crossovered_budget_line])
-        # practical_amount = sum([v.practical_amount for v in self.budget_task.crossovered_budget_line])
         requisition_amount = sum([v.total for v in self.line_ids])
-        # available_amount = planned_amount - practical_amount
         available_amount = self.project_id.available_budget
-        print(requisition_amount,'======',available_amount)
         def create_sticky_notification(title, message):
             return {
                 'type': 'ir.actions.client',
@@ -245,12 +241,10 @@ class PurchaseRequisitionCreation(models.Model):
             }
 
         if requisition_amount >= available_amount:
-            print('====================')
             self.state = 'cancel'
             return create_sticky_notification('Validation', 'No Funds Available for PR creation.')
 
         else:
-            print('22222222222')
             return create_sticky_notification('Validation', 'Funds Available for PR creation.')
 
     @api.model_create_multi

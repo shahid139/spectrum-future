@@ -374,6 +374,11 @@
 
                 <!-- Page Content with Border -->
                 <div class="page" style="border: 1px solid black; padding: 20px;">
+                     <t t-if="o.qr_in_report == True">
+                    <div style="width:100px;height:100px;float:left;">
+                        <span t-field="o.qr_image" t-options='{"widget": "image"}' />
+                    </div>
+                </t>
 
                     <!-- Left side (60% width) -->
                     <div style="display: flex; width: 100%; justify-content: space-between;">

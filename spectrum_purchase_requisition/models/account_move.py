@@ -1,6 +1,23 @@
 from odoo import api, fields, models, modules, _
 from odoo.exceptions import UserError
 from deep_translator import GoogleTranslator
+import qrcode
+import base64
+from io import BytesIO
+
+def generate_qr_code(value):
+    qr = qrcode.QRCode(
+             version=1,
+             error_correction=qrcode.constants.ERROR_CORRECT_L,
+             box_size=20,
+             border=4)
+    qr.add_data(value)
+    qr.make(fit=True)
+    img = qr.make_image()
+    stream = BytesIO()
+    img.save(stream, format="PNG")
+    qr_img = base64.b64encode(stream.getvalue())
+    return qr_img
 
 class AccountInherited(models.Model):
     _inherit = 'account.move'
@@ -22,6 +39,26 @@ class AccountInherited(models.Model):
         default='draft',
     )
     project_id = fields.Many2one('project.project', string="Project")
+    qr_image = fields.Binary("QR Code", compute='_generate_qr_code')
+    qr_in_report = fields.Boolean('Display QRCode in Report?')
+
+    def _generate_qr_code(self, silent_errors=False):
+        self.qr_image = None
+        for order in self:
+            supplier_name = self.partner_id.name
+            vat = str(self.company_id.vat)
+            vat_total = str(self.amount_tax)
+            date = str(self.invoice_date)
+
+            total = ''.join([self.currency_id.name, str(self.amount_total)])
+            lf = '\t'
+            invoice = lf.join(
+                ['Customer:', supplier_name,  'Date:', date, 'Total with VAT:',
+                 total, 'VAT total:', vat_total])
+            qr_img = generate_qr_code(invoice)
+            order.write({
+                'qr_image': qr_img
+            })
 
     def action_post(self):
         for invoice in self:

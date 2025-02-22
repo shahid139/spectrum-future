@@ -50,6 +50,29 @@ class PurchaseOrderInherited(models.Model):
     cr_number = fields.Char(string="CR Number")
     customer_currency = fields.Many2one("res.currency", string='Currency', tracking=True)
     customer_tax = fields.Many2one('account.tax',string="Customer Tax")
+    sequence = fields.Char(default=lambda self: _('New'))
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        orders = self.browse()
+        partner_vals_list = []
+        for vals in vals_list:
+            company_id = vals.get('company_id', self.default_get(['company_id'])['company_id'])
+            # Ensures default picking type and currency are taken from the right company.
+            self_comp = self.with_company(company_id)
+            if vals.get('sequence', 'New') == 'New':
+                seq_date = None
+                if 'date_order' in vals:
+                    seq_date = fields.Datetime.context_timestamp(self, fields.Datetime.to_datetime(vals['date_order']))
+                vals['sequence'] = self_comp.env['ir.sequence'].next_by_code('purchase.order.1',
+                                                                         sequence_date=seq_date) or '/'
+            vals, partner_vals = self._write_partner_values(vals)
+            partner_vals_list.append(partner_vals)
+            orders |= super(PurchaseOrderInherited, self_comp).create(vals)
+        for order, partner_vals in zip(orders, partner_vals_list):
+            if partner_vals:
+                order.sudo().write(partner_vals)  # Because the purchase user doesn't have write on `res.partner`
+        return orders
 
 
 
