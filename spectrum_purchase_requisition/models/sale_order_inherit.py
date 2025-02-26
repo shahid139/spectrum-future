@@ -30,6 +30,7 @@ class SaleOrderInherited(models.Model):
     final_approval_date = fields.Datetime(string="Final Approval date")
     sequence = fields.Char(default=lambda self: _('New'))
 
+
     @api.model_create_multi
     def create(self, vals_list):
         for vals in vals_list:
@@ -47,8 +48,52 @@ class SaleOrderInherited(models.Model):
                 vals['sequence'] = self.env['ir.sequence'].next_by_code(
                     'sale.order.1', sequence_date=seq_date
                 ) or _("New")
-
+                vals['name'] = "Sales Quotation"
         return super(SaleOrderInherited, self).create(vals_list)
+
+    def action_confirm(self):
+        """ Confirm the given quotation(s) and set their confirmation date.
+
+        If the corresponding setting is enabled, also locks the Sale Order.
+
+        :return: True
+        :rtype: bool
+        :raise: UserError if trying to confirm cancelled SO's
+        """
+        seq_date = fields.Datetime.context_timestamp(
+            self, fields.Datetime.to_datetime(self.date_order)
+        ) if self.date_order else None
+        self.name = self.env['ir.sequence'].next_by_code(
+            'sale.order', sequence_date=seq_date) or _("New")
+        if not all(order._can_be_confirmed() for order in self):
+            raise UserError(_(
+                "The following orders are not in a state requiring confirmation: %s",
+                ", ".join(self.mapped('display_name')),
+            ))
+
+        self.order_line._validate_analytic_distribution()
+
+        for order in self:
+            order.validate_taxes_on_sales_order()
+            if order.partner_id in order.message_partner_ids:
+                continue
+            order.message_subscribe([order.partner_id.id])
+
+        self.write(self._prepare_confirmation_values())
+
+        # Context key 'default_name' is sometimes propagated up to here.
+        # We don't need it and it creates issues in the creation of linked records.
+        context = self._context.copy()
+        context.pop('default_name', None)
+
+        self.with_context(context)._action_confirm()
+
+        self.filtered(lambda so: so._should_be_locked()).action_lock()
+
+        if self.env.context.get('send_email'):
+            self._send_order_confirmation_mail()
+
+        return True
 
 
 

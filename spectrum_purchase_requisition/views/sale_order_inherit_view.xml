@@ -1,5 +1,16 @@
 <odoo>
     <data>
+        <record id="sale_quatation_inherited" model="ir.ui.view">
+            <field name="name">Sale Order</field>
+            <field name="model">sale.order</field>
+            <field name="inherit_id" ref="sale.view_quotation_tree_with_onboarding"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='name']" position="replace">
+                    <field name="sequence" string="Number"/>
+                </xpath>
+            </field>
+        </record>
+
         <record id="view_order_form_spectrum_inherit" model="ir.ui.view">
             <field name="name">Sale Order</field>
             <field name="model">sale.order</field>
@@ -12,10 +23,10 @@
                     <field name="sequence" readonly="1" invisible="state not in ('draft','sent','first_approval','second_approval','third_approval','fourth_approval')"/>
                 </xpath>
                 <xpath expr="//button[@name='action_quotation_send']" position="replace">
-                    <button name="action_quotation_send" id="send_by_email_primary" string="Send by Email" type="object" data-hotkey="g" invisible="state != 'sale'" class="btn-primary" context="{'validate_analytic': True}"/>
+                    <button name="action_quotation_send" id="send_by_email_primary" string="Send by Email" type="object" data-hotkey="g" invisible="state != 'fourth_approval'" class="btn-primary" context="{'validate_analytic': True}"/>
                 </xpath>
                 <xpath expr="//button[@id='send_by_email']" position="replace">
-                                    <button name="action_quotation_send" id="send_by_email" string="Send by Email" type="object" invisible="1" data-hotkey="g" context="{'validate_analytic': True}"/>
+                    <button name="action_quotation_send" id="send_by_email" string="Send by Email" type="object" invisible="1" data-hotkey="g" context="{'validate_analytic': True}"/>
 
                 </xpath>
                 <xpath expr="//header/button[@name='action_quotation_send']" position="after">

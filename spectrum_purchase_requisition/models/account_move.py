@@ -77,9 +77,12 @@ class AccountInherited(models.Model):
         if not self.invoice_date:
             raise UserError('The Bill/Refund date is required to validate this document.')
         login_user = self.env.user
-        approval_config = self.env['approval.configuration'].search(
-            [('project_id','in',self.project_id.id),('approval_type', '=', 'invoice'), ('invoice_approval_levels', '=', 'level_1'),
-             ('approved_user', 'in', login_user.id), ('is_active', '=', True)], limit=1)
+
+        domain = [('approval_type', '=', 'invoice'), ('invoice_approval_levels', '=', 'level_1'),
+             ('approved_user', 'in', login_user.id), ('is_active', '=', True)]
+        if self.project_id:
+            domain.append(('project_id', 'in', self.project_id.id))
+        approval_config = self.env['approval.configuration'].search(domain, limit=1)
         approve_users = [v.name for v in approval_config.approved_user]
         if not approval_config:
             raise UserError(
@@ -90,9 +93,11 @@ class AccountInherited(models.Model):
         self.write({'state':'first_approval'})
     def validate_second_approval(self):
         login_user = self.env.user
-        approval_config = self.env['approval.configuration'].search(
-            [('project_id','in',self.project_id.id),('approval_type', '=', 'invoice'), ('invoice_approval_levels', '=', 'level_2'),
-             ('approved_user', 'in', login_user.id), ('is_active', '=', True)], limit=1)
+        domain = [('approval_type', '=', 'invoice'), ('invoice_approval_levels', '=', 'level_2'),
+                  ('approved_user', 'in', login_user.id), ('is_active', '=', True)]
+        if self.project_id:
+            domain.append(('project_id', 'in', self.project_id.id))
+        approval_config = self.env['approval.configuration'].search(domain, limit=1)
         approve_users = [v.name for v in approval_config.approved_user]
         if not approval_config:
             raise UserError(
@@ -102,9 +107,11 @@ class AccountInherited(models.Model):
         self.write({'state':'second_approval'})
     def validate_third_approval(self):
         login_user = self.env.user
-        approval_config = self.env['approval.configuration'].search(
-            [('project_id','in',self.project_id.id),('approval_type', '=', 'invoice'), ('invoice_approval_levels', '=', 'level_3'),
-             ('approved_user', 'in', login_user.id), ('is_active', '=', True)], limit=1)
+        domain = [('approval_type', '=', 'invoice'), ('invoice_approval_levels', '=', 'level_2'),
+                  ('approved_user', 'in', login_user.id), ('is_active', '=', True)]
+        if self.project_id:
+            domain.append(('project_id', 'in', self.project_id.id))
+        approval_config = self.env['approval.configuration'].search(domain, limit=1)
         approve_users = [v.name for v in approval_config.approved_user]
         if not approval_config:
             raise UserError(

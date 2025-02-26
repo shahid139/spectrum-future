@@ -65,7 +65,8 @@ class PurchaseOrderInherited(models.Model):
                 if 'date_order' in vals:
                     seq_date = fields.Datetime.context_timestamp(self, fields.Datetime.to_datetime(vals['date_order']))
                 vals['sequence'] = self_comp.env['ir.sequence'].next_by_code('purchase.order.1',
-                                                                         sequence_date=seq_date) or '/'
+                                                                       sequence_date=seq_date) or '/'
+                vals['name'] = "Purchase Quotation"
             vals, partner_vals = self._write_partner_values(vals)
             partner_vals_list.append(partner_vals)
             orders |= super(PurchaseOrderInherited, self_comp).create(vals)
