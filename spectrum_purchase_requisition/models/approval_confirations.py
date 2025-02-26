@@ -16,4 +16,4 @@ class ApprovalConfiguration(models.Model):
     invoice_approval_levels = fields.Selection([('level_1','Approval 1'),('level_2','Approval 2'),('level_3','Approval 3')],string="Approval Levels",default='level_1')
     approved_user = fields.Many2many('res.users','approval_config_rel',string="Approved Users",required=True)
     is_active = fields.Boolean(string="Active",default=True)
-    project_id = fields.Many2many('project.project','approval_project_rel',string='Projects',required=True)
+    project_id = fields.Many2many('project.project','approval_project_rel',string='Projects')
