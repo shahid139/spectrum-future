@@ -256,6 +256,11 @@ class PurchaseOrderInherited(models.Model):
                 order.write({'state': 'to approve'})
             if order.partner_id not in order.message_partner_ids:
                 order.message_subscribe([order.partner_id.id])
+
+            seq_date = None
+            if self.date_order:
+                seq_date = fields.Datetime.context_timestamp(self, fields.Datetime.to_datetime(self.date_order))
+                self.name = self.env['ir.sequence'].next_by_code('purchase.order', sequence_date=seq_date) or '/'
         return True
 
 class PurchaseOrderLinesInherited(models.Model):
