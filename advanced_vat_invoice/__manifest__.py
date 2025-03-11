@@ -31,7 +31,7 @@
     'company': 'Cybrosys Techno Solutions',
     'maintainer': 'Cybrosys Techno Solutions',
     'website': 'https://www.cybrosys.com',
-    'depends': ['account','account_payment'],
+    'depends': ['account','account_payment','spectrum_purchase_requisition'],
     'data': [
         'views/res_config_settings_views.xml',
         'views/account_move_views.xml',

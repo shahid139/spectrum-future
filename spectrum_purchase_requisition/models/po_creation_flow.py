@@ -209,12 +209,13 @@ class PurchaseOrderInherited(models.Model):
                 rec.lumps_um = final_percentage
 
     def first_approval(self):
+        admin_access = self.env.user.has_group("base.group_system")
         login_user = self.env.user
         approval_config = self.env['approval.configuration'].search(
             [('project_id','in',self.requisition_id.project_id.id),('approval_type', '=', 'po_approval'), ('po_approval_levels', '=', 'level_1'),
              ('approved_user', 'in', login_user.id), ('is_active', '=', True)], limit=1)
         approve_users = [v.name for v in approval_config.approved_user]
-        if not approval_config:
+        if not approval_config and  not admin_access:
             raise UserError(
                 f"You do not have permission to approve this Purchase Order at the first approval level.\n"
                 f"Authorized users for the first approval: {', '.join(approve_users)}"
@@ -226,12 +227,13 @@ class PurchaseOrderInherited(models.Model):
         })
 
     def second_approval(self):
+        admin_access = self.env.user.has_group("base.group_system")
         login_user = self.env.user
         approval_config = self.env['approval.configuration'].search(
             [('project_id','in',self.requisition_id.project_id.id),('approval_type', '=', 'po_approval'), ('po_approval_levels', '=', 'level_2'),
              ('approved_user', 'in', login_user.id), ('is_active', '=', True)], limit=1)
         approve_users = [v.name for v in approval_config.approved_user]
-        if not approval_config:
+        if not approval_config and not admin_access:
             raise UserError(
                 f"You do not have permission to approve this Purchase Order at the second approval level.\n"
                 f"Authorized users for the first approval: {', '.join(approve_users)}"

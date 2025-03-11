@@ -98,6 +98,7 @@ class SaleOrderInherited(models.Model):
 
 
     def first_approval(self):
+        admin_access = self.env.user.has_group("base.group_system")
         if not self.order_line:
             raise UserError("No products found in the order. Please add products before proceeding.")
         login_user = self.env.user
@@ -105,7 +106,7 @@ class SaleOrderInherited(models.Model):
             [('approval_type', '=', 'so_approval'), ('so_approval_levels', '=', 'level_1'),
              ('approved_user', 'in', login_user.id), ('is_active', '=', True)], limit=1)
         approve_users = [v.name for v in approval_config.approved_user]
-        if not approval_config:
+        if not approval_config and not admin_access:
             raise UserError(
                 f"You do not have permission to approve this Sale Order at the first approval level.\n"
                 f"Authorized users for the first approval: {', '.join(approve_users)}"
@@ -117,12 +118,13 @@ class SaleOrderInherited(models.Model):
         })
 
     def second_approval(self):
+        admin_access = self.env.user.has_group("base.group_system")
         login_user = self.env.user
         approval_config = self.env['approval.configuration'].search(
             [('approval_type', '=', 'so_approval'), ('so_approval_levels', '=', 'level_2'),
              ('approved_user', 'in', login_user.id), ('is_active', '=', True)], limit=1)
         approve_users = [v.name for v in approval_config.approved_user]
-        if not approval_config:
+        if not approval_config and not admin_access:
             raise UserError(
                 f"You do not have permission to approve this Sale Order at the second approval level.\n"
                 f"Authorized users for the first approval: {', '.join(approve_users)}"
@@ -135,12 +137,13 @@ class SaleOrderInherited(models.Model):
         })
 
     def third_approval(self):
+        admin_access = self.env.user.has_group("base.group_system")
         login_user = self.env.user
         approval_config = self.env['approval.configuration'].search(
             [('approval_type', '=', 'so_approval'), ('so_approval_levels', '=', 'level_3'),
              ('approved_user', 'in', login_user.id), ('is_active', '=', True)], limit=1)
         approve_users = [v.name for v in approval_config.approved_user]
-        if not approval_config:
+        if not approval_config and not admin_access:
             raise UserError(
                 f"You do not have permission to approve this Sale Order at the Third approval level.\n"
                 f"Authorized users for the first approval: {', '.join(approve_users)}"
@@ -152,6 +155,18 @@ class SaleOrderInherited(models.Model):
         })
 
     def fourth_approval(self):
+        admin_access = self.env.user.has_group("base.group_system")
+        login_user = self.env.user
+        approval_config = self.env['approval.configuration'].search(
+            [('approval_type', '=', 'so_approval'), ('so_approval_levels', '=', 'level_4'),
+             ('approved_user', 'in', login_user.id), ('is_active', '=', True)], limit=1)
+        approve_users = [v.name for v in approval_config.approved_user]
+        if not approval_config and not admin_access:
+            raise UserError(
+                f"You do not have permission to approve this Sale Order at the Third approval level.\n"
+                f"Authorized users for the first approval: {', '.join(approve_users)}"
+            )
+
         self.write({
             'state': 'fourth_approval',
             'last_approved_by': self.env.user.id,

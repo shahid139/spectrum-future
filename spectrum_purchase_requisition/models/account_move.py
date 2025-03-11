@@ -74,6 +74,7 @@ class AccountInherited(models.Model):
                                       and record.auto_post != 'no' and record.date > fields.Date.context_today(record)
 
     def validate_first_approval(self):
+        admin_access = self.env.user.has_group("base.group_system")
         if not self.invoice_date:
             raise UserError('The Bill/Refund date is required to validate this document.')
         login_user = self.env.user
@@ -84,7 +85,7 @@ class AccountInherited(models.Model):
             domain.append(('project_id', 'in', self.project_id.id))
         approval_config = self.env['approval.configuration'].search(domain, limit=1)
         approve_users = [v.name for v in approval_config.approved_user]
-        if not approval_config:
+        if not approval_config and not admin_access:
             raise UserError(
                 f"You do not have permission to approve this Invoice at the first approval level.\n"
                 f"Authorized users for the first approval: {', '.join(approve_users)}"
@@ -92,6 +93,7 @@ class AccountInherited(models.Model):
 
         self.write({'state':'first_approval'})
     def validate_second_approval(self):
+        admin_access = self.env.user.has_group("base.group_system")
         login_user = self.env.user
         domain = [('approval_type', '=', 'invoice'), ('invoice_approval_levels', '=', 'level_2'),
                   ('approved_user', 'in', login_user.id), ('is_active', '=', True)]
@@ -99,13 +101,14 @@ class AccountInherited(models.Model):
             domain.append(('project_id', 'in', self.project_id.id))
         approval_config = self.env['approval.configuration'].search(domain, limit=1)
         approve_users = [v.name for v in approval_config.approved_user]
-        if not approval_config:
+        if not approval_config and not admin_access:
             raise UserError(
                 f"You do not have permission to approve this Invoice at the first approval level.\n"
                 f"Authorized users for the first approval: {', '.join(approve_users)}"
             )
         self.write({'state':'second_approval'})
     def validate_third_approval(self):
+        admin_access = self.env.user.has_group("base.group_system")
         login_user = self.env.user
         domain = [('approval_type', '=', 'invoice'), ('invoice_approval_levels', '=', 'level_2'),
                   ('approved_user', 'in', login_user.id), ('is_active', '=', True)]
@@ -113,7 +116,7 @@ class AccountInherited(models.Model):
             domain.append(('project_id', 'in', self.project_id.id))
         approval_config = self.env['approval.configuration'].search(domain, limit=1)
         approve_users = [v.name for v in approval_config.approved_user]
-        if not approval_config:
+        if not approval_config and not admin_access:
             raise UserError(
                 f"You do not have permission to approve this Invoice at the first approval level.\n"
                 f"Authorized users for the first approval: {', '.join(approve_users)}"

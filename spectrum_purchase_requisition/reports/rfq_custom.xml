@@ -373,18 +373,18 @@
                 </h2>
 
                 <!-- Page Content with Border -->
-                <div class="page" style="border: 1px solid black; padding: 20px;">
-                     <t t-if="o.qr_in_report == True">
-                    <div style="width:100px;height:100px;float:left;">
-                        <span t-field="o.qr_image" t-options='{"widget": "image"}' />
-                    </div>
-                </t>
+                <div class="page" style="padding: 20px;">
+                    <t t-if="o.qr_in_report == True">
+                        <div style="width:100px;height:100px;float:left;">
+                            <span t-field="o.qr_image" t-options='{"widget": "image"}'/>
+                        </div>
+                    </t>
 
                     <!-- Left side (60% width) -->
                     <div style="display: flex; width: 100%; justify-content: space-between;">
                         <!-- Left Table (Customer Information) -->
                         <div style="width: 100%; text-align: left;">
-                            <table style="width: 100%; border: 1px solid black; border-collapse: collapse;">
+                            <table style="width: 100%;">
                                 <tr style="border: 1px solid black;">
                                     <td style="padding: 8px;">Customer Name :</td>
                                     <td style="padding: 8px;">
@@ -442,7 +442,9 @@
                                 </tr>
                                 <tr style="border: 1px solid black;">
                                     <td style="padding: 8px;">VAT No</td>
-                                    <td style="padding: 8px;"><span t-esc="o.company_id.vat_number if o.company_id.vat_number else '' "/></td>
+                                    <td style="padding: 8px;">
+                                        <span t-esc="o.company_id.vat_number if o.company_id.vat_number else '' "/>
+                                    </td>
                                     <td style="padding: 8px;">-</td>
                                     <td style="padding: 8px; text-align: right;">
                                         <span t-esc="o.translate_to_arabic('VAT No')" style="font-size: 15px;"/>
@@ -450,7 +452,9 @@
                                 </tr>
                                 <tr style="border: 1px solid black;">
                                     <td style="padding: 8px;">ID/CR No</td>
-                                    <td style="padding: 8px;"><span t-esc="o.company_id.cr_number if o.company_id.cr_number else '' "/></td>
+                                    <td style="padding: 8px;">
+                                        <span t-esc="o.company_id.cr_number if o.company_id.cr_number else '' "/>
+                                    </td>
                                     <td style="padding: 8px;">-</td>
                                     <td style="padding: 8px; text-align: right;">
                                         <span t-esc="o.translate_to_arabic('ID/CR No')"
@@ -497,7 +501,9 @@
                                 <tr>
 
                                     <td style="padding: 8px; text-align: left;">Delivery No :</td>
-                                    <td style="padding: 8px; text-align: left;"><span t-esc="o.get_delivery_number(o.invoice_origin)"/></td>
+                                    <td style="padding: 8px; text-align: left;">
+                                        <span t-esc="o.get_delivery_number(o.invoice_origin)"/>
+                                    </td>
                                     <td style="padding: 8px; text-align: right;">
                                         <span t-esc="o.translate_to_arabic('Delivery No :')"
                                               style="font-size: 15px; text-align: right;"/>
@@ -526,7 +532,8 @@
                                 <tr>
                                     <td style="padding: 8px; text-align: left;">Customer PO Date :</td>
                                     <td style="padding: 8px; text-align: left;">
-                                        <span t-esc="o.get_purchase_order_date(o.invoice_origin)" style="font-size: 15px;"/>
+                                        <span t-esc="o.get_purchase_order_date(o.invoice_origin)"
+                                              style="font-size: 15px;"/>
                                     </td>
                                     <td style="padding: 8px; text-align: right;">
                                         <span t-esc="o.translate_to_arabic('Customer PO Date :')"
@@ -654,7 +661,7 @@
                             <table style="width: 100%; border: 1px solid black; font-size: 12px;">
                                 <tr style="border: 1px solid black;">
                                     <th style="padding: 8px; text-align: left; border: 1px solid black;">
-                                         <span t-esc="o.amount_total"/>
+                                        <span t-esc="o.amount_total"/>
                                     </th>
                                     <th style="padding: 8px; text-align: left;">Total Excl. VAT (SA)</th>
                                     <th style="padding: 8px; text-align: right;">
@@ -758,7 +765,9 @@
                                                     <br/>
                                                     Name:
                                                 </td>
-                                                <td style="text-align: right;"><span t-esc="o.create_uid.name"/></td>
+                                                <td style="text-align: right;">
+                                                    <span t-esc="o.create_uid.name"/>
+                                                </td>
                                             </tr>
                                             <tr>
                                                 <td style="text-align: left;">
@@ -907,66 +916,65 @@
                     <t t-foreach="docs" t-as="o">
                         <xpath expr="//div[@class='header']" position="replace">
                             <div class="header" style="width: 100%; margin-top: 80px; page-break-before: always;">
-                                <div class="col-6">
-                                    <span t-if="o.company_id.logo">
-                                        <img t-att-src="image_data_uri(o.company_id.logo)"
-                                             style="max-height:30pt; max-width:65%" alt="Company Logo"/>
-                                    </span>
-                                </div>
                                 <div class="row">
-                                    <div class="row mb-4">
+                                    <!-- First Column -->
+                                    <div class="col-4">
+                                        <span t-if="o.company_id.logo">
+                                            <img t-att-src="image_data_uri(o.company_id.logo)"
+                                                 style="max-height:30pt; max-width:65%" alt="Company Logo"/>
+                                        </span>
+                                        <br/>
+<!--                                        <h2 class="mt-4">-->
+<!--                                            <span>&amp;nbsp;</span>-->
+<!--                                        </h2>-->
+                                        <strong>
+                                            <span t-if="o.company_id.street" t-field="o.company_id.street"/>,
+                                            <span t-if="o.company_id.street2" t-field="o.company_id.street2"/>,
+                                            <span t-if="o.company_id.city" t-field="o.company_id.city"/>,
+                                            <br/>
+                                            <span t-if="o.company_id.state_id" t-field="o.company_id.state_id"/>,
+                                            <span t-if="o.company_id.zip" t-field="o.company_id.zip"/>,
+                                            <span t-if="o.company_id.country_id" t-field="o.company_id.country_id"/>,
+                                            <br/>
+                                            <span t-if="o.company_id.phone" t-field="o.company_id.phone"/>,
+                                            <span t-if="o.company_id.mobile" t-field="o.company_id.mobile"/>
+                                        </strong>
+                                    </div>
 
-                                        <div class="col-6 text-left">
-                                            <h2 class="mt-4">
-                                                <!--                                            <span t-field="o.company_id.name"/>-->
-                                                <span>&amp;nbsp;</span>
-                                            </h2>
-                                            <strong>
-                                                <span t-if="o.company_id.street" t-field="o.company_id.street"/>
-                                                <span t-if="o.company_id.street2" t-field="o.company_id.street2"/>
-                                                <span t-if="o.company_id.city" t-field="o.company_id.city"/>
-                                                <span t-if="o.company_id.state_id" t-field="o.company_id.state_id"/>
-                                                <span t-if="o.company_id.zip" t-field="o.company_id.zip"/>
-                                                <span t-if="o.company_id.country_id" t-field="o.company_id.country_id"/>
-                                                <span t-if="o.company_id.phone" t-field="o.company_id.phone"/>
-                                                <span t-if="o.company_id.mobile" t-field="o.company_id.mobile"/>
-<!--                                                <br/>-->
-<!--                                                <span t-esc="'ID /CR No : ' + (o.company_id.cr_number if o.company_id.cr_number else '')"/>-->
-<!--                                                <br/>-->
-<!--                                                <span t-esc="'VAT No : ' + (o.company_id.vat_number if o.company_id.vat_number else '') "/>-->
-
-
-                                            </strong>
-
+                                    <!-- Second Column -->
+                                    <div class="col-3" style="text-align: center; padding: 0 10px;">
+                                        <div style="width:100px;height:100px;margin: 0 auto;">
+                                            <span t-field="o.qr" t-options='{"widget": "image"}'
+                                                  style="max-width: 100%; height: auto;"/>
                                         </div>
-                                        <div class="col-6">
-                                            <h2 class="mt-4" style="text-align: right;">
-                                                <span t-field="o.company_id.trans_comapany_name"/>
-                                            </h2>
-                                            <strong style="text-align: right;">
-                                                <span t-if="o.company_id.trans_street"
-                                                      t-field="o.company_id.trans_street"/>
-                                                <span t-if="o.company_id.trans_street2"
-                                                      t-field="o.company_id.trans_street2"/>
-                                                <span t-if="o.company_id.trans_city" t-field="o.company_id.trans_city"/>
-                                                <span t-if="o.company_id.trans_state_id"
-                                                      t-field="o.company_id.trans_state_id"/>
-                                                <span t-if="o.company_id.zip" t-field="o.company_id.zip"/>
-                                                <span t-if="o.company_id.trans_country_id"
-                                                      t-field="o.company_id.trans_country_id"/>
-                                                <span t-if="o.company_id.phone" t-field="o.company_id.phone"/>
-                                                <span t-if="o.company_id.mobile" t-field="o.company_id.mobile"/>
-<!--                                                <br/>-->
-<!--                                                <span t-esc="o.translate_to_arabic('ID /CR No : ' + (o.company_id.cr_number if o.company_id.cr_number else '') )"-->
-<!--                                                      style="font-size: 15px; text-align: right;"/>-->
-<!--                                                <br/>-->
-<!--                                                <span t-esc="o.translate_to_arabic('VAT No : ' + (o.company_id.vat_number if o.company_id.vat_number else '') )"-->
-<!--                                                      style="font-size: 15px; text-align: right;"/>-->
-                                            </strong>
-                                        </div>
+                                    </div>
+
+                                    <!-- Third Column -->
+                                    <div class="col-4" style="text-align: right;">
+                                        <h2 class="mt-4">
+                                            <span t-field="o.company_id.trans_comapany_name"/>
+                                        </h2>
+                                        <strong>
+                                            <span t-if="o.company_id.trans_street"
+                                                  t-field="o.company_id.trans_street"/>,
+                                            <span t-if="o.company_id.trans_street2"
+                                                  t-field="o.company_id.trans_street2"/>,
+                                            <span t-if="o.company_id.trans_city" t-field="o.company_id.trans_city"/>,
+                                            <br/>
+                                            <span t-if="o.company_id.trans_state_id"
+                                                  t-field="o.company_id.trans_state_id"/>,
+                                            <span t-if="o.company_id.zip" t-field="o.company_id.zip"/>,
+                                            <span t-if="o.company_id.trans_country_id"
+                                                  t-field="o.company_id.trans_country_id"/>,
+                                            <br/>
+                                            <span t-if="o.company_id.phone" t-field="o.company_id.phone"/>,
+                                            <span t-if="o.company_id.mobile" t-field="o.company_id.mobile"/>
+                                        </strong>
                                     </div>
                                 </div>
                             </div>
+
+
                         </xpath>
                         <br/>
                         <br/>
@@ -975,7 +983,6 @@
                         <t t-set="lang" t-value="o.partner_id.lang"/>
                         <t t-call="spectrum_purchase_requisition.custom_report_invoice_document"
                            t-lang="lang"/>
-
                     </t>
                 </t>
             </xpath>
