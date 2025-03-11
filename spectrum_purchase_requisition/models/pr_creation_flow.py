@@ -39,6 +39,8 @@ class PurchaseRequisitionCreation(models.Model):
     last_approved_by = fields.Many2one('res.users', string="Second Approved By")
     second_approved_date = fields.Datetime(string="Second Approved On")
 
+
+
     @api.depends('invoice_ids','purchase_ids.invoice_ids')
     def _compute_invoice_status(self):
         self.invoice_status = False
@@ -286,22 +288,19 @@ class PurchaseRequisitionCreation(models.Model):
             requisition.state_blanket_order = requisition.state
 
     def first_approval(self):
+        admin_access = self.env.user.has_group("base.group_system")
         self.ensure_one()
         if not self.line_ids:
             raise UserError(_("You cannot confirm agreement '%s' because there is no product line.", self.name))
         login_user = self.env.user
         approval_config = self.env['approval.configuration'].search([('project_id','in',self.project_id.id),('approval_type','=','pr_approval'),('pr_approval_levels','=','level_1'),('approved_user','in',login_user.id),('is_active','=',True)],limit=1)
         approve_users = [v.name for v in approval_config.approved_user]
-        if not approval_config:
+        if not approval_config and not admin_access:
             raise UserError(
                 f"You do not have permission to approve this Purchase Requisition at the first approval level.\n"
                 f"Authorized users for the first approval: {', '.join(approve_users)}"
             )
-
-        # planned_amount = sum([v.planned_amount for v in self.budget_task.crossovered_budget_line])
-        # practical_amount = sum([v.practical_amount for v in self.budget_task.crossovered_budget_line])
         requisition_amount = sum([v.total for v in self.line_ids])
-        # available_amount = planned_amount - practical_amount
         available_amount = self.project_id.available_budget
         if requisition_amount >= available_amount:
             self.state = 'cancel'
@@ -327,12 +326,13 @@ class PurchaseRequisitionCreation(models.Model):
         })
 
     def second_approval(self):
+        admin_access = self.env.user.has_group("base.group_system")
         login_user = self.env.user
         approval_config = self.env['approval.configuration'].search(
             [('project_id','in',self.project_id.id),('approval_type', '=', 'pr_approval'), ('pr_approval_levels', '=', 'level_2'),
              ('approved_user', 'in', login_user.id), ('is_active', '=', True)], limit=1)
         approve_users = [v.name for v in approval_config.approved_user]
-        if not approval_config:
+        if not approval_config and not admin_access:
             raise UserError(
                 f"You do not have permission to approve this Purchase Requisition at the first approval level.\n"
                 f"Authorized users for the first approval: {', '.join(approve_users)}"
