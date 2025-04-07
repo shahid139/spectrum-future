@@ -3,7 +3,7 @@
     <!--    Account move views for adding a field-->
     <record id="view_move_form" model="ir.ui.view">
         <field name="name">
-            account.move.view.form.inherit.advanced.vat.invoice
+            account.move.view.form.inherit.advanced.vat.invoices
         </field>
         <field name="model">account.move</field>
         <field name="inherit_id" ref="account.view_move_form"/>
