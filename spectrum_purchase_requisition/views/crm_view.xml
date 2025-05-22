@@ -1,0 +1,10 @@
+<odoo>
+    <data>
+
+        <!-- Deactivate the menu completely -->
+        <record id="sale_crm.sale_order_menu_quotations_crm" model="ir.ui.menu">
+            <field name="active" eval="False"/>
+        </record>
+
+    </data>
+</odoo>

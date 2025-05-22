@@ -69,12 +69,14 @@
 
                 </xpath>
                 <xpath expr="//field[@name='user_id']" position="before">
+                    <field name="is_natural_account" invisible="1" force_save="1"/>
                     <field name="business_unit" readonly="state in ['ongoing', 'done']"/>
                     <field name="project_id" readonly="state in ['ongoing', 'done']"/>
                     <field name="is_po_need" invisible="1"/>
                 </xpath>
                 <xpath expr="//field[@name='date_end']" position="before">
-                    <field name="account_id" readonly="state in ['ongoing', 'done']"/>
+                    <field name="account_id" readonly="state in ['ongoing', 'done']"  required="is_natural_account == False"
+                           invisible="is_natural_account == True"/>
 <!--                    <field name="budget_task" readonly="state in ['ongoing', 'done']"/>-->
 
                 </xpath>
@@ -83,13 +85,20 @@
 
                 </xpath>
 
-                <xpath expr="//tree/field[@name='price_unit']" position="after">
+                <xpath expr="//tree/field[@name='qty_ordered']" position="after">
                     <field name="currency_id" column_invisible="True" force_save="1"/>
-                    <field name="total" sum="Total" readonly="1" force_save="1"/>
+<!--                    <field name="total" sum="Total" readonly="1" force_save="1"/>-->
                 </xpath>
-                <xpath expr="//tree/field[@name='product_qty']" position="after">
-                    <field name="uom_id"/>
+                <xpath expr="//tree/field[@name='price_unit']" position="replace">
+                    <field name="price_unit" invisible="1" optional="hide"/>
                 </xpath>
+                <xpath expr="//tree/field[@name='product_uom_id']" position="replace">
+                     <field name="product_uom_id" string="UoM" optional="show" required="product_id"/>
+                </xpath>
+
+<!--                <xpath expr="//tree/field[@name='product_qty']" position="after">-->
+<!--                    <field name="uom_id"/>-->
+<!--                </xpath>-->
                 <field name="type_id" position="replace">
                     <field name="type_id" readonly="state != 'draft'" string="Select Pr Type"/>
 
