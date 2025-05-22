@@ -7,7 +7,7 @@
     "website": "www.spectrum.com",
     "category": "purchase,inventory,account,crm,project",
     "version": "0.1",
-    "depends": ["base", 'sales_team', 'crm', 'mail','purchase','account','purchase_requisition'],
+    "depends": ["base", 'sales_team','sale_crm', 'crm', 'mail','purchase','account','purchase_requisition'],
     # always loaded
     "data": [
         'security/ir.model.access.csv',
@@ -24,7 +24,8 @@
         'views/approval_configuration.xml',
         'views/sale_order_inherit_view.xml',
         'views/project_project.xml',
-        # 'views/qr_code_invoice_view.xml',
+        'views/crm_view.xml',
+        'views/product.xml',
         'reports/purchase_order_report.xml',
         'reports/rfq_custom.xml',
         'reports/shipment.xml',

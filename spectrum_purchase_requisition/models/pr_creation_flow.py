@@ -22,7 +22,7 @@ class PurchaseRequisitionCreation(models.Model):
 
     business_unit = fields.Many2one('business.unit', string='Select BU',required=True)
     project_id = fields.Many2one('project.project',string="Select Project")
-    account_id = fields.Many2one('account.analytic.account',string="Select Natural Account",required=True)
+    account_id = fields.Many2one('account.analytic.account',string="Select Natural Account")
     # budget_task = fields.Many2one('crossovered.budget',string="Select Budget Task",required=True)
     state = fields.Selection(PURCHASE_REQUISITION_STATES,
                              'Status', tracking=True, required=True,
@@ -38,6 +38,20 @@ class PurchaseRequisitionCreation(models.Model):
     first_approved_date = fields.Datetime(string="First Approved On")
     last_approved_by = fields.Many2one('res.users', string="Second Approved By")
     second_approved_date = fields.Datetime(string="Second Approved On")
+    is_natural_account = fields.Boolean()
+
+    @api.onchange('business_unit')
+    def validate_business_unit(self):
+        other_version = self.env.ref("spectrum_purchase_requisition.business_unit_5")
+        if self.business_unit:
+            if self.business_unit == other_version:
+                self.is_natural_account = True
+                self.account_id = False
+            else:
+                self.is_natural_account = False
+
+
+
 
 
 
@@ -362,7 +376,7 @@ class PurchaseRequisitionLineInherited(models.Model):
     _inherit = "purchase.requisition.line"
     uom_id = fields.Many2one(
         'uom.uom', 'Unit of Measure',
-       required=True,
+       readonly=True,
         help="Default unit of measure used for all stock operations.")
     total = fields.Monetary(string="Total",store=True)
     currency_id = fields.Many2one('res.currency', 'Currency', related='requisition_id.currency_id')
@@ -373,6 +387,10 @@ class PurchaseRequisitionLineInherited(models.Model):
         if self.price_unit:
             self.total= self.product_qty * self.price_unit
 
+    @api.onchange('product_id')
+    def validate_unit_of_measure(self):
+        if self.product_id:
+            self.uom_id = self.product_id.uom_id.id
 
     def _prepare_account_move_line(self, move=False):
         self.ensure_one()

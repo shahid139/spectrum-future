@@ -9,3 +9,4 @@ from . import mail_subjects
 from . import approval_confirations
 from . import sale_order_inherit
 from . import project_project
+from . import product
