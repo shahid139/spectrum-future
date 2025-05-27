@@ -70,8 +70,13 @@ class AccountInherited(models.Model):
     @api.depends('date', 'auto_post')
     def _compute_hide_post_button(self):
         for record in self:
-            record.hide_post_button = record.state != 'third_approval' \
-                                      and record.auto_post != 'no' and record.date > fields.Date.context_today(record)
+            if record.move_type == 'in_invoice':
+                record.hide_post_button = record.state != 'third_approval' \
+                                          and record.auto_post != 'no' and record.date > fields.Date.context_today(record)
+            else:
+                record.hide_post_button = record.state != 'draft' \
+                                          or record.auto_post != 'no' and record.date > fields.Date.context_today(
+                    record)
 
     def validate_first_approval(self):
         admin_access = self.env.user.has_group("base.group_system")
