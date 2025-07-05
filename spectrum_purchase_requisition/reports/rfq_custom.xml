@@ -367,6 +367,10 @@
         <template id="custom_report_invoice_document">
             <div class="page">
                 <!-- Title: Tax Invoice -->
+
+                 <h2 style="text-align: left; font-size: 15px;">
+                    Duplicate for Transporter
+                </h2>
                 <h2 style="text-align: center; font-size: 15px;">
                     TAX INVOICE /
                     <span t-esc="o.translate_to_arabic('TAX INVOICE')"/>
@@ -618,9 +622,14 @@
                                             <span t-field="line.price_total" style="font-size: 15px;"/>
                                         </td>
                                         <td style="padding: 8px; text-align: right; border: 1px solid black;">
-                                            -
+                                            <t t-set="vat_amount" t-value="line.price_total - line.price_subtotal"/>
+                                            <span t-esc="vat_amount" style="font-size: 15px;"/>
                                         </td>
-                                        <td style="padding: 8px; text-align: right border: 1px solid black;">-
+                                        <td style="padding: 8px; text-align: right border: 1px solid black;">
+                                            <t t-foreach="line.tax_ids" t-as="tax">
+                                                <span t-esc="tax.name"/>
+                                                <t t-if="not loop.last">, </t>
+                                            </t>
                                         </td>
                                         <td style="padding: 8px; text-align: right; border: 1px solid black;">
                                             <span t-field="line.price_subtotal" style="font-size: 15px;"/>
@@ -661,7 +670,7 @@
                             <table style="width: 100%; border: 1px solid black; font-size: 12px;">
                                 <tr style="border: 1px solid black;">
                                     <th style="padding: 8px; text-align: left; border: 1px solid black;">
-                                        <span t-esc="o.amount_total"/>
+                                        <span t-esc="o.amount_untaxed"/>
                                     </th>
                                     <th style="padding: 8px; text-align: left;">Total Excl. VAT (SA)</th>
                                     <th style="padding: 8px; text-align: right;">
@@ -693,7 +702,7 @@
 
                                 <tr style="border: 1px solid black;">
                                     <th style="padding: 8px; text-align: left; border: 1px solid black;">
-                                        -
+                                        <span t-esc="o.amount_tax"/>
                                     </th>
                                     <th style="padding: 8px; text-align: left;">Total VAT Amount (SAR)</th>
                                     <th style="padding: 8px; text-align: right;">
@@ -704,7 +713,7 @@
 
                                 <tr style="border: 1px solid black;">
                                     <th style="padding: 8px; text-align: left; border: 1px solid black;">
-                                        -
+                                         <span t-esc="o.amount_total"/>
                                     </th>
                                     <th style="padding: 8px; text-align: left;">Total Amount with VAT (SAR)</th>
                                     <th style="padding: 8px; text-align: right;">
@@ -893,14 +902,21 @@
                                     </td>
                                 </tr>
                             </table>
+                            <tr>
+                                <span t-esc="o.translate_to_arabic('Look at the payment terms stated behind')"
+                                              style="text-align: right;"/>
+                                <td style="text-align: left;">
+                                    Look at the payment terms stated behind.
+                                </td>
+                            </tr>
                         </div>
                     </div>
                 </div>
 
                 <div class="footer">
-                    <span style="text-align: left;"
-                          t-esc="'Website : ' + (o.company_id.website if o.company_id.website else '') + ' ' + 'Email Id :' + (o.company_id.email if o.company_id.email else '') + ' ' + 'Phone No :' + (o.company_id.email if o.company_id.email else '')"/>
-                    <span style="text-align: right;">This is system generated invoice, no signature required.
+                    <span style="text-align: left;font-size: 8px;"
+                          t-esc="'Website : ' + (o.company_id.website if o.company_id.website else '') + '  ' + 'Email Id :' + (o.company_id.email if o.company_id.email else '') + '  ' + 'Phone No :' + (o.company_id.email if o.company_id.email else '')"/>
+                    <span style="text-align: right;font-size: 8px;">This is system generated invoice, no signature required.
                     </span>
                 </div>
             </div>

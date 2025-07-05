@@ -13,20 +13,7 @@
                                             <field name="qr_button" invisible="1"/>
                             <field name="qr_page" invisible="1"/>
             </xpath>
-<!--            <xpath expr="//notebook/page[@id='other_tab']" position="after">-->
-<!--                <page string="QR Code"-->
-<!--                      invisible="qr_page != True">-->
-<!--                    <group>-->
-<!--                        <group>-->
-<!--                            <label for="qr"/>-->
-<!--                            <field name="qr" widget='image' nolabel="1"-->
-<!--                                   invisible="state != 'posted'"/>-->
-<!--                            <field name="qr_button" invisible="1"/>-->
-<!--                            <field name="qr_page" invisible="1"/>-->
-<!--                        </group>-->
-<!--                    </group>-->
-<!--                </page>-->
-<!--            </xpath>-->
+
             <xpath expr="header" position="inside">
                 <button name="generate_qr_button" string="Generate QR"
                         type="object"
