@@ -919,8 +919,8 @@
                         <t t-set="website" t-value="o.company_id.website or ''"/>
                         <t t-set="email" t-value="o.company_id.email or ''"/>
                         <t t-set="phone" t-value="o.company_id.phone or ''"/>
-                        Website: <t t-esc="website"/> &nbsp;&nbsp;
-                        Email Id: <t t-esc="email"/> &nbsp;&nbsp;
+                        Website: <t t-esc="website"/> &#160;&#160;
+                        Email Id: <t t-esc="email"/> &#160;&#160;
                         Phone No: <t t-esc="phone"/>
                     </span>
                     <span>
