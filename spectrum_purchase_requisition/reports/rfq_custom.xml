@@ -368,13 +368,16 @@
             <div class="page">
                 <!-- Title: Tax Invoice -->
 
-                 <h2 style="text-align: left; font-size: 15px;">
-                    Duplicate for Transporter
-                </h2>
-                <h2 style="text-align: center; font-size: 15px;">
-                    TAX INVOICE /
-                    <span t-esc="o.translate_to_arabic('TAX INVOICE')"/>
-                </h2>
+                 <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                        <h2 style="text-align: left; font-size: 15px; margin: 0;">
+                            Duplicate for Transporter
+                        </h2>
+                        <h2 style="text-align: center; font-size: 15px; margin: 0; flex-grow: 1;">
+                            TAX INVOICE /
+                            <span t-esc="o.translate_to_arabic('TAX INVOICE')"/>
+                        </h2>
+                 </div>
+
 
                 <!-- Page Content with Border -->
                 <div class="page" style="padding: 20px;">
@@ -622,7 +625,7 @@
                                             <span t-field="line.price_total" style="font-size: 15px;"/>
                                         </td>
                                         <td style="padding: 8px; text-align: right; border: 1px solid black;">
-                                            <t t-set="vat_amount" t-value="line.price_total - line.price_subtotal"/>
+                                            <t t-set="vat_amount" t-value="round(line.price_total - line.price_subtotal, 2)"/>
                                             <span t-esc="vat_amount" style="font-size: 15px;"/>
                                         </td>
                                         <td style="padding: 8px; text-align: right border: 1px solid black;">
@@ -911,12 +914,20 @@
                     </div>
                 </div>
 
-                <div class="footer">
-                    <span style="text-align: left;font-size: 8px;"
-                          t-esc="'Website : ' + (o.company_id.website if o.company_id.website else '') + '  ' + 'Email Id :' + (o.company_id.email if o.company_id.email else '') + '  ' + 'Phone No :' + (o.company_id.email if o.company_id.email else '')"/>
-                    <span style="text-align: right;font-size: 8px;">This is system generated invoice, no signature required.
+                <div class="footer" style="display: flex; justify-content: space-between; font-size: 12px; width: 100%;">
+                    <span>
+                        <t t-set="website" t-value="o.company_id.website or ''"/>
+                        <t t-set="email" t-value="o.company_id.email or ''"/>
+                        <t t-set="phone" t-value="o.company_id.phone or ''"/>
+                        Website: <t t-esc="website"/> &nbsp;&nbsp;
+                        Email Id: <t t-esc="email"/> &nbsp;&nbsp;
+                        Phone No: <t t-esc="phone"/>
+                    </span>
+                    <span>
+                        This is system generated invoice, no signature required.
                     </span>
                 </div>
+
             </div>
 
 
