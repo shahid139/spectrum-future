@@ -365,7 +365,7 @@
 
         <!-- Define the Custom Report Template -->
         <template id="custom_report_invoice_document">
-            <div class="page" style="border: 2px solid black;
+            <div class="page" style="border: 1px solid black;
                                         padding: 1px;doubt
                                         box-sizing: border-box;
                                         height: 100%;">
@@ -477,7 +477,7 @@
 
                         <!-- Right Table (Invoice Information) -->
                         <div style="width: 100%; text-align: right;">
-                            <table style="width: 100%; border: 1px solid black; border-collapse: collapse;">
+                            <table style="width: 100%; border: 1px solid black; border-collapse: collapse; table-layout: fixed;">
                                 <tr>
                                     <td style="padding: 8px; text-align: left;">Invoice No :</td>
                                     <td style="padding: 8px; text-align: left;">
@@ -556,7 +556,7 @@
 
                     </div>
                     <div style="width: 100%; text-align: left;">
-                        <table style="width: 100%; border: 1px solid black; border-collapse: collapse; font-size: 12px;">
+                        <table style="width: 100%; border: 1px solid black; border-collapse: collapse; font-size: 12px;table-layout: fixed;">
                             <thead>
                                 <tr style="background-color: #f2f2f2; border: 1px solid black;">
                                     <th style="padding: 8px; text-align: left; border: 1px solid black;">
