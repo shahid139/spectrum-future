@@ -365,18 +365,22 @@
 
         <!-- Define the Custom Report Template -->
         <template id="custom_report_invoice_document">
-            <div class="page">
+            <div class="page" style="border: 2px solid black;
+                                        padding: 10px;
+                                        box-sizing: border-box;
+                                        height: 100%;">
                 <!-- Title: Tax Invoice -->
 
-                 <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
-                        <h2 style="text-align: left; font-size: 15px; margin: 0;">
-                            Duplicate for Transporter
-                        </h2>
-                        <h2 style="text-align: center; font-size: 15px; margin: 0; flex-grow: 1;">
-                            TAX INVOICE /
-                            <span t-esc="o.translate_to_arabic('TAX INVOICE')"/>
-                        </h2>
-                 </div>
+                <div style="display: flex; align-items: center; width: 100%;">
+                    <h2 style="font-size: 15px; margin: 0; flex: 0 0 auto;">
+                        Duplicate for Transporter
+                    </h2>
+                    <h2 style="font-size: 15px; margin: 0 auto; text-align: center; flex: 1;">
+                        TAX INVOICE /
+                        <span t-esc="o.translate_to_arabic('TAX INVOICE')"/>
+                    </h2>
+                </div>
+
 
 
                 <!-- Page Content with Border -->
