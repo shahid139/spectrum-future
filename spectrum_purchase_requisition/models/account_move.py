@@ -4,6 +4,7 @@ from deep_translator import GoogleTranslator
 import qrcode
 import base64
 from io import BytesIO
+from datetime import datetime, timedelta
 
 def generate_qr_code(value):
     qr = qrcode.QRCode(
@@ -41,6 +42,23 @@ class AccountInherited(models.Model):
     project_id = fields.Many2one('project.project', string="Project")
     qr_image = fields.Binary("QR Code", compute='_generate_qr_code')
     qr_in_report = fields.Boolean('Display QRCode in Report?')
+    first_approved_users = fields.Many2many('res.users', 'first_inv_approval_rel', string="First Approved BY")
+    second_approved_users = fields.Many2many('res.users', 'second_inv_approval_rel', string="Second Approved BY")
+    third_approved_users = fields.Many2many('res.users', 'third_inv_approval_rel', string="Third Approved BY")
+
+    first_approved_by = fields.Many2one('res.users', string="First Approved BY")
+    second_approved_by = fields.Many2one('res.users', string="Second Approved BY")
+    third_approved_by = fields.Many2one('res.users', string="Third Approved BY")
+    first_approval_date = fields.Datetime(string="First Approval date")
+    second_approval_date = fields.Datetime(string="Second Approval date")
+    third_approval_date = fields.Datetime(string="Third Approval date")
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        for vals in vals_list:
+            approval_config = self.env['approval.configuration'].search([('approval_type','=','invoice'),('invoice_approval_levels','=','level_1'),('is_active','=',True)],limit=1)
+            vals['first_approved_users'] = [(6, 0, approval_config.approved_user.ids)]
+        return super(AccountInherited, self).create(vals_list)
 
     def _generate_qr_code(self, silent_errors=False):
         self.qr_image = None
@@ -95,8 +113,24 @@ class AccountInherited(models.Model):
                 f"You do not have permission to approve this Invoice at the first approval level.\n"
                 f"Authorized users for the first approval: {', '.join(approve_users)}"
             )
+        for user in self.first_approved_users:
+            self.with_context(mail_activity_quick_update=True).sudo().activity_schedule(
+                'spectrum_purchase_requisition.account_invoice',
+                user_id=user.id)
+        second_approval_config = self.env['approval.configuration'].search(
+            [
+                ('approval_type', '=', 'invoice'), ('invoice_approval_levels', '=', 'level_2'),
+                ('is_active', '=', True)], limit=1)
+        if not second_approval_config:
+            raise UserError(
+                "Second-level approval configuration is missing. Please configure the appropriate users for Level 2 Invoice approval.")
+        self.write({
+            'state': 'first_approval',
+            'first_approved_by': self.env.user.id,
+            'second_approved_users': [(6, 0, second_approval_config.approved_user.ids)],
+            'first_approval_date': datetime.now()
+        })
 
-        self.write({'state':'first_approval'})
     def validate_second_approval(self):
         admin_access = self.env.user.has_group("base.group_system")
         login_user = self.env.user
@@ -111,7 +145,25 @@ class AccountInherited(models.Model):
                 f"You do not have permission to approve this Invoice at the first approval level.\n"
                 f"Authorized users for the first approval: {', '.join(approve_users)}"
             )
-        self.write({'state':'second_approval'})
+        for user in self.second_approved_users:
+            self.with_context(mail_activity_quick_update=True).sudo().activity_schedule(
+                'spectrum_purchase_requisition.account_invoice',
+                user_id=user.id)
+
+        third_approval_config = self.env['approval.configuration'].search(
+            [
+             ('approval_type', '=', 'invoice'), ('invoice_approval_levels', '=', 'level_3'),
+             ('is_active', '=', True)], limit=1)
+        if not third_approval_config:
+            raise UserError("Third-level approval configuration is missing. Please configure the appropriate users for Level 3 for Invoice approval.")
+        self.write({
+            'state': 'second_approval',
+            'second_approved_by':self.env.user.id,
+            'third_approved_users':[(6, 0, third_approval_config.approved_user.ids)],
+            'second_approval_date': datetime.now()
+
+        })
+
     def validate_third_approval(self):
         admin_access = self.env.user.has_group("base.group_system")
         login_user = self.env.user
@@ -126,7 +178,15 @@ class AccountInherited(models.Model):
                 f"You do not have permission to approve this Invoice at the first approval level.\n"
                 f"Authorized users for the first approval: {', '.join(approve_users)}"
             )
-        self.write({'state':'third_approval'})
+        for user in self.third_approved_users:
+            self.with_context(mail_activity_quick_update=True).sudo().activity_schedule(
+                'spectrum_purchase_requisition.account_invoice',
+                user_id=user.id)
+        self.write({
+            'state': 'third_approval',
+            'third_approved_by': self.env.user.id,
+            'third_approval_date': datetime.now()
+        })
     def translate_to_arabic(self, text):
         translated_text = GoogleTranslator(source='en', target='ar').translate(text)
         return translated_text

@@ -19,10 +19,12 @@
                 <form>
                     <sheet>
                         <group>
+                            <field name="app_type" widget='radio' string="Type"
+                                   options="{'horizontal': true}"/>
                             <group>
                                 <field name="approval_type"/>
                                 <field name="approved_user" widget="many2many_tags"/>
-                                <field name="project_id" widget="many2many_tags" invisible="approval_type == 'so_approval'" required="approval_type != 'so_approval'"/>
+                                <field name="project_id" widget="many2many_tags" invisible="approval_type == 'so_approval' or app_type == 'supply'" required="approval_type != 'so_approval' or app_type != 'project'"/>
                                 <field name="is_active" widget="boolean_toggle"/>
                             </group>
                             <group>

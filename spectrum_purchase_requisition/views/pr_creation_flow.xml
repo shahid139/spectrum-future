@@ -52,7 +52,7 @@
                             invisible="state != 'draft'"
                     />
                     <button name="first_approval" invisible="state != 'draft'" string="Approval 1" type="object"
-                            class="btn-primary"/>
+                            class="btn-primary" />
                     <button name="second_approval" invisible="state != 'first_approval'" string="Approval 2"
                             type="object"
                             class="btn-primary"/>
@@ -117,11 +117,11 @@
                     <page string="Approvals" name="approvals">
                         <group>
                             <group>
-                                <field name="first_approved_user" readonly="1"/>
+                                <field name="first_approved_user" readonly="1" widget="many2many_tags"/>
                                 <field name="first_approved_date" readonly="1"/>
                             </group>
                              <group>
-                                <field name="last_approved_by" readonly="1"/>
+                                <field name="last_approved_by" readonly="1" widget="many2many_tags"/>
                                 <field name="second_approved_date" readonly="1"/>
                             </group>
                         </group>
@@ -150,6 +150,8 @@
         </field>
     </record>
 
+
+
         <menuitem action="purchase.purchase_rfq" id="purchase.menu_purchase_rfq"
                   parent="purchase.menu_procurement_management"
                   sequence="2"/>
@@ -158,6 +160,12 @@
                 id="purchase_requisition.menu_purchase_requisition_pro_mgt"
                 sequence="1"
                 name="Purchase Requisition"
+                parent="purchase.menu_procurement_management"
+                action="purchase_requisition.action_purchase_requisition"/>
+        <menuitem
+                id="purchase_requisition.menu_purchase_requisition_pro_mgt_1"
+                sequence="1"
+                name="Purchase Requisition(Approvals)"
                 parent="purchase.menu_procurement_management"
                 action="purchase_requisition.action_purchase_requisition"/>
 

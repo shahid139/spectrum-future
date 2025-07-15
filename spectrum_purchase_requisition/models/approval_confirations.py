@@ -4,7 +4,7 @@ from odoo import api, fields, models, modules, _
 class ApprovalConfiguration(models.Model):
     _name = "approval.configuration"
     _rec_name = 'approval_type'
-
+    app_type = fields.Selection([('supply','Supply'),('project','Projects')],default='supply')
     approval_type = fields.Selection([('pr_approval','Purchase Requisition'),
                                       ('po_approval','Purchase Order'),
                                       ('so_approval','Sale Order'),
