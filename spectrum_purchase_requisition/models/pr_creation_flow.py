@@ -36,9 +36,11 @@ class PurchaseRequisitionCreation(models.Model):
 
     first_approved_user = fields.Many2one('res.users',string="First Approved By")
     first_approved_date = fields.Datetime(string="First Approved On")
-    last_approved_by = fields.Many2one('res.users', string="Second Approved By")
+    last_approved_by = fields.Many2many('res.users',string="Second Approved By")
     second_approved_date = fields.Datetime(string="Second Approved On")
     is_natural_account = fields.Boolean()
+    first_approved_users = fields.Many2many('res.users', 'first_pr_requisition_rel_1', string="First Approved By")
+    last_approved_users = fields.Many2many('res.users', 'second_pr_requisition_rel_1', string="Second Approved By")
 
     @api.onchange('business_unit')
     def validate_business_unit(self):
@@ -49,11 +51,6 @@ class PurchaseRequisitionCreation(models.Model):
                 self.account_id = False
             else:
                 self.is_natural_account = False
-
-
-
-
-
 
     @api.depends('invoice_ids','purchase_ids.invoice_ids')
     def _compute_invoice_status(self):
@@ -272,7 +269,9 @@ class PurchaseRequisitionCreation(models.Model):
             # Get the sequence value
             vals['name'] = self.env['ir.sequence'].with_company(company_id).next_by_code('purchase.requisition.code')
 
-        # Call the super method with updated vals_list
+            # Call the super method with updated vals_list
+            approval_config = self.env['approval.configuration'].search([('approval_type','=','pr_approval'),('pr_approval_levels','=','level_1'),('is_active','=',True)],limit=1)
+            vals['first_approved_users'] = [(6, 0, approval_config.approved_user.ids)]
         return super(PurchaseRequisitionCreation, self).create(vals_list)
 
     @api.onchange('currency_id','vendor_id')
@@ -307,7 +306,7 @@ class PurchaseRequisitionCreation(models.Model):
         if not self.line_ids:
             raise UserError(_("You cannot confirm agreement '%s' because there is no product line.", self.name))
         login_user = self.env.user
-        approval_config = self.env['approval.configuration'].search([('project_id','in',self.project_id.id),('approval_type','=','pr_approval'),('pr_approval_levels','=','level_1'),('approved_user','in',login_user.id),('is_active','=',True)],limit=1)
+        approval_config = self.env['approval.configuration'].search([('app_type','=','project'),('project_id','in',self.project_id.id),('approval_type','=','pr_approval'),('pr_approval_levels','=','level_1'),('approved_user','in',login_user.id),('is_active','=',True)],limit=1)
         approve_users = [v.name for v in approval_config.approved_user]
         if not approval_config and not admin_access:
             raise UserError(
@@ -330,12 +329,23 @@ class PurchaseRequisitionCreation(models.Model):
                     },
                 }
             }
-
             return sticky_notify
+        for user in self.first_approved_user:
+            self.with_context(mail_activity_quick_update=True).sudo().activity_schedule(
+                'spectrum_purchase_requisition.pr_requisition_request',
+                user_id=user.id)
+
+        second_approval_config = self.env['approval.configuration'].search(
+            [
+             ('approval_type', '=', 'pr_approval'), ('pr_approval_levels', '=', 'level_2'),
+             ('is_active', '=', True)], limit=1)
+        if not second_approval_config:
+            raise UserError("Second-level approval configuration is missing. Please configure the appropriate users for Level 2 Purchase Requisition approval.")
         self.write({
             'state_blanket_order': 'first_approval',
             'state':'first_approval',
-            'first_approved_user':login_user.id,
+            'first_approved_user':self.env.user.id,
+            'last_approved_users':[(6, 0, second_approval_config.approved_user.ids)],
             'first_approved_date':datetime.now()
         })
 
@@ -343,7 +353,7 @@ class PurchaseRequisitionCreation(models.Model):
         admin_access = self.env.user.has_group("base.group_system")
         login_user = self.env.user
         approval_config = self.env['approval.configuration'].search(
-            [('project_id','in',self.project_id.id),('approval_type', '=', 'pr_approval'), ('pr_approval_levels', '=', 'level_2'),
+            [('app_type','=','project'),('project_id','in',self.project_id.id),('approval_type', '=', 'pr_approval'), ('pr_approval_levels', '=', 'level_2'),
              ('approved_user', 'in', login_user.id), ('is_active', '=', True)], limit=1)
         approve_users = [v.name for v in approval_config.approved_user]
         if not approval_config and not admin_access:
@@ -351,10 +361,14 @@ class PurchaseRequisitionCreation(models.Model):
                 f"You do not have permission to approve this Purchase Requisition at the first approval level.\n"
                 f"Authorized users for the first approval: {', '.join(approve_users)}"
             )
+        for user in self.last_approved_by:
+            self.with_context(mail_activity_quick_update=True).sudo().activity_schedule(
+                'spectrum_purchase_requisition.pr_requisition_request',
+                user_id=user.id)
         self.write({
             'state':'second_approval',
+            'last_approved_by': self.env.user.id,
             'state_blanket_order':'second_approval',
-            'last_approved_by':self.env.user.id,
             'second_approved_date':datetime.now()
         })
 

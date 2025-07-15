@@ -30,6 +30,11 @@ class SaleOrderInherited(models.Model):
     final_approval_date = fields.Datetime(string="Final Approval date")
     sequence = fields.Char(default=lambda self: _('New'))
 
+    first_approved_users = fields.Many2many('res.users','first_so_approval_rel', string="First Approved BY")
+    second_approved_users = fields.Many2many('res.users','second_so_approval_rel', string="Second Approved BY")
+    third_approved_users = fields.Many2many('res.users', 'third_so_approval_rel',string="Third Approved BY")
+    last_approved_users = fields.Many2many('res.users', 'fourth_so_approval_rel',string="Last Approved By")
+
 
     @api.model_create_multi
     def create(self, vals_list):
@@ -49,6 +54,10 @@ class SaleOrderInherited(models.Model):
                     'sale.order.1', sequence_date=seq_date
                 ) or _("New")
                 vals['name'] = "Sales Quotation"
+            approval_config = self.env['approval.configuration'].search(
+                [('approval_type', '=', 'so_approval'), ('so_approval_levels', '=', 'level_1'),
+                 ('is_active', '=', True)], limit=1)
+            vals['first_approved_users'] = [(6, 0, approval_config.approved_user.ids)]
         return super(SaleOrderInherited, self).create(vals_list)
 
     def action_confirm(self):
@@ -111,9 +120,21 @@ class SaleOrderInherited(models.Model):
                 f"You do not have permission to approve this Sale Order at the first approval level.\n"
                 f"Authorized users for the first approval: {', '.join(approve_users)}"
             )
+        for user in self.first_approved_users:
+            self.with_context(mail_activity_quick_update=True).sudo().activity_schedule(
+                'spectrum_purchase_requisition.sale_order_request',
+                user_id=user.id)
+        second_approval_config = self.env['approval.configuration'].search(
+            [
+                ('approval_type', '=', 'so_approval'), ('so_approval_levels', '=', 'level_2'),
+                ('is_active', '=', True)], limit=1)
+        if not second_approval_config:
+            raise UserError(
+                "Second-level approval configuration is missing. Please configure the appropriate users for Level 2 Sale Order approval.")
         self.write({
             'state': 'first_approval',
             'first_approved_by':self.env.user.id,
+            'second_approved_users':[(6, 0, second_approval_config.approved_user.ids)],
             'first_approval_date':datetime.now()
         })
 
@@ -129,9 +150,21 @@ class SaleOrderInherited(models.Model):
                 f"You do not have permission to approve this Sale Order at the second approval level.\n"
                 f"Authorized users for the first approval: {', '.join(approve_users)}"
             )
+        for user in self.second_approved_users:
+            self.with_context(mail_activity_quick_update=True).sudo().activity_schedule(
+                'spectrum_purchase_requisition.sale_order_request',
+                user_id=user.id)
+
+        third_approval_config = self.env['approval.configuration'].search(
+            [
+             ('approval_type', '=', 'so_approval'), ('so_approval_levels', '=', 'level_3'),
+             ('is_active', '=', True)], limit=1)
+        if not third_approval_config:
+            raise UserError("Third-level approval configuration is missing. Please configure the appropriate users for Level 3 Sale Order approval.")
         self.write({
             'state': 'second_approval',
             'second_approved_by':self.env.user.id,
+            'third_approved_users':[(6, 0, third_approval_config.approved_user.ids)],
             'second_approval_date': datetime.now()
 
         })
@@ -148,9 +181,22 @@ class SaleOrderInherited(models.Model):
                 f"You do not have permission to approve this Sale Order at the Third approval level.\n"
                 f"Authorized users for the first approval: {', '.join(approve_users)}"
             )
+        for user in self.third_approved_users:
+            self.with_context(mail_activity_quick_update=True).sudo().activity_schedule(
+                'spectrum_purchase_requisition.sale_order_request',
+                user_id=user.id)
+
+        fourth_approval_config = self.env['approval.configuration'].search(
+            [
+             ('approval_type', '=', 'so_approval'), ('so_approval_levels', '=', 'level_4'),
+             ('is_active', '=', True)], limit=1)
+        if not fourth_approval_config:
+            raise UserError("Forth-level approval configuration is missing. Please configure the appropriate users for Level 4 Sale Order approval.")
+
         self.write({
             'state': 'third_approval',
             'third_approved_by': self.env.user.id,
+            'last_approved_users': [(6, 0, fourth_approval_config.approved_user.ids)],
             'third_approval_date': datetime.now()
         })
 
@@ -166,7 +212,10 @@ class SaleOrderInherited(models.Model):
                 f"You do not have permission to approve this Sale Order at the Third approval level.\n"
                 f"Authorized users for the first approval: {', '.join(approve_users)}"
             )
-
+        for user in self.last_approved_users:
+            self.with_context(mail_activity_quick_update=True).sudo().activity_schedule(
+                'spectrum_purchase_requisition.sale_order_request',
+                user_id=user.id)
         self.write({
             'state': 'fourth_approval',
             'last_approved_by': self.env.user.id,

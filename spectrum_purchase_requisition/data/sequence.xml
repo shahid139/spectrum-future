@@ -38,5 +38,28 @@
         <field name="padding">5</field>
         <field name="company_id" eval="False"/>
     </record>
+
+        <record id="pr_requisition_request" model="mail.activity.type">
+        <field name="name">Purchase Requisition Request</field>
+        <field name="icon">fa-dollar</field>
+         <field name="res_model">purchase.requisition</field>
+    </record>
+        <record id="purchase_order_request" model="mail.activity.type">
+        <field name="name">Purchase Order Request</field>
+        <field name="icon">fa-dollar</field>
+         <field name="res_model">purchase.order</field>
+    </record>
+        <record id="sale_order_request" model="mail.activity.type">
+        <field name="name">Sale Order Request</field>
+        <field name="icon">fa-dollar</field>
+         <field name="res_model">sale.order</field>
+    </record>
+         <record id="account_invoice" model="mail.activity.type">
+        <field name="name">Invoice</field>
+        <field name="icon">fa-dollar</field>
+         <field name="res_model">account.move</field>
+    </record>
+
+
     </data>
 </odoo>

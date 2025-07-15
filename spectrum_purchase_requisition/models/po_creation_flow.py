@@ -35,6 +35,8 @@ class PurchaseOrderInherited(models.Model):
     pr_type_text = fields.Text()
     first_approved_by = fields.Many2one('res.users',string="First Approved BY")
     last_approved_by = fields.Many2one('res.users', string="Last Approved By")
+    first_approved_users = fields.Many2many('res.users', 'first_po_request_rel_1', string="First Approved BY")
+    last_approved_users = fields.Many2many('res.users', 'second_po_request_rel_1', string="Last Approved By")
     final_approval_date = fields.Datetime(string="Final Approval date")
     first_approval_date = fields.Datetime(string="First Approval date")
 
@@ -69,14 +71,17 @@ class PurchaseOrderInherited(models.Model):
                 vals['name'] = "Purchase Quotation"
             vals, partner_vals = self._write_partner_values(vals)
             partner_vals_list.append(partner_vals)
+            approval_config = self.env['approval.configuration'].search(
+                [('approval_type', '=', 'po_approval'), ('po_approval_levels', '=', 'level_1'),
+                 ('is_active', '=', True)],
+                limit=1)
+            vals['first_approved_users'] = [(6, 0, approval_config.approved_user.ids)]
             orders |= super(PurchaseOrderInherited, self_comp).create(vals)
         for order, partner_vals in zip(orders, partner_vals_list):
             if partner_vals:
                 order.sudo().write(partner_vals)  # Because the purchase user doesn't have write on `res.partner`
+
         return orders
-
-
-
 
     @api.onchange('partner_id')
     def get_vendor_details(self):
@@ -220,9 +225,22 @@ class PurchaseOrderInherited(models.Model):
                 f"You do not have permission to approve this Purchase Order at the first approval level.\n"
                 f"Authorized users for the first approval: {', '.join(approve_users)}"
             )
+        for user in self.first_approved_by:
+            self.with_context(mail_activity_quick_update=True).sudo().activity_schedule(
+                'spectrum_purchase_requisition.purchase_order_request',
+                user_id=user.id)
+
+        second_approval_config = self.env['approval.configuration'].search(
+            [
+                ('approval_type', '=', 'po_approval'), ('po_approval_levels', '=', 'level_2'),
+                ('is_active', '=', True)], limit=1)
+        if not second_approval_config:
+            raise UserError(
+                "Second-level approval configuration is missing. Please configure the appropriate users for Level 2 Purchase Requisition approval.")
         self.write({
             'state': 'first_approval',
             'first_approved_by':self.env.user.id,
+            'last_approved_users' :[(6, 0, second_approval_config.approved_user.ids)],
             'first_approval_date':datetime.now()
         })
 
@@ -238,6 +256,10 @@ class PurchaseOrderInherited(models.Model):
                 f"You do not have permission to approve this Purchase Order at the second approval level.\n"
                 f"Authorized users for the first approval: {', '.join(approve_users)}"
             )
+        for user in self.last_approved_by:
+            self.with_context(mail_activity_quick_update=True).sudo().activity_schedule(
+                'spectrum_purchase_requisition.purchase_order_request',
+                user_id=user.id)
         self.write({
             'state': 'second_approval',
             'last_approved_by':self.env.user.id,
