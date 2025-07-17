@@ -62,61 +62,69 @@
                     <br/>
                     <div class="page">
                         <h2 style="text-align: center;">
-                            <span t-if="env.context.get('proforma', False) or is_pro_forma">Pro-Forma Invoice # </span>
-                            <span t-elif="doc.state in ['draft','sent']">Sale Quotation </span>
-                            <span t-else="">Sale Order </span>
+                            <span t-if="env.context.get('proforma', False) or is_pro_forma">Pro-Forma Invoice #</span>
+                            <span t-elif="doc.state in ['draft','sent']">Sale Quotation</span>
+                            <span t-else="">Sale Order</span>
                             <span t-field="doc.name">SO0000</span>
                         </h2>
-<!--                        <h2 style="text-align: center;">Quotation</h2>-->
+                        <!--                        <h2 style="text-align: center;">Quotation</h2>-->
 
                         <table class="table table-sm" style="width: 100%; border-collapse: collapse;">
                             <tr>
                                 <td style="width: 50%; padding: 4px;">
-                                    <strong>Customer : </strong>
-                                    <span t-esc="doc.partner_id.name" />
+                                    <strong>Customer :</strong>
+                                    <span t-esc="doc.partner_id.name"/>
                                 </td>
                                 <td style="width: 50%; padding: 4px;">
-                                    <strong>Quotation No : </strong>
+                                    <strong>Quotation No :</strong>
                                     <span t-esc="doc.name"/>
                                 </td>
                             </tr>
                             <tr>
                                 <td style="width: 50%;padding: 4px;">
-                                    <strong>Contact : </strong>
+                                    <strong>Contact :</strong>
                                     <span t-esc="doc.partner_id.phone or ''"/>
                                 </td>
                                 <td style="width: 50%;padding: 4px;">
-                                    <strong>Quotation Date : </strong>
+                                    <strong>Quotation Date :</strong>
                                     <span t-esc="doc.date_order.strftime('%d-%m-%Y')"/>
                                 </td>
                             </tr>
                             <tr>
                                 <td style="width: 50%;padding: 4px;">
-                                    <strong>Location : </strong>
+                                    <strong>Location :</strong>
                                     <span t-esc="doc.partner_id.city or ''"/>
                                 </td>
-                                <td style="width: 50%;padding: 4px;">
-                                    <strong>Delivery Date : </strong>
-                                    <span t-esc="doc.commitment_date.strftime('%d-%m-%Y')"/>
+                                <td style="width: 50%; padding: 4px;">
+                                    <strong>Delivery Date :</strong>
+                                    <br/>
+                                    <t t-if="doc.commitment_date">
+                                        <span style="width: 50%; padding: 4px;"
+                                              t-esc="doc.commitment_date.strftime('%d-%m-%Y')"/>
+                                    </t>
+                                    <t t-else="">
+                                        <span style="width: 50%; padding: 4px;">-</span>
+                                    </t>
                                 </td>
+
                             </tr>
                             <tr>
                                 <td style="width: 50%;padding: 4px;">
-                                    <strong>Customer ID : </strong>
+                                    <strong>Customer ID :</strong>
                                     <span t-esc="doc.partner_id.ref or ''"/>
                                 </td>
                                 <td style="width: 50%;padding: 4px;">
-                                    <strong>Sales Rep : </strong>
+                                    <strong>Sales Rep :</strong>
                                     <span t-esc="doc.user_id.name or ''"/>
                                 </td>
                             </tr>
                             <tr>
                                 <td style="width: 50%;padding: 4px;">
-                                    <strong>VAT No : </strong>
+                                    <strong>VAT No :</strong>
                                     <span t-esc="doc.partner_id.vat or ''"/>
                                 </td>
                                 <td style="width: 50%;padding: 4px;">
-                                    <strong>Reference No : </strong>
+                                    <strong>Reference No :</strong>
                                     <span t-esc="doc.client_order_ref or ''"/>
                                 </td>
                             </tr>
