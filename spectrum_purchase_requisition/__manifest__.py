@@ -30,6 +30,7 @@
         'reports/rfq_custom.xml',
         'reports/shipment.xml',
         'reports/purchase_requisition.xml',
+        'reports/sale_order.xml',
 
     ],
 
