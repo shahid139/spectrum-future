@@ -63,7 +63,7 @@
                     <div class="page">
                         <h2 style="text-align: center;">
                             <span t-if="env.context.get('proforma', False) or is_pro_forma">Pro-Forma Invoice #</span>
-                            <span t-elif="doc.state in ['draft','sent']">Sale Quotation</span>
+                            <span t-elif="doc.state in ['draft','sent','first_approval','second_approval','third_approval','fourth_approval']">Sale Quotation</span>
                             <span t-else="">Sale Order</span>
                             <span t-field="doc.name">SO0000</span>
                         </h2>
