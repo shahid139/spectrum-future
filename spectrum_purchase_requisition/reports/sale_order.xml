@@ -63,9 +63,16 @@
                     <div class="page">
                         <h2 style="text-align: center;">
                             <span t-if="env.context.get('proforma', False) or is_pro_forma">Pro-Forma Invoice #</span>
-                            <span t-elif="doc.state in ['draft','sent','first_approval','second_approval','third_approval','fourth_approval']">Sale Quotation</span>
-                            <span t-else="">Sale Order</span>
-                            <span t-field="doc.name">SO0000</span>
+
+                            <t t-if="doc.state in ['draft','sent','first_approval','second_approval','third_approval','fourth_approval']">
+                                <span>Sale Quotation (<t t-esc="doc.sequence"/>)
+                                </span>
+                            </t>
+                            <t t-else="">
+                                <span>Sale Order (<t t-esc="doc.name"/>)
+                                </span>
+                            </t>
+
                         </h2>
                         <!--                        <h2 style="text-align: center;">Quotation</h2>-->
 
@@ -77,7 +84,14 @@
                                 </td>
                                 <td style="width: 50%; padding: 4px;">
                                     <strong>Quotation No :</strong>
-                                    <span t-esc="doc.name"/>
+                                    <t t-if="doc.state in ['draft','sent','first_approval','second_approval','third_approval','fourth_approval']">
+                                        <span><t t-esc="doc.sequence"/>
+                                        </span>
+                                    </t>
+                                    <t t-else="">
+                                        <span><t t-esc="doc.name"/>
+                                        </span>
+                                    </t>
                                 </td>
                             </tr>
                             <tr>
@@ -102,9 +116,7 @@
                                         <span style="width: 50%; padding: 4px;"
                                               t-esc="doc.commitment_date.strftime('%d-%m-%Y')"/>
                                     </t>
-                                    <t t-else="">
-                                        <span style="width: 50%; padding: 4px;">-</span>
-                                    </t>
+
                                 </td>
 
                             </tr>
