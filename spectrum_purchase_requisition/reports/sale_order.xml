@@ -239,26 +239,28 @@
                         <table class="table mt16" style="width: 40%; float: right;">
                             <tr>
                                 <td>
-                                    <strong>UnTaxed Amount:</strong>
+                                    <strong>UnTaxed Amount  </strong>
                                 </td>
                                 <td>
-                                    <t t-esc="doc.amount_untaxed"/>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    <strong>Total VAT:</strong>
-                                </td>
-                                <td>
-                                    <t t-esc="doc.amount_tax"/>
+                                    <span t-field="doc.amount_untaxed" t-options='{"widget": "monetary", "display_currency": doc.currency_id}'/>
+
                                 </td>
                             </tr>
                             <tr>
                                 <td>
-                                    <strong>Total Amount Due:</strong>
+                                    <strong>Total VAT  </strong>
                                 </td>
                                 <td>
-                                    <t t-esc="doc.amount_total"/>
+                                    <span t-field="doc.amount_tax" t-options='{"widget": "monetary", "display_currency": doc.currency_id}'/>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <strong>Total Amount  </strong>
+                                </td>
+                                <td>
+                                    <span t-field="doc.amount_total" t-options='{"widget": "monetary", "display_currency": doc.currency_id}'/>
+
                                 </td>
                             </tr>
                         </table>
