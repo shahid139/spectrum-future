@@ -225,7 +225,7 @@ class PurchaseOrderInherited(models.Model):
                 f"You do not have permission to approve this Purchase Order at the first approval level.\n"
                 f"Authorized users for the first approval: {', '.join(approve_users)}"
             )
-        for user in self.first_approved_by:
+        for user in self.first_approved_users:
             self.with_context(mail_activity_quick_update=True).sudo().activity_schedule(
                 'spectrum_purchase_requisition.purchase_order_request',
                 user_id=user.id)
@@ -256,7 +256,7 @@ class PurchaseOrderInherited(models.Model):
                 f"You do not have permission to approve this Purchase Order at the second approval level.\n"
                 f"Authorized users for the first approval: {', '.join(approve_users)}"
             )
-        for user in self.last_approved_by:
+        for user in self.last_approved_users:
             self.with_context(mail_activity_quick_update=True).sudo().activity_schedule(
                 'spectrum_purchase_requisition.purchase_order_request',
                 user_id=user.id)
