@@ -330,7 +330,7 @@ class PurchaseRequisitionCreation(models.Model):
                 }
             }
             return sticky_notify
-        for user in self.first_approved_user:
+        for user in self.first_approved_users:
             self.with_context(mail_activity_quick_update=True).sudo().activity_schedule(
                 'spectrum_purchase_requisition.pr_requisition_request',
                 user_id=user.id)
@@ -361,7 +361,7 @@ class PurchaseRequisitionCreation(models.Model):
                 f"You do not have permission to approve this Purchase Requisition at the first approval level.\n"
                 f"Authorized users for the first approval: {', '.join(approve_users)}"
             )
-        for user in self.last_approved_by:
+        for user in self.last_approved_users:
             self.with_context(mail_activity_quick_update=True).sudo().activity_schedule(
                 'spectrum_purchase_requisition.pr_requisition_request',
                 user_id=user.id)
