@@ -58,28 +58,49 @@ class PurchaseOrderInherited(models.Model):
     def create(self, vals_list):
         orders = self.browse()
         partner_vals_list = []
+        approval_config = self.env['approval.configuration'].search(
+            [('approval_type', '=', 'po_approval'), ('po_approval_levels', '=', 'level_1'), ('is_active', '=', True)],
+            limit=1
+        )
+
         for vals in vals_list:
             company_id = vals.get('company_id', self.default_get(['company_id'])['company_id'])
-            # Ensures default picking type and currency are taken from the right company.
             self_comp = self.with_company(company_id)
+
+            # Generate sequence
             if vals.get('sequence', 'New') == 'New':
                 seq_date = None
                 if 'date_order' in vals:
                     seq_date = fields.Datetime.context_timestamp(self, fields.Datetime.to_datetime(vals['date_order']))
-                vals['sequence'] = self_comp.env['ir.sequence'].next_by_code('purchase.order.1',
-                                                                       sequence_date=seq_date) or '/'
+                vals['sequence'] = self_comp.env['ir.sequence'].next_by_code(
+                    'purchase.order.1', sequence_date=seq_date) or '/'
                 vals['name'] = "Purchase Quotation"
+
+            # Handle partner values
             vals, partner_vals = self._write_partner_values(vals)
             partner_vals_list.append(partner_vals)
-            approval_config = self.env['approval.configuration'].search(
-                [('approval_type', '=', 'po_approval'), ('po_approval_levels', '=', 'level_1'),
-                 ('is_active', '=', True)],
-                limit=1)
-            vals['first_approved_users'] = [(6, 0, approval_config.approved_user.ids)]
-            orders |= super(PurchaseOrderInherited, self_comp).create(vals)
+
+            # Assign approval users
+            if approval_config:
+                vals['first_approved_users'] = [(6, 0, approval_config.approved_user.ids)]
+
+            # Create the order
+            order = super(PurchaseOrderInherited, self_comp).create(vals)
+            orders |= order
+
+            # Schedule activities (now we have a real record!)
+            if approval_config:
+                for user in approval_config.approved_user:
+                    order.with_context(mail_activity_quick_update=True).sudo().activity_schedule(
+                        'spectrum_purchase_requisition.purchase_order_request',
+                        user_id=user.id,
+                        note='Approval required for Purchase Order.'
+                    )
+
+        # Write any partner updates
         for order, partner_vals in zip(orders, partner_vals_list):
             if partner_vals:
-                order.sudo().write(partner_vals)  # Because the purchase user doesn't have write on `res.partner`
+                order.sudo().write(partner_vals)
 
         return orders
 

@@ -262,17 +262,43 @@ class PurchaseRequisitionCreation(models.Model):
 
     @api.model_create_multi
     def create(self, vals_list):
-        # Ensure `company_id` is available in the input values
+        new_records = []
         for vals in vals_list:
-            # Retrieve the company_id from the vals or set a default
             company_id = vals.get('company_id', self.env.company.id)
-            # Get the sequence value
             vals['name'] = self.env['ir.sequence'].with_company(company_id).next_by_code('purchase.requisition.code')
 
-            # Call the super method with updated vals_list
-            approval_config = self.env['approval.configuration'].search([('approval_type','=','pr_approval'),('pr_approval_levels','=','level_1'),('is_active','=',True)],limit=1)
-            vals['first_approved_users'] = [(6, 0, approval_config.approved_user.ids)]
-        return super(PurchaseRequisitionCreation, self).create(vals_list)
+            # Set default approval users
+            approval_config = self.env['approval.configuration'].search([
+                ('approval_type', '=', 'pr_approval'),
+                ('pr_approval_levels', '=', 'level_1'),
+                ('is_active', '=', True)
+            ], limit=1)
+
+            if approval_config:
+                vals['first_approved_users'] = [(6, 0, approval_config.approved_user.ids)]
+
+            new_records.append(vals)
+
+        # Create records first
+        records = super(PurchaseRequisitionCreation, self).create(new_records)
+
+        # Now schedule activities
+        for record in records:
+            approval_config = self.env['approval.configuration'].search([
+                ('approval_type', '=', 'pr_approval'),
+                ('pr_approval_levels', '=', 'level_1'),
+                ('is_active', '=', True)
+            ], limit=1)
+
+            if approval_config:
+                for user in approval_config.approved_user:
+                    record.with_context(mail_activity_quick_update=True).sudo().activity_schedule(
+                        'spectrum_purchase_requisition.pr_requisition_request',
+                        user_id=user.id,
+                        note='Purchase Requisition Approval Request'
+                    )
+
+        return records
 
     @api.onchange('currency_id','vendor_id')
     def validate_currency(self):

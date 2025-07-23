@@ -55,10 +55,30 @@ class AccountInherited(models.Model):
 
     @api.model_create_multi
     def create(self, vals_list):
+        approval_config = self.env['approval.configuration'].search([
+            ('approval_type', '=', 'invoice'),
+            ('invoice_approval_levels', '=', 'level_1'),
+            ('is_active', '=', True)
+        ], limit=1)
+
         for vals in vals_list:
-            approval_config = self.env['approval.configuration'].search([('approval_type','=','invoice'),('invoice_approval_levels','=','level_1'),('is_active','=',True)],limit=1)
-            vals['first_approved_users'] = [(6, 0, approval_config.approved_user.ids)]
-        return super(AccountInherited, self).create(vals_list)
+            if approval_config:
+                vals['first_approved_users'] = [(6, 0, approval_config.approved_user.ids)]
+
+        # Create actual records
+        invoices = super(AccountInherited, self).create(vals_list)
+
+        # Now schedule activities on created invoices
+        if approval_config:
+            for invoice in invoices:
+                for user in approval_config.approved_user:
+                    invoice.with_context(mail_activity_quick_update=True).sudo().activity_schedule(
+                        'spectrum_purchase_requisition.account_invoice',
+                        user_id=user.id,
+                        note='Invoice approval required'
+                    )
+
+        return invoices
 
     def _generate_qr_code(self, silent_errors=False):
         self.qr_image = None
