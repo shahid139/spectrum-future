@@ -35,30 +35,46 @@ class SaleOrderInherited(models.Model):
     third_approved_users = fields.Many2many('res.users', 'third_so_approval_rel',string="Third Approved BY")
     last_approved_users = fields.Many2many('res.users', 'fourth_so_approval_rel',string="Last Approved By")
 
-
     @api.model_create_multi
     def create(self, vals_list):
+        approval_config = self.env['approval.configuration'].search(
+            [('approval_type', '=', 'so_approval'),
+             ('so_approval_levels', '=', 'level_1'),
+             ('is_active', '=', True)],
+            limit=1
+        )
+
         for vals in vals_list:
             if 'company_id' in vals:
                 self = self.with_company(vals['company_id'])
 
-            # If the custom sequence field is missing, create a sequence
             if vals.get('sequence', _("New")) == _("New"):
-                # Use 'date_order' to generate sequence based on the correct date
                 seq_date = fields.Datetime.context_timestamp(
                     self, fields.Datetime.to_datetime(vals['date_order'])
                 ) if 'date_order' in vals else None
 
-                # Replace 'name' with the 'sequence' field to generate sequence number
                 vals['sequence'] = self.env['ir.sequence'].next_by_code(
                     'sale.order.1', sequence_date=seq_date
                 ) or _("New")
                 vals['name'] = "Sales Quotation"
-            approval_config = self.env['approval.configuration'].search(
-                [('approval_type', '=', 'so_approval'), ('so_approval_levels', '=', 'level_1'),
-                 ('is_active', '=', True)], limit=1)
-            vals['first_approved_users'] = [(6, 0, approval_config.approved_user.ids)]
-        return super(SaleOrderInherited, self).create(vals_list)
+
+            if approval_config:
+                vals['first_approved_users'] = [(6, 0, approval_config.approved_user.ids)]
+
+        # Now create the records
+        orders = super(SaleOrderInherited, self).create(vals_list)
+
+        # Now schedule activities on each record
+        if approval_config:
+            for order in orders:
+                for user in approval_config.approved_user:
+                    order.with_context(mail_activity_quick_update=True).sudo().activity_schedule(
+                        'spectrum_purchase_requisition.sale_order_request',
+                        user_id=user.id,
+                        note="Sales Order requires approval"
+                    )
+
+        return orders
 
     def action_confirm(self):
         """ Confirm the given quotation(s) and set their confirmation date.
