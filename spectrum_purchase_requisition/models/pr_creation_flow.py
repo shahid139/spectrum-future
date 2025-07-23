@@ -262,43 +262,17 @@ class PurchaseRequisitionCreation(models.Model):
 
     @api.model_create_multi
     def create(self, vals_list):
-        new_records = []
+        # Ensure `company_id` is available in the input values
         for vals in vals_list:
+            # Retrieve the company_id from the vals or set a default
             company_id = vals.get('company_id', self.env.company.id)
+            # Get the sequence value
             vals['name'] = self.env['ir.sequence'].with_company(company_id).next_by_code('purchase.requisition.code')
 
-            # Set default approval users
-            approval_config = self.env['approval.configuration'].search([
-                ('approval_type', '=', 'pr_approval'),
-                ('pr_approval_levels', '=', 'level_1'),
-                ('is_active', '=', True)
-            ], limit=1)
-
-            if approval_config:
-                vals['first_approved_users'] = [(6, 0, approval_config.approved_user.ids)]
-
-            new_records.append(vals)
-
-        # Create records first
-        records = super(PurchaseRequisitionCreation, self).create(new_records)
-
-        # Now schedule activities
-        for record in records:
-            approval_config = self.env['approval.configuration'].search([
-                ('approval_type', '=', 'pr_approval'),
-                ('pr_approval_levels', '=', 'level_1'),
-                ('is_active', '=', True)
-            ], limit=1)
-
-            if approval_config:
-                for user in approval_config.approved_user:
-                    record.with_context(mail_activity_quick_update=True).sudo().activity_schedule(
-                        'spectrum_purchase_requisition.pr_requisition_request',
-                        user_id=user.id,
-                        note='Purchase Requisition Approval Request'
-                    )
-
-        return records
+            # Call the super method with updated vals_list
+            approval_config = self.env['approval.configuration'].search([('approval_type','=','pr_approval'),('pr_approval_levels','=','level_1'),('is_active','=',True)],limit=1)
+            vals['first_approved_users'] = [(6, 0, approval_config.approved_user.ids)]
+        return super(PurchaseRequisitionCreation, self).create(vals_list)
 
     @api.onchange('currency_id','vendor_id')
     def validate_currency(self):
@@ -332,13 +306,32 @@ class PurchaseRequisitionCreation(models.Model):
         if not self.line_ids:
             raise UserError(_("You cannot confirm agreement '%s' because there is no product line.", self.name))
         login_user = self.env.user
-        approval_config = self.env['approval.configuration'].search([('app_type','=','project'),('project_id','in',self.project_id.id),('approval_type','=','pr_approval'),('pr_approval_levels','=','level_1'),('approved_user','in',login_user.id),('is_active','=',True)],limit=1)
-        approve_users = [v.name for v in approval_config.approved_user]
+        # Base domain
+        base_domain = [
+            ('approval_type', '=', 'pr_approval'),
+            ('pr_approval_levels', '=', 'level_1'),
+            ('approved_user', 'in', login_user.id),
+            ('is_active', '=', True)
+        ]
+
+        # First search: try without project filter
+        approval_config = self.env['approval.configuration'].search(base_domain, limit=1)
+
+        # If found and app_type is project, refine with project filter
+        if approval_config and approval_config.app_type == 'project':
+            refined_domain = base_domain + [('project_id', '=', self.project_id.id)]
+            approval_config = self.env['approval.configuration'].search(refined_domain, limit=1)
+
+        # Prepare approval user names safely (only if config found)
+        approve_users = [user.name for user in approval_config.approved_user] if approval_config else []
+
+        # If no valid config and not admin, block
         if not approval_config and not admin_access:
             raise UserError(
-                f"You do not have permission to approve this Purchase Requisition at the first approval level.\n"
+                "You do not have permission to approve this Purchase Requisition at the first approval level.\n"
                 f"Authorized users for the first approval: {', '.join(approve_users)}"
             )
+
         requisition_amount = sum([v.total for v in self.line_ids])
         available_amount = self.project_id.available_budget
         if requisition_amount >= available_amount:
@@ -356,7 +349,7 @@ class PurchaseRequisitionCreation(models.Model):
                 }
             }
             return sticky_notify
-        for user in self.first_approved_users:
+        for user in self.first_approved_user:
             self.with_context(mail_activity_quick_update=True).sudo().activity_schedule(
                 'spectrum_purchase_requisition.pr_requisition_request',
                 user_id=user.id)
@@ -376,28 +369,46 @@ class PurchaseRequisitionCreation(models.Model):
         })
 
     def second_approval(self):
+        self.ensure_one()
         admin_access = self.env.user.has_group("base.group_system")
         login_user = self.env.user
-        approval_config = self.env['approval.configuration'].search(
-            [('app_type','=','project'),('project_id','in',self.project_id.id),('approval_type', '=', 'pr_approval'), ('pr_approval_levels', '=', 'level_2'),
-             ('approved_user', 'in', login_user.id), ('is_active', '=', True)], limit=1)
-        approve_users = [v.name for v in approval_config.approved_user]
+        approval_model = self.env['approval.configuration']
+        # Base domain for level 2 approval
+        base_domain = [
+            ('approval_type', '=', 'pr_approval'),
+            ('pr_approval_levels', '=', 'level_2'),
+            ('approved_user', 'in', login_user.id),
+            ('is_active', '=', True)
+        ]
+        # First: global or generic (non-project) config
+        approval_config = approval_model.search(base_domain, limit=1)
+
+        # If found and it's project-specific, refine with project_id
+        if approval_config and approval_config.app_type == 'project':
+            refined_domain = base_domain + [('app_type', '=', 'project'), ('project_id', '=', self.project_id.id)]
+            approval_config = approval_model.search(refined_domain, limit=1)
+
+        # Safely prepare list of allowed users (even if no config)
+        approve_users = [u.name for u in approval_config.approved_user] if approval_config else []
+
         if not approval_config and not admin_access:
             raise UserError(
-                f"You do not have permission to approve this Purchase Requisition at the first approval level.\n"
-                f"Authorized users for the first approval: {', '.join(approve_users)}"
+                "You do not have permission to approve this Purchase Requisition at the second approval level.\n"
+                f"Authorized users for the second approval: {', '.join(approve_users)}"
             )
+        # Schedule activities for third-level (if any), or just notify
         for user in self.last_approved_users:
             self.with_context(mail_activity_quick_update=True).sudo().activity_schedule(
                 'spectrum_purchase_requisition.pr_requisition_request',
-                user_id=user.id)
+                user_id=user.id,
+                note='Please review the Purchase Requisition for final approval.'
+            )
         self.write({
-            'state':'second_approval',
-            'last_approved_by': self.env.user.id,
-            'state_blanket_order':'second_approval',
-            'second_approved_date':datetime.now()
+            'state': 'second_approval',
+            'state_blanket_order': 'second_approval',
+            'last_approved_by': login_user.id,
+            'second_approved_date': fields.Datetime.now()
         })
-
 
     def action_in_progress(self):
         if self.type_id.quantity_copy == 'none' and self.vendor_id:

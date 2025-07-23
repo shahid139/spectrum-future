@@ -120,122 +120,222 @@ class SaleOrderInherited(models.Model):
 
         return True
 
-
-
     def first_approval(self):
+        self.ensure_one()
         admin_access = self.env.user.has_group("base.group_system")
+
         if not self.order_line:
             raise UserError("No products found in the order. Please add products before proceeding.")
+
         login_user = self.env.user
-        approval_config = self.env['approval.configuration'].search(
-            [('approval_type', '=', 'so_approval'), ('so_approval_levels', '=', 'level_1'),
-             ('approved_user', 'in', login_user.id), ('is_active', '=', True)], limit=1)
-        approve_users = [v.name for v in approval_config.approved_user]
+        approval_model = self.env['approval.configuration']
+
+        # Base domain for level 1 approval
+        base_domain = [
+            ('approval_type', '=', 'so_approval'),
+            ('so_approval_levels', '=', 'level_1'),
+            ('approved_user', 'in', login_user.id),
+            ('is_active', '=', True)
+        ]
+
+        # Try to find config without project filter
+        approval_config = approval_model.search(base_domain, limit=1)
+
+        # If found and it's project-specific, refine with project_id
+        if approval_config and approval_config.app_type == 'project':
+            refined_domain = base_domain + [('app_type', '=', 'project'), ('project_id', '=', self.project_id.id)]
+            approval_config = approval_model.search(refined_domain, limit=1)
+
+        approve_users = [user.name for user in approval_config.approved_user] if approval_config else []
+
         if not approval_config and not admin_access:
             raise UserError(
-                f"You do not have permission to approve this Sale Order at the first approval level.\n"
+                "You do not have permission to approve this Sale Order at the first approval level.\n"
                 f"Authorized users for the first approval: {', '.join(approve_users)}"
             )
+
+        # Schedule activity for second-level approvers
         for user in self.first_approved_users:
             self.with_context(mail_activity_quick_update=True).sudo().activity_schedule(
                 'spectrum_purchase_requisition.sale_order_request',
-                user_id=user.id)
-        second_approval_config = self.env['approval.configuration'].search(
-            [
-                ('approval_type', '=', 'so_approval'), ('so_approval_levels', '=', 'level_2'),
-                ('is_active', '=', True)], limit=1)
+                user_id=user.id,
+                note="Please review the Sale Order for second-level approval."
+            )
+
+        # Look for level 2 approval config
+        second_approval_config = approval_model.search([
+            ('approval_type', '=', 'so_approval'),
+            ('so_approval_levels', '=', 'level_2'),
+            ('is_active', '=', True)
+        ], limit=1)
+
         if not second_approval_config:
             raise UserError(
                 "Second-level approval configuration is missing. Please configure the appropriate users for Level 2 Sale Order approval.")
+
         self.write({
             'state': 'first_approval',
-            'first_approved_by':self.env.user.id,
-            'second_approved_users':[(6, 0, second_approval_config.approved_user.ids)],
-            'first_approval_date':datetime.now()
+            'first_approved_by': login_user.id,
+            'second_approved_users': [(6, 0, second_approval_config.approved_user.ids)],
+            'first_approval_date': fields.Datetime.now()
         })
 
     def second_approval(self):
+        self.ensure_one()
         admin_access = self.env.user.has_group("base.group_system")
         login_user = self.env.user
-        approval_config = self.env['approval.configuration'].search(
-            [('approval_type', '=', 'so_approval'), ('so_approval_levels', '=', 'level_2'),
-             ('approved_user', 'in', login_user.id), ('is_active', '=', True)], limit=1)
-        approve_users = [v.name for v in approval_config.approved_user]
+        approval_model = self.env['approval.configuration']
+
+        # Base domain for level 2 approval
+        base_domain = [
+            ('approval_type', '=', 'so_approval'),
+            ('so_approval_levels', '=', 'level_2'),
+            ('approved_user', 'in', login_user.id),
+            ('is_active', '=', True)
+        ]
+
+        # Try to find level 2 approval config (generic)
+        approval_config = approval_model.search(base_domain, limit=1)
+
+        # If config exists and is project-specific, refine by project
+        if approval_config and approval_config.app_type == 'project':
+            refined_domain = base_domain + [('app_type', '=', 'project'), ('project_id', '=', self.project_id.id)]
+            approval_config = approval_model.search(refined_domain, limit=1)
+
+        # Safe fallback for displaying user names
+        approve_users = [user.name for user in approval_config.approved_user] if approval_config else []
+
         if not approval_config and not admin_access:
             raise UserError(
-                f"You do not have permission to approve this Sale Order at the second approval level.\n"
-                f"Authorized users for the first approval: {', '.join(approve_users)}"
+                "You do not have permission to approve this Sale Order at the second approval level.\n"
+                f"Authorized users for the second approval: {', '.join(approve_users)}"
             )
+
+        # Schedule activity for next level approvers
         for user in self.second_approved_users:
             self.with_context(mail_activity_quick_update=True).sudo().activity_schedule(
                 'spectrum_purchase_requisition.sale_order_request',
-                user_id=user.id)
+                user_id=user.id,
+                note="Please review the Sale Order for third-level approval."
+            )
 
-        third_approval_config = self.env['approval.configuration'].search(
-            [
-             ('approval_type', '=', 'so_approval'), ('so_approval_levels', '=', 'level_3'),
-             ('is_active', '=', True)], limit=1)
+        # Fetch third-level approval config
+        third_approval_config = approval_model.search([
+            ('approval_type', '=', 'so_approval'),
+            ('so_approval_levels', '=', 'level_3'),
+            ('is_active', '=', True)
+        ], limit=1)
+
         if not third_approval_config:
-            raise UserError("Third-level approval configuration is missing. Please configure the appropriate users for Level 3 Sale Order approval.")
+            raise UserError(
+                "Third-level approval configuration is missing. Please configure the appropriate users for Level 3 Sale Order approval.")
+
+        # Write changes
         self.write({
             'state': 'second_approval',
-            'second_approved_by':self.env.user.id,
-            'third_approved_users':[(6, 0, third_approval_config.approved_user.ids)],
-            'second_approval_date': datetime.now()
-
+            'second_approved_by': login_user.id,
+            'third_approved_users': [(6, 0, third_approval_config.approved_user.ids)],
+            'second_approval_date': fields.Datetime.now()
         })
 
     def third_approval(self):
+        self.ensure_one()
         admin_access = self.env.user.has_group("base.group_system")
         login_user = self.env.user
-        approval_config = self.env['approval.configuration'].search(
-            [('approval_type', '=', 'so_approval'), ('so_approval_levels', '=', 'level_3'),
-             ('approved_user', 'in', login_user.id), ('is_active', '=', True)], limit=1)
-        approve_users = [v.name for v in approval_config.approved_user]
+        approval_model = self.env['approval.configuration']
+
+        # Base domain for level 3
+        base_domain = [
+            ('approval_type', '=', 'so_approval'),
+            ('so_approval_levels', '=', 'level_3'),
+            ('approved_user', 'in', login_user.id),
+            ('is_active', '=', True)
+        ]
+
+        approval_config = approval_model.search(base_domain, limit=1)
+
+        # Refine with project_id if project-specific
+        if approval_config and approval_config.app_type == 'project':
+            refined_domain = base_domain + [('app_type', '=', 'project'), ('project_id', '=', self.project_id.id)]
+            approval_config = approval_model.search(refined_domain, limit=1)
+
+        # Safe user list
+        approve_users = [user.name for user in approval_config.approved_user] if approval_config else []
+
         if not approval_config and not admin_access:
             raise UserError(
-                f"You do not have permission to approve this Sale Order at the Third approval level.\n"
-                f"Authorized users for the first approval: {', '.join(approve_users)}"
+                "You do not have permission to approve this Sale Order at the third approval level.\n"
+                f"Authorized users for the third approval: {', '.join(approve_users)}"
             )
+
+        # Schedule activity for final approvers
         for user in self.third_approved_users:
             self.with_context(mail_activity_quick_update=True).sudo().activity_schedule(
                 'spectrum_purchase_requisition.sale_order_request',
-                user_id=user.id)
+                user_id=user.id,
+                note="Please review the Sale Order for final approval."
+            )
 
-        fourth_approval_config = self.env['approval.configuration'].search(
-            [
-             ('approval_type', '=', 'so_approval'), ('so_approval_levels', '=', 'level_4'),
-             ('is_active', '=', True)], limit=1)
+        # Level 4 (final) approval config
+        fourth_approval_config = approval_model.search([
+            ('approval_type', '=', 'so_approval'),
+            ('so_approval_levels', '=', 'level_4'),
+            ('is_active', '=', True)
+        ], limit=1)
+
         if not fourth_approval_config:
-            raise UserError("Forth-level approval configuration is missing. Please configure the appropriate users for Level 4 Sale Order approval.")
+            raise UserError(
+                "Fourth-level approval configuration is missing. Please configure the appropriate users for Level 4 Sale Order approval.")
 
         self.write({
             'state': 'third_approval',
-            'third_approved_by': self.env.user.id,
+            'third_approved_by': login_user.id,
             'last_approved_users': [(6, 0, fourth_approval_config.approved_user.ids)],
-            'third_approval_date': datetime.now()
+            'third_approval_date': fields.Datetime.now()
         })
 
     def fourth_approval(self):
+        self.ensure_one()
         admin_access = self.env.user.has_group("base.group_system")
         login_user = self.env.user
-        approval_config = self.env['approval.configuration'].search(
-            [('approval_type', '=', 'so_approval'), ('so_approval_levels', '=', 'level_4'),
-             ('approved_user', 'in', login_user.id), ('is_active', '=', True)], limit=1)
-        approve_users = [v.name for v in approval_config.approved_user]
+        approval_model = self.env['approval.configuration']
+
+        # Base domain for level 4 approval
+        base_domain = [
+            ('approval_type', '=', 'so_approval'),
+            ('so_approval_levels', '=', 'level_4'),
+            ('approved_user', 'in', login_user.id),
+            ('is_active', '=', True)
+        ]
+
+        approval_config = approval_model.search(base_domain, limit=1)
+
+        # If approval is project-specific, refine with project_id
+        if approval_config and approval_config.app_type == 'project':
+            refined_domain = base_domain + [('app_type', '=', 'project'), ('project_id', '=', self.project_id.id)]
+            approval_config = approval_model.search(refined_domain, limit=1)
+
+        # Avoid crash if config missing
+        approve_users = [user.name for user in approval_config.approved_user] if approval_config else []
+
         if not approval_config and not admin_access:
             raise UserError(
-                f"You do not have permission to approve this Sale Order at the Third approval level.\n"
-                f"Authorized users for the first approval: {', '.join(approve_users)}"
+                "You do not have permission to approve this Sale Order at the fourth approval level.\n"
+                f"Authorized users for the fourth approval: {', '.join(approve_users)}"
             )
+
+        # Schedule activity (if needed) for final stage — maybe confirmation/closure
         for user in self.last_approved_users:
             self.with_context(mail_activity_quick_update=True).sudo().activity_schedule(
                 'spectrum_purchase_requisition.sale_order_request',
-                user_id=user.id)
+                user_id=user.id,
+                note="Final approval recorded. Proceed with order processing."
+            )
+
         self.write({
             'state': 'fourth_approval',
-            'last_approved_by': self.env.user.id,
-            'final_approval_date': datetime.now()
+            'last_approved_by': login_user.id,
+            'final_approval_date': fields.Datetime.now()
         })
 
     def _can_be_confirmed(self):

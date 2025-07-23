@@ -117,96 +117,135 @@ class AccountInherited(models.Model):
                     record)
 
     def validate_first_approval(self):
+        self.ensure_one()
         admin_access = self.env.user.has_group("base.group_system")
         if not self.invoice_date:
             raise UserError('The Bill/Refund date is required to validate this document.')
-        login_user = self.env.user
 
-        domain = [('approval_type', '=', 'invoice'), ('invoice_approval_levels', '=', 'level_1'),
-             ('approved_user', 'in', login_user.id), ('is_active', '=', True)]
+        login_user = self.env.user
+        domain = [
+            ('approval_type', '=', 'invoice'),
+            ('invoice_approval_levels', '=', 'level_1'),
+            ('approved_user', 'in', login_user.id),
+            ('is_active', '=', True)
+        ]
         if self.project_id:
-            domain.append(('project_id', 'in', self.project_id.id))
+            domain.append(('project_id', '=', self.project_id.id))
+
         approval_config = self.env['approval.configuration'].search(domain, limit=1)
-        approve_users = [v.name for v in approval_config.approved_user]
+        approve_users = [v.name for v in approval_config.approved_user] if approval_config else []
+
         if not approval_config and not admin_access:
             raise UserError(
                 f"You do not have permission to approve this Invoice at the first approval level.\n"
-                f"Authorized users for the first approval: {', '.join(approve_users)}"
+                f"Authorized users: {', '.join(approve_users)}"
             )
+
         for user in self.first_approved_users:
             self.with_context(mail_activity_quick_update=True).sudo().activity_schedule(
                 'spectrum_purchase_requisition.account_invoice',
-                user_id=user.id)
-        second_approval_config = self.env['approval.configuration'].search(
-            [
-                ('approval_type', '=', 'invoice'), ('invoice_approval_levels', '=', 'level_2'),
-                ('is_active', '=', True)], limit=1)
+                user_id=user.id
+            )
+
+        second_approval_config = self.env['approval.configuration'].search([
+            ('approval_type', '=', 'invoice'),
+            ('invoice_approval_levels', '=', 'level_2'),
+            ('is_active', '=', True)
+        ], limit=1)
+
         if not second_approval_config:
             raise UserError(
-                "Second-level approval configuration is missing. Please configure the appropriate users for Level 2 Invoice approval.")
+                "Second-level approval configuration is missing. Please configure the appropriate users for Level 2 Invoice approval."
+            )
+
         self.write({
             'state': 'first_approval',
-            'first_approved_by': self.env.user.id,
+            'first_approved_by': login_user.id,
             'second_approved_users': [(6, 0, second_approval_config.approved_user.ids)],
-            'first_approval_date': datetime.now()
+            'first_approval_date': fields.Datetime.now()
         })
 
     def validate_second_approval(self):
+        self.ensure_one()
         admin_access = self.env.user.has_group("base.group_system")
         login_user = self.env.user
-        domain = [('approval_type', '=', 'invoice'), ('invoice_approval_levels', '=', 'level_2'),
-                  ('approved_user', 'in', login_user.id), ('is_active', '=', True)]
+
+        domain = [
+            ('approval_type', '=', 'invoice'),
+            ('invoice_approval_levels', '=', 'level_2'),
+            ('approved_user', 'in', login_user.id),
+            ('is_active', '=', True)
+        ]
         if self.project_id:
-            domain.append(('project_id', 'in', self.project_id.id))
+            domain.append(('project_id', '=', self.project_id.id))
+
         approval_config = self.env['approval.configuration'].search(domain, limit=1)
-        approve_users = [v.name for v in approval_config.approved_user]
+        approve_users = [v.name for v in approval_config.approved_user] if approval_config else []
+
         if not approval_config and not admin_access:
             raise UserError(
-                f"You do not have permission to approve this Invoice at the first approval level.\n"
-                f"Authorized users for the first approval: {', '.join(approve_users)}"
+                f"You do not have permission to approve this Invoice at the second approval level.\n"
+                f"Authorized users: {', '.join(approve_users)}"
             )
+
         for user in self.second_approved_users:
             self.with_context(mail_activity_quick_update=True).sudo().activity_schedule(
                 'spectrum_purchase_requisition.account_invoice',
-                user_id=user.id)
+                user_id=user.id
+            )
 
-        third_approval_config = self.env['approval.configuration'].search(
-            [
-             ('approval_type', '=', 'invoice'), ('invoice_approval_levels', '=', 'level_3'),
-             ('is_active', '=', True)], limit=1)
+        third_approval_config = self.env['approval.configuration'].search([
+            ('approval_type', '=', 'invoice'),
+            ('invoice_approval_levels', '=', 'level_3'),
+            ('is_active', '=', True)
+        ], limit=1)
+
         if not third_approval_config:
-            raise UserError("Third-level approval configuration is missing. Please configure the appropriate users for Level 3 for Invoice approval.")
+            raise UserError(
+                "Third-level approval configuration is missing. Please configure Level 3 Invoice approvers.")
+
         self.write({
             'state': 'second_approval',
-            'second_approved_by':self.env.user.id,
-            'third_approved_users':[(6, 0, third_approval_config.approved_user.ids)],
-            'second_approval_date': datetime.now()
-
+            'second_approved_by': login_user.id,
+            'third_approved_users': [(6, 0, third_approval_config.approved_user.ids)],
+            'second_approval_date': fields.Datetime.now()
         })
 
     def validate_third_approval(self):
+        self.ensure_one()
         admin_access = self.env.user.has_group("base.group_system")
         login_user = self.env.user
-        domain = [('approval_type', '=', 'invoice'), ('invoice_approval_levels', '=', 'level_2'),
-                  ('approved_user', 'in', login_user.id), ('is_active', '=', True)]
+
+        domain = [
+            ('approval_type', '=', 'invoice'),
+            ('invoice_approval_levels', '=', 'level_3'),
+            ('approved_user', 'in', login_user.id),
+            ('is_active', '=', True)
+        ]
         if self.project_id:
-            domain.append(('project_id', 'in', self.project_id.id))
+            domain.append(('project_id', '=', self.project_id.id))
+
         approval_config = self.env['approval.configuration'].search(domain, limit=1)
-        approve_users = [v.name for v in approval_config.approved_user]
+        approve_users = [v.name for v in approval_config.approved_user] if approval_config else []
+
         if not approval_config and not admin_access:
             raise UserError(
-                f"You do not have permission to approve this Invoice at the first approval level.\n"
-                f"Authorized users for the first approval: {', '.join(approve_users)}"
+                f"You do not have permission to approve this Invoice at the third approval level.\n"
+                f"Authorized users: {', '.join(approve_users)}"
             )
+
         for user in self.third_approved_users:
             self.with_context(mail_activity_quick_update=True).sudo().activity_schedule(
                 'spectrum_purchase_requisition.account_invoice',
-                user_id=user.id)
+                user_id=user.id
+            )
+
         self.write({
             'state': 'third_approval',
-            'third_approved_by': self.env.user.id,
-            'third_approval_date': datetime.now()
+            'third_approved_by': login_user.id,
+            'third_approval_date': fields.Datetime.now()
         })
+
     def translate_to_arabic(self, text):
         translated_text = GoogleTranslator(source='en', target='ar').translate(text)
         return translated_text
