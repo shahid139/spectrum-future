@@ -235,57 +235,95 @@ class PurchaseOrderInherited(models.Model):
                 rec.lumps_um = final_percentage
 
     def first_approval(self):
+        self.ensure_one()
         admin_access = self.env.user.has_group("base.group_system")
         login_user = self.env.user
-        approval_config = self.env['approval.configuration'].search(
-            [('project_id','in',self.requisition_id.project_id.id),('approval_type', '=', 'po_approval'), ('po_approval_levels', '=', 'level_1'),
-             ('approved_user', 'in', login_user.id), ('is_active', '=', True)], limit=1)
-        approve_users = [v.name for v in approval_config.approved_user]
-        if not approval_config and  not admin_access:
+
+        # Search for level 1 PO approval config
+        approval_domain = [
+            ('approval_type', '=', 'po_approval'),
+            ('po_approval_levels', '=', 'level_1'),
+            ('approved_user', 'in', login_user.id),
+            ('is_active', '=', True)
+        ]
+
+        # If project_id exists on requisition, add it
+        if self.requisition_id and self.requisition_id.project_id:
+            approval_domain.append(('project_id', '=', self.requisition_id.project_id.id))
+
+        approval_config = self.env['approval.configuration'].search(approval_domain, limit=1)
+        approve_users = [v.name for v in approval_config.approved_user] if approval_config else []
+
+        if not approval_config and not admin_access:
             raise UserError(
-                f"You do not have permission to approve this Purchase Order at the first approval level.\n"
-                f"Authorized users for the first approval: {', '.join(approve_users)}"
+                "You do not have permission to approve this Purchase Order at the first approval level.\n"
+                f"Authorized users: {', '.join(approve_users)}"
             )
+
+        # Schedule approval activity
         for user in self.first_approved_users:
             self.with_context(mail_activity_quick_update=True).sudo().activity_schedule(
                 'spectrum_purchase_requisition.purchase_order_request',
-                user_id=user.id)
+                user_id=user.id,
+                note="Please review the Purchase Order for second-level approval."
+            )
 
-        second_approval_config = self.env['approval.configuration'].search(
-            [
-                ('approval_type', '=', 'po_approval'), ('po_approval_levels', '=', 'level_2'),
-                ('is_active', '=', True)], limit=1)
+        # Fetch level 2 approval config
+        second_approval_config = self.env['approval.configuration'].search([
+            ('approval_type', '=', 'po_approval'),
+            ('po_approval_levels', '=', 'level_2'),
+            ('is_active', '=', True)
+        ], limit=1)
+
         if not second_approval_config:
             raise UserError(
-                "Second-level approval configuration is missing. Please configure the appropriate users for Level 2 Purchase Requisition approval.")
+                "Second-level approval configuration is missing. Please configure the appropriate users for Level 2 Purchase Order approval."
+            )
+
         self.write({
             'state': 'first_approval',
-            'first_approved_by':self.env.user.id,
-            'last_approved_users' :[(6, 0, second_approval_config.approved_user.ids)],
-            'first_approval_date':datetime.now()
+            'first_approved_by': login_user.id,
+            'last_approved_users': [(6, 0, second_approval_config.approved_user.ids)],
+            'first_approval_date': fields.Datetime.now()
         })
 
     def second_approval(self):
+        self.ensure_one()
         admin_access = self.env.user.has_group("base.group_system")
         login_user = self.env.user
-        approval_config = self.env['approval.configuration'].search(
-            [('project_id','in',self.requisition_id.project_id.id),('approval_type', '=', 'po_approval'), ('po_approval_levels', '=', 'level_2'),
-             ('approved_user', 'in', login_user.id), ('is_active', '=', True)], limit=1)
-        approve_users = [v.name for v in approval_config.approved_user]
+
+        # Search for level 2 PO approval config
+        approval_domain = [
+            ('approval_type', '=', 'po_approval'),
+            ('po_approval_levels', '=', 'level_2'),
+            ('approved_user', 'in', login_user.id),
+            ('is_active', '=', True)
+        ]
+
+        if self.requisition_id and self.requisition_id.project_id:
+            approval_domain.append(('project_id', '=', self.requisition_id.project_id.id))
+
+        approval_config = self.env['approval.configuration'].search(approval_domain, limit=1)
+        approve_users = [v.name for v in approval_config.approved_user] if approval_config else []
+
         if not approval_config and not admin_access:
             raise UserError(
-                f"You do not have permission to approve this Purchase Order at the second approval level.\n"
-                f"Authorized users for the first approval: {', '.join(approve_users)}"
+                "You do not have permission to approve this Purchase Order at the second approval level.\n"
+                f"Authorized users: {', '.join(approve_users)}"
             )
+
+        # Final step – activity scheduling (optional, if more levels exist)
         for user in self.last_approved_users:
             self.with_context(mail_activity_quick_update=True).sudo().activity_schedule(
                 'spectrum_purchase_requisition.purchase_order_request',
-                user_id=user.id)
+                user_id=user.id,
+                note="Final approval completed. You may proceed with order processing."
+            )
+
         self.write({
             'state': 'second_approval',
-            'last_approved_by':self.env.user.id,
-            'final_approval_date': datetime.now()
-
+            'last_approved_by': login_user.id,
+            'final_approval_date': fields.Datetime.now()
         })
 
     def button_confirm(self):
