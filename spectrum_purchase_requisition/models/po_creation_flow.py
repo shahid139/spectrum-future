@@ -102,6 +102,20 @@ class PurchaseOrderInherited(models.Model):
             if partner_vals:
                 order.sudo().write(partner_vals)
 
+        # Fetch level 2 approval config
+        second_approval_config = self.env['approval.configuration'].search([
+            ('approval_type', '=', 'po_approval'),
+            ('po_approval_levels', '=', 'level_2'),
+            ('is_active', '=', True)
+        ], limit=1)
+
+        if second_approval_config:
+            for order in orders:
+                order.last_approved_users = [(6, 0, second_approval_config.approved_user.ids)]
+        else:
+            raise UserError(
+                "Second-level approval configuration is missing. Please configure the appropriate users for Level 2 Purchase Order approval."
+            )
         return orders
 
     @api.onchange('partner_id')
@@ -268,22 +282,9 @@ class PurchaseOrderInherited(models.Model):
                 note="Please review the Purchase Order for second-level approval."
             )
 
-        # Fetch level 2 approval config
-        second_approval_config = self.env['approval.configuration'].search([
-            ('approval_type', '=', 'po_approval'),
-            ('po_approval_levels', '=', 'level_2'),
-            ('is_active', '=', True)
-        ], limit=1)
-
-        if not second_approval_config:
-            raise UserError(
-                "Second-level approval configuration is missing. Please configure the appropriate users for Level 2 Purchase Order approval."
-            )
-
         self.write({
             'state': 'first_approval',
             'first_approved_by': login_user.id,
-            'last_approved_users': [(6, 0, second_approval_config.approved_user.ids)],
             'first_approval_date': fields.Datetime.now()
         })
 
@@ -311,7 +312,6 @@ class PurchaseOrderInherited(models.Model):
                 "You do not have permission to approve this Purchase Order at the second approval level.\n"
                 f"Authorized users: {', '.join(approve_users)}"
             )
-
 
         self.write({
             'state': 'second_approval',

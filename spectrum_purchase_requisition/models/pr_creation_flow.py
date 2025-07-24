@@ -36,11 +36,46 @@ class PurchaseRequisitionCreation(models.Model):
 
     first_approved_user = fields.Many2one('res.users',string="First Approved By")
     first_approved_date = fields.Datetime(string="First Approved On")
-    last_approved_by = fields.Many2many('res.users',string="Second Approved By")
+    last_approved_by = fields.Many2one('res.users',string="Second Approved By")
     second_approved_date = fields.Datetime(string="Second Approved On")
     is_natural_account = fields.Boolean()
     first_approved_users = fields.Many2many('res.users', 'first_pr_requisition_rel_1', string="First Approved By")
     last_approved_users = fields.Many2many('res.users', 'second_pr_requisition_rel_1', string="Second Approved By")
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        for vals in vals_list:
+            company_id = vals.get('company_id', self.env.company.id)
+            vals['name'] = self.env['ir.sequence'].with_company(company_id).next_by_code('purchase.requisition.code')
+
+            approval_config = self.env['approval.configuration'].search(
+                [('approval_type', '=', 'pr_approval'), ('pr_approval_levels', '=', 'level_1'),
+                 ('is_active', '=', True)], limit=1)
+            vals['first_approved_users'] = [(6, 0, approval_config.approved_user.ids)]
+
+            second_approval_config = self.env['approval.configuration'].search(
+                [('approval_type', '=', 'pr_approval'), ('pr_approval_levels', '=', 'level_2'),
+                 ('is_active', '=', True)], limit=1)
+            if second_approval_config:
+                vals['last_approved_users'] = [(6, 0, second_approval_config.approved_user.ids)]
+            else:
+                raise UserError("Second-level approval configuration is missing.")
+
+        records = super(PurchaseRequisitionCreation, self).create(vals_list)
+
+        # Now notify approvers
+        for record in records:
+            for user in record.first_approved_users:
+                self.env['mail.activity'].create({
+                    'res_model_id': self.env['ir.model']._get_id('purchase.requisition'),
+                    'res_id': record.id,
+                    'activity_type_id': self.env.ref('mail.mail_activity_data_todo').id,
+                    'user_id': user.id,
+                    'summary': 'Approval Required',
+                    'note': 'Please review and approve this Purchase Requisition.',
+                    'date_deadline': fields.Date.today(),
+                })
+        return records
 
     @api.onchange('business_unit')
     def validate_business_unit(self):
@@ -260,19 +295,7 @@ class PurchaseRequisitionCreation(models.Model):
         else:
             return create_sticky_notification('Validation', 'Funds Available for PR creation.')
 
-    @api.model_create_multi
-    def create(self, vals_list):
-        # Ensure `company_id` is available in the input values
-        for vals in vals_list:
-            # Retrieve the company_id from the vals or set a default
-            company_id = vals.get('company_id', self.env.company.id)
-            # Get the sequence value
-            vals['name'] = self.env['ir.sequence'].with_company(company_id).next_by_code('purchase.requisition.code')
 
-            # Call the super method with updated vals_list
-            approval_config = self.env['approval.configuration'].search([('approval_type','=','pr_approval'),('pr_approval_levels','=','level_1'),('is_active','=',True)],limit=1)
-            vals['first_approved_users'] = [(6, 0, approval_config.approved_user.ids)]
-        return super(PurchaseRequisitionCreation, self).create(vals_list)
 
     @api.onchange('currency_id','vendor_id')
     def validate_currency(self):
@@ -354,17 +377,12 @@ class PurchaseRequisitionCreation(models.Model):
                 'spectrum_purchase_requisition.pr_requisition_request',
                 user_id=user.id)
 
-        second_approval_config = self.env['approval.configuration'].search(
-            [
-             ('approval_type', '=', 'pr_approval'), ('pr_approval_levels', '=', 'level_2'),
-             ('is_active', '=', True)], limit=1)
-        if not second_approval_config:
-            raise UserError("Second-level approval configuration is missing. Please configure the appropriate users for Level 2 Purchase Requisition approval.")
+
         self.write({
             'state_blanket_order': 'first_approval',
             'state':'first_approval',
             'first_approved_user':self.env.user.id,
-            'last_approved_users':[(6, 0, second_approval_config.approved_user.ids)],
+
             'first_approved_date':datetime.now()
         })
 

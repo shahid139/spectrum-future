@@ -37,7 +37,8 @@ class SaleOrderInherited(models.Model):
 
     @api.model_create_multi
     def create(self, vals_list):
-        approval_config = self.env['approval.configuration'].search(
+        approval_model = self.env['approval.configuration']
+        approval_config = approval_model.search(
             [('approval_type', '=', 'so_approval'),
              ('so_approval_levels', '=', 'level_1'),
              ('is_active', '=', True)],
@@ -73,7 +74,18 @@ class SaleOrderInherited(models.Model):
                         user_id=user.id,
                         note="Sales Order requires approval"
                     )
-
+        # Look for level 2 approval config
+        second_approval_config = approval_model.search([
+                    ('approval_type', '=', 'so_approval'),
+                    ('so_approval_levels', '=', 'level_2'),
+                    ('is_active', '=', True)
+                ], limit=1)
+        if second_approval_config:
+            for order in orders:
+                order.second_approved_users = [(6, 0, second_approval_config.approved_user.ids)]
+        else:
+            raise UserError(
+                "Second-level approval configuration is missing. Please configure the appropriate users for Level 2 Sale Order approval.")
         return orders
 
     def action_confirm(self):
@@ -161,22 +173,20 @@ class SaleOrderInherited(models.Model):
                 user_id=user.id,
                 note="Please review the Sale Order for second-level approval."
             )
-
-        # Look for level 2 approval config
-        second_approval_config = approval_model.search([
+        # Fetch third-level approval config
+        third_approval_config = approval_model.search([
             ('approval_type', '=', 'so_approval'),
-            ('so_approval_levels', '=', 'level_2'),
+            ('so_approval_levels', '=', 'level_3'),
             ('is_active', '=', True)
         ], limit=1)
 
-        if not second_approval_config:
+        if not third_approval_config:
             raise UserError(
-                "Second-level approval configuration is missing. Please configure the appropriate users for Level 2 Sale Order approval.")
-
+                "Third-level approval configuration is missing. Please configure the appropriate users for Level 3 Sale Order approval.")
         self.write({
             'state': 'first_approval',
             'first_approved_by': login_user.id,
-            'second_approved_users': [(6, 0, second_approval_config.approved_user.ids)],
+            'third_approved_users': [(6, 0, third_approval_config.approved_user.ids)],
             'first_approval_date': fields.Datetime.now()
         })
 
@@ -219,22 +229,13 @@ class SaleOrderInherited(models.Model):
                 note="Please review the Sale Order for third-level approval."
             )
 
-        # Fetch third-level approval config
-        third_approval_config = approval_model.search([
-            ('approval_type', '=', 'so_approval'),
-            ('so_approval_levels', '=', 'level_3'),
-            ('is_active', '=', True)
-        ], limit=1)
 
-        if not third_approval_config:
-            raise UserError(
-                "Third-level approval configuration is missing. Please configure the appropriate users for Level 3 Sale Order approval.")
 
         # Write changes
         self.write({
             'state': 'second_approval',
             'second_approved_by': login_user.id,
-            'third_approved_users': [(6, 0, third_approval_config.approved_user.ids)],
+
             'second_approval_date': fields.Datetime.now()
         })
 
