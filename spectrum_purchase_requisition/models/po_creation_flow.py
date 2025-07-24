@@ -261,7 +261,7 @@ class PurchaseOrderInherited(models.Model):
             )
 
         # Schedule approval activity
-        for user in self.first_approved_users:
+        for user in self.last_approved_users:
             self.with_context(mail_activity_quick_update=True).sudo().activity_schedule(
                 'spectrum_purchase_requisition.purchase_order_request',
                 user_id=user.id,
@@ -312,13 +312,6 @@ class PurchaseOrderInherited(models.Model):
                 f"Authorized users: {', '.join(approve_users)}"
             )
 
-        # Final step – activity scheduling (optional, if more levels exist)
-        for user in self.last_approved_users:
-            self.with_context(mail_activity_quick_update=True).sudo().activity_schedule(
-                'spectrum_purchase_requisition.purchase_order_request',
-                user_id=user.id,
-                note="Final approval completed. You may proceed with order processing."
-            )
 
         self.write({
             'state': 'second_approval',

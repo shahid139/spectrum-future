@@ -155,7 +155,7 @@ class SaleOrderInherited(models.Model):
             )
 
         # Schedule activity for second-level approvers
-        for user in self.first_approved_users:
+        for user in self.second_approved_users:
             self.with_context(mail_activity_quick_update=True).sudo().activity_schedule(
                 'spectrum_purchase_requisition.sale_order_request',
                 user_id=user.id,
@@ -212,7 +212,7 @@ class SaleOrderInherited(models.Model):
             )
 
         # Schedule activity for next level approvers
-        for user in self.second_approved_users:
+        for user in self.third_approved_users:
             self.with_context(mail_activity_quick_update=True).sudo().activity_schedule(
                 'spectrum_purchase_requisition.sale_order_request',
                 user_id=user.id,
@@ -269,7 +269,7 @@ class SaleOrderInherited(models.Model):
             )
 
         # Schedule activity for final approvers
-        for user in self.third_approved_users:
+        for user in self.last_approved_users:
             self.with_context(mail_activity_quick_update=True).sudo().activity_schedule(
                 'spectrum_purchase_requisition.sale_order_request',
                 user_id=user.id,
@@ -323,15 +323,6 @@ class SaleOrderInherited(models.Model):
                 "You do not have permission to approve this Sale Order at the fourth approval level.\n"
                 f"Authorized users for the fourth approval: {', '.join(approve_users)}"
             )
-
-        # Schedule activity (if needed) for final stage — maybe confirmation/closure
-        for user in self.last_approved_users:
-            self.with_context(mail_activity_quick_update=True).sudo().activity_schedule(
-                'spectrum_purchase_requisition.sale_order_request',
-                user_id=user.id,
-                note="Final approval recorded. Proceed with order processing."
-            )
-
         self.write({
             'state': 'fourth_approval',
             'last_approved_by': login_user.id,

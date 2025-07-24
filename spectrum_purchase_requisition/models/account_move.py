@@ -141,7 +141,7 @@ class AccountInherited(models.Model):
                 f"Authorized users: {', '.join(approve_users)}"
             )
 
-        for user in self.first_approved_users:
+        for user in self.second_approved_users:
             self.with_context(mail_activity_quick_update=True).sudo().activity_schedule(
                 'spectrum_purchase_requisition.account_invoice',
                 user_id=user.id
@@ -188,7 +188,7 @@ class AccountInherited(models.Model):
                 f"Authorized users: {', '.join(approve_users)}"
             )
 
-        for user in self.second_approved_users:
+        for user in self.third_approved_users:
             self.with_context(mail_activity_quick_update=True).sudo().activity_schedule(
                 'spectrum_purchase_requisition.account_invoice',
                 user_id=user.id
@@ -232,12 +232,6 @@ class AccountInherited(models.Model):
             raise UserError(
                 f"You do not have permission to approve this Invoice at the third approval level.\n"
                 f"Authorized users: {', '.join(approve_users)}"
-            )
-
-        for user in self.third_approved_users:
-            self.with_context(mail_activity_quick_update=True).sudo().activity_schedule(
-                'spectrum_purchase_requisition.account_invoice',
-                user_id=user.id
             )
 
         self.write({

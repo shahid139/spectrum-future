@@ -331,25 +331,25 @@ class PurchaseRequisitionCreation(models.Model):
                 "You do not have permission to approve this Purchase Requisition at the first approval level.\n"
                 f"Authorized users for the first approval: {', '.join(approve_users)}"
             )
-
-        requisition_amount = sum([v.total for v in self.line_ids])
-        available_amount = self.project_id.available_budget
-        if requisition_amount >= available_amount:
-            self.state = 'cancel'
-            sticky_notify = {
-                'type': 'ir.actions.client',
-                'tag': 'display_notification',
-                'params': {
-                    'title': _('Validation'),
-                    'message': 'No Fund Available for PR creation.',
-                    'sticky': False,
-                    'next': {
-                        'type': 'ir.actions.act_window_close'
-                    },
+        if self.project_id:
+            requisition_amount = sum([v.total for v in self.line_ids])
+            available_amount = self.project_id.available_budget
+            if requisition_amount >= available_amount:
+                self.state = 'cancel'
+                sticky_notify = {
+                    'type': 'ir.actions.client',
+                    'tag': 'display_notification',
+                    'params': {
+                        'title': _('Validation'),
+                        'message': 'No Fund Available for PR creation.',
+                        'sticky': False,
+                        'next': {
+                            'type': 'ir.actions.act_window_close'
+                        },
+                    }
                 }
-            }
-            return sticky_notify
-        for user in self.first_approved_user:
+                return sticky_notify
+        for user in self.last_approved_users:
             self.with_context(mail_activity_quick_update=True).sudo().activity_schedule(
                 'spectrum_purchase_requisition.pr_requisition_request',
                 user_id=user.id)
@@ -395,13 +395,6 @@ class PurchaseRequisitionCreation(models.Model):
             raise UserError(
                 "You do not have permission to approve this Purchase Requisition at the second approval level.\n"
                 f"Authorized users for the second approval: {', '.join(approve_users)}"
-            )
-        # Schedule activities for third-level (if any), or just notify
-        for user in self.last_approved_users:
-            self.with_context(mail_activity_quick_update=True).sudo().activity_schedule(
-                'spectrum_purchase_requisition.pr_requisition_request',
-                user_id=user.id,
-                note='Please review the Purchase Requisition for final approval.'
             )
         self.write({
             'state': 'second_approval',
