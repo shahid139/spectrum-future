@@ -77,7 +77,19 @@ class AccountInherited(models.Model):
                         user_id=user.id,
                         note='Invoice approval required'
                     )
+        second_approval_config = self.env['approval.configuration'].search([
+            ('approval_type', '=', 'invoice'),
+            ('invoice_approval_levels', '=', 'level_2'),
+            ('is_active', '=', True)
+        ], limit=1)
 
+        if second_approval_config:
+            for rec in invoices:
+                rec.second_approved_users =  [(6, 0, second_approval_config.approved_user.ids)]
+        else:
+            raise UserError(
+                "Second-level approval configuration is missing. Please configure the appropriate users for Level 2 Invoice approval."
+            )
         return invoices
 
     def _generate_qr_code(self, silent_errors=False):
@@ -146,22 +158,20 @@ class AccountInherited(models.Model):
                 'spectrum_purchase_requisition.account_invoice',
                 user_id=user.id
             )
-
-        second_approval_config = self.env['approval.configuration'].search([
+        third_approval_config = self.env['approval.configuration'].search([
             ('approval_type', '=', 'invoice'),
-            ('invoice_approval_levels', '=', 'level_2'),
+            ('invoice_approval_levels', '=', 'level_3'),
             ('is_active', '=', True)
         ], limit=1)
 
-        if not second_approval_config:
+        if not third_approval_config:
             raise UserError(
-                "Second-level approval configuration is missing. Please configure the appropriate users for Level 2 Invoice approval."
-            )
+                "Third-level approval configuration is missing. Please configure Level 3 Invoice approvers.")
 
         self.write({
             'state': 'first_approval',
             'first_approved_by': login_user.id,
-            'second_approved_users': [(6, 0, second_approval_config.approved_user.ids)],
+            'third_approved_users': [(6, 0, third_approval_config.approved_user.ids)],
             'first_approval_date': fields.Datetime.now()
         })
 
@@ -193,21 +203,9 @@ class AccountInherited(models.Model):
                 'spectrum_purchase_requisition.account_invoice',
                 user_id=user.id
             )
-
-        third_approval_config = self.env['approval.configuration'].search([
-            ('approval_type', '=', 'invoice'),
-            ('invoice_approval_levels', '=', 'level_3'),
-            ('is_active', '=', True)
-        ], limit=1)
-
-        if not third_approval_config:
-            raise UserError(
-                "Third-level approval configuration is missing. Please configure Level 3 Invoice approvers.")
-
         self.write({
             'state': 'second_approval',
             'second_approved_by': login_user.id,
-            'third_approved_users': [(6, 0, third_approval_config.approved_user.ids)],
             'second_approval_date': fields.Datetime.now()
         })
 
